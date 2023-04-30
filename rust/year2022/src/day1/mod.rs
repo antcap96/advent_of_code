@@ -1,9 +1,6 @@
-fn main() {
-    answer();
-}
 
-fn answer() {
-    let data = std::fs::read_to_string("input").expect("Failed to read file");
+pub fn answer() {
+    let data = std::fs::read_to_string("year2022/src/day1/input").expect("Failed to read file");
 
     let mut calories = parse_data(data);
     

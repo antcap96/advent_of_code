@@ -1,11 +1,8 @@
 use std::collections::HashSet;
 
-fn main() {
-    answer();
-}
 
-fn answer() {
-    let data = std::fs::read_to_string("input").expect("Failed to load data");
+pub fn answer() {
+    let data = std::fs::read_to_string("year2022/src/day3/input").expect("Failed to load data");
 
     let data = parse_data(&data);
 
