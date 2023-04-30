@@ -32,7 +32,7 @@ impl FromStr for Range {
             .parse()
             .map_err(|e| format!("Invalid high: {}", e))?;
 
-        if let None = parts.next() {
+        if parts.next().is_none() {
             Ok(Range { low, high })
         } else {
             Err("Too many parts".to_string())
@@ -49,9 +49,9 @@ pub fn answer() {
 
     println!("Number of overlaps: {}", contained);
 
-    let overlaped = number_of_overlaped(&ranges);
+    let overlapped = number_of_overlapped(&ranges);
 
-    println!("Number of overlaps: {}", overlaped);
+    println!("Number of overlaps: {}", overlapped);
 }
 
 fn number_of_contained(ranges: &[(Range, Range)]) -> i32 {
@@ -67,7 +67,7 @@ fn number_of_contained(ranges: &[(Range, Range)]) -> i32 {
         .sum()
 }
 
-fn number_of_overlaped(ranges: &[(Range, Range)]) -> i32 {
+fn number_of_overlapped(ranges: &[(Range, Range)]) -> i32 {
     ranges
         .iter()
         .map(|(r1, r2)| if r1.overlaps(r2) { 1 } else { 0 })
@@ -77,7 +77,7 @@ fn number_of_overlaped(ranges: &[(Range, Range)]) -> i32 {
 fn parse_data(data: &str) -> Vec<(Range, Range)> {
     data.lines()
         .map(|line| {
-            let mut parts = line.split(",");
+            let mut parts = line.split(',');
             let first = parts.next().expect("Missing first");
             let second = parts.next().expect("Missing second");
 

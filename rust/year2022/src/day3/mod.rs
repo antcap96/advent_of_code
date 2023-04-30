@@ -1,6 +1,5 @@
 use std::collections::HashSet;
 
-
 pub fn answer() {
     let data = std::fs::read_to_string("year2022/src/day3/input").expect("Failed to load data");
 
@@ -20,7 +19,7 @@ fn get_elves_badges_cost(data: &[String]) -> u32 {
 
     let chars: Vec<char> = groups
         .map(|group| {
-            group
+            *group
                 .iter()
                 .map(|rucksack| rucksack.chars().collect::<HashSet<_>>())
                 .reduce(|mut acc, group| {
@@ -31,7 +30,6 @@ fn get_elves_badges_cost(data: &[String]) -> u32 {
                 .iter()
                 .next()
                 .expect("Chucks of 3 should have at least one common char")
-                .clone()
         })
         .collect();
 
@@ -39,12 +37,11 @@ fn get_elves_badges_cost(data: &[String]) -> u32 {
 }
 
 fn get_rucksacks_error_cost(data: &[String]) -> u32 {
-    let compartments = split_rucksacks(&data);
+    let compartments = split_rucksacks(data);
 
     let errors = get_errors(&compartments);
 
-    let cost = error_cost(&errors);
-    cost
+    error_cost(&errors)
 }
 
 fn parse_data(data: &str) -> Vec<String> {
@@ -66,13 +63,13 @@ fn get_errors(rucksacks: &[(String, String)]) -> Vec<char> {
     let differences = rucksacks.iter().map(|(a, b)| {
         let a_chars = a.chars().collect::<HashSet<_>>();
         let b_chars = b.chars().collect::<HashSet<_>>();
-        a_chars.intersection(&b_chars).next().unwrap().clone()
+        *a_chars.intersection(&b_chars).next().unwrap()
     });
 
     differences.collect()
 }
 
-fn error_cost(errors: &Vec<char>) -> u32 {
+fn error_cost(errors: &[char]) -> u32 {
     errors
         .iter()
         .map(|&c| {

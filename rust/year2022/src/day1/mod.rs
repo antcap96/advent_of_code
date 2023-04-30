@@ -1,9 +1,8 @@
-
 pub fn answer() {
     let data = std::fs::read_to_string("year2022/src/day1/input").expect("Failed to read file");
 
     let mut calories = parse_data(data);
-    
+
     calories.sort_unstable();
 
     let maximum = calories.last().expect("should not be empty");
