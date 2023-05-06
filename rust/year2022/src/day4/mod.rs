@@ -41,7 +41,7 @@ impl FromStr for Range {
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day4/input").expect("Unable to read file");
+    let data = std::fs::read_to_string("year2022/src/day4/input.txt").expect("Unable to read file");
 
     let ranges = parse_data(&data);
 

@@ -39,7 +39,7 @@ impl FromStr for PlayerPlay {
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day2/input").expect("Could not read the file");
+    let data = std::fs::read_to_string("year2022/src/day2/input.txt").expect("Could not read the file");
 
     let data = parse_data(&data);
 

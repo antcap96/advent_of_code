@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day3/input").expect("Failed to load data");
+    let data = std::fs::read_to_string("year2022/src/day3/input.txt").expect("Failed to load data");
 
     let data = parse_data(&data);
 
