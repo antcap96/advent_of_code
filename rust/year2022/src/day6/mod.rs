@@ -12,14 +12,22 @@ pub fn answer() {
 
 fn find_first_n_distinct(data: &str, n: usize) -> Option<usize> {
     let mut memory: HashMap<char, usize> = HashMap::new();
-    for (i, character) in data.chars().enumerate() {
-        if i >= n {
-            memory.retain(|_k, &mut v| v > i - n)
-        }
+
+    for (i, character) in data.chars().enumerate().take(n) {
         memory.insert(character, i);
-        if memory.len() == n {
-            return Some(i + 1);
-        }
     }
-    return None;
+
+    for (idx, (removed, new)) in data.chars().zip(data.chars().skip(n)).enumerate() {
+        if memory.len() == n {
+            return Some(idx + n);
+        }
+
+        // Remove the oldest character if it hasn't appeared since
+        if memory.get(&removed) == Some(&idx) {
+            memory.remove(&removed);
+        }
+        
+        memory.insert(new, idx + n);
+    }
+    None
 }
