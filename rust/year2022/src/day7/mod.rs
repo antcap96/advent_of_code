@@ -40,9 +40,7 @@ impl FromStr for LsOutput {
         let first_word = iter.next().ok_or(())?;
 
         if first_word == "dir" {
-            Ok(LsOutput::Directory(
-                iter.next().ok_or(())?.to_owned(),
-            ))
+            Ok(LsOutput::Directory(iter.next().ok_or(())?.to_owned()))
         } else {
             let size = first_word.parse().map_err(|_| ())?;
             let _name = iter.next().ok_or(())?.to_owned();
@@ -107,18 +105,14 @@ fn parse_input(data: &str) -> Vec<Command> {
             commands.push(Command::Cd(
                 line.split_whitespace().nth(2).unwrap().to_owned(),
             ));
-        }
-        else if line.starts_with("$ ls") {
+        } else if line.starts_with("$ ls") {
             let mut ls_output = Vec::new();
-            while let Some(next_line) = iter.peek() {
-                if next_line.starts_with('$') {
-                    break;
-                }
-                ls_output.push(iter.next().unwrap().parse().unwrap());
+            while iter.peek().map_or(false, |line| !line.starts_with('$')) {
+                let line = iter.next().unwrap();
+                ls_output.push(line.parse().unwrap());
             }
             commands.push(Command::Ls(ls_output));
-        }
-        else {
+        } else {
             panic!("Unknown command: {}", line);
         }
     }
