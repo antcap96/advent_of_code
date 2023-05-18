@@ -1,38 +1,29 @@
+use std::collections::HashMap;
 use std::str::FromStr;
 
 #[derive(Debug)]
 struct File {
-    _name: String,
     size: u64,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 struct Directory {
-    _name: String,
-    files: Vec<File>,
-    directories: Vec<Directory>,
+    files: HashMap<String, File>,
+    directories: HashMap<String, Directory>,
 }
 
 impl Directory {
-    fn empty(name: String) -> Directory {
-        Directory {
-            _name: name,
-            files: vec![],
-            directories: vec![],
-        }
-    }
-
     fn size(&self) -> u64 {
-        self.files.iter().map(|file| file.size).sum::<u64>()
-            + self.directories.iter().map(|dir| dir.size()).sum::<u64>()
+        self.files.values().map(|file| file.size).sum::<u64>()
+            + self.directories.values().map(|dir| dir.size()).sum::<u64>()
     }
 
     fn contains_dir(&self, dir: &str) -> bool {
-        self.directories.iter().any(|d| d._name == dir)
+        self.directories.contains_key(dir)
     }
 
     fn contains_file(&self, file: &str) -> bool {
-        self.directories.iter().any(|f| f._name == file)
+        self.directories.contains_key(file)
     }
 }
 
@@ -44,7 +35,7 @@ enum Command {
 
 #[derive(Debug)]
 enum LsOutput {
-    File(File),
+    File(String, File),
     Directory(String),
 }
 
@@ -59,8 +50,8 @@ impl FromStr for LsOutput {
             Ok(LsOutput::Directory(iter.next().ok_or(())?.to_owned()))
         } else {
             let size = first_word.parse().map_err(|_| ())?;
-            let _name = iter.next().ok_or(())?.to_owned();
-            Ok(LsOutput::File(File { size, _name }))
+            let name = iter.next().ok_or(())?.to_owned();
+            Ok(LsOutput::File(name, File { size }))
         }
     }
 }
@@ -69,7 +60,7 @@ const TOTAL_SIZE: u64 = 70000000;
 const REQUIRED_SIZE: u64 = 30000000;
 
 fn answer1(dir: &Directory) -> u64 {
-    let temp = dir.directories.iter().map(answer1).sum::<u64>();
+    let temp = dir.directories.values().map(answer1).sum::<u64>();
     let size = dir.size();
     if size < 100000 {
         temp + size
@@ -95,7 +86,7 @@ fn recursion(dir: &Directory, necessary_space: u64, mut best_so_far: u64) -> u64
         best_so_far = size;
     }
 
-    for directory in &dir.directories {
+    for directory in dir.directories.values() {
         best_so_far = recursion(directory, necessary_space, best_so_far);
     }
 
@@ -107,8 +98,8 @@ pub fn answer() {
 
     let command_list = parse_input(&data);
 
-    // let root = build_directory("/".to_owned(), &mut command_list.into_iter().skip(1));
-    let root = build_directories(&mut command_list.into_iter().skip(1));
+    let root = build_directory(&mut command_list.into_iter().skip(1));
+    // let root = build_directories(&mut command_list.into_iter().skip(1));
 
     println!("Answer 1: {}", answer1(&root));
     println!("Answer 2: {}", answer2(&root));
@@ -139,15 +130,17 @@ fn parse_input(data: &str) -> Vec<Command> {
 
 // This assumes a depth first approach in the command list
 #[allow(dead_code)]
-fn build_directory(name: String, command_list: &mut impl Iterator<Item = Command>) -> Directory {
-    let mut files = Vec::new();
-    let mut directories = Vec::new();
+fn build_directory(command_list: &mut impl Iterator<Item = Command>) -> Directory {
+    let mut files = HashMap::new();
+    let mut directories = HashMap::new();
     while let Some(command) = command_list.next() {
         match command {
             Command::Ls(ls_output) => {
                 for output in ls_output {
                     match output {
-                        LsOutput::File(file) => files.push(file),
+                        LsOutput::File(name, file) => {
+                            files.insert(name, file);
+                        }
                         LsOutput::Directory(_dir_name) => {}
                     }
                 }
@@ -157,26 +150,28 @@ fn build_directory(name: String, command_list: &mut impl Iterator<Item = Command
                 break;
             }
             Command::Cd(dir_name) => {
-                directories.push(build_directory(dir_name.to_owned(), command_list));
+                directories.insert(dir_name, build_directory(command_list));
             }
         }
     }
 
-    Directory {
-        _name: name,
-        files,
-        directories,
-    }
+    Directory { files, directories }
 }
 
+#[allow(dead_code)]
 fn build_directories(command_list: &mut impl Iterator<Item = Command>) -> Directory {
     let mut current_path: Vec<String> = vec![];
-    let mut root = Directory::empty("/".to_owned());
+    let mut root = Directory::default();
 
     for command in command_list {
         match command {
             Command::Cd(name) if name == ".." => {
                 current_path.pop();
+            }
+            Command::Cd(name) if name == "/" => {
+                while !current_path.is_empty() {
+                    current_path.pop();
+                }
             }
             Command::Cd(name) => {
                 current_path.push(name);
@@ -184,11 +179,7 @@ fn build_directories(command_list: &mut impl Iterator<Item = Command>) -> Direct
             Command::Ls(ls_output) => {
                 let mut working_dir = &mut root;
                 for name in current_path.iter() {
-                    working_dir = working_dir
-                        .directories
-                        .iter_mut()
-                        .find(|dir| dir._name == *name)
-                        .unwrap();
+                    working_dir = working_dir.directories.get_mut(name).unwrap();
                 }
                 append_to_dir(working_dir, ls_output);
             }
@@ -203,12 +194,12 @@ fn append_to_dir(working_dir: &mut Directory, ls_output: Vec<LsOutput>) {
         match output {
             LsOutput::Directory(name) => {
                 if !working_dir.contains_dir(&name) {
-                    working_dir.directories.push(Directory::empty(name))
+                    working_dir.directories.insert(name, Directory::default());
                 }
             }
-            LsOutput::File(file) => {
-                if !working_dir.contains_file(&file._name) {
-                    working_dir.files.push(file)
+            LsOutput::File(name, file) => {
+                if !working_dir.contains_file(&name) {
+                    working_dir.files.insert(name, file);
                 }
             }
         }
