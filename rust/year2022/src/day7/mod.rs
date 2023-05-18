@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct File {
     _name: String,
     size: u64,
@@ -14,9 +14,25 @@ struct Directory {
 }
 
 impl Directory {
+    fn empty(name: String) -> Directory {
+        Directory {
+            _name: name,
+            files: vec![],
+            directories: vec![],
+        }
+    }
+
     fn size(&self) -> u64 {
         self.files.iter().map(|file| file.size).sum::<u64>()
             + self.directories.iter().map(|dir| dir.size()).sum::<u64>()
+    }
+
+    fn contains_dir(&self, dir: &str) -> bool {
+        self.directories.iter().any(|d| d._name == dir)
+    }
+
+    fn contains_file(&self, file: &str) -> bool {
+        self.directories.iter().any(|f| f._name == file)
     }
 }
 
@@ -91,7 +107,8 @@ pub fn answer() {
 
     let command_list = parse_input(&data);
 
-    let root = build_directory("/".to_owned(), &mut command_list.into_iter().skip(1));
+    // let root = build_directory("/".to_owned(), &mut command_list.into_iter().skip(1));
+    let root = build_directories(&mut command_list.into_iter().skip(1));
 
     println!("Answer 1: {}", answer1(&root));
     println!("Answer 2: {}", answer2(&root));
@@ -121,10 +138,8 @@ fn parse_input(data: &str) -> Vec<Command> {
 }
 
 // This assumes a depth first approach in the command list
-fn build_directory<'a>(
-    name: String,
-    command_list: &mut impl Iterator<Item = Command>,
-) -> Directory where {
+#[allow(dead_code)]
+fn build_directory(name: String, command_list: &mut impl Iterator<Item = Command>) -> Directory {
     let mut files = Vec::new();
     let mut directories = Vec::new();
     while let Some(command) = command_list.next() {
@@ -151,5 +166,51 @@ fn build_directory<'a>(
         _name: name,
         files,
         directories,
+    }
+}
+
+fn build_directories(command_list: &mut impl Iterator<Item = Command>) -> Directory {
+    let mut current_path: Vec<String> = vec![];
+    let mut root = Directory::empty("/".to_owned());
+
+    for command in command_list {
+        match command {
+            Command::Cd(name) if name == ".." => {
+                current_path.pop();
+            }
+            Command::Cd(name) => {
+                current_path.push(name);
+            }
+            Command::Ls(ls_output) => {
+                let mut working_dir = &mut root;
+                for name in current_path.iter() {
+                    working_dir = working_dir
+                        .directories
+                        .iter_mut()
+                        .find(|dir| dir._name == *name)
+                        .unwrap();
+                }
+                append_to_dir(working_dir, ls_output);
+            }
+        }
+    }
+
+    root
+}
+
+fn append_to_dir(working_dir: &mut Directory, ls_output: Vec<LsOutput>) {
+    for output in ls_output {
+        match output {
+            LsOutput::Directory(name) => {
+                if !working_dir.contains_dir(&name) {
+                    working_dir.directories.push(Directory::empty(name))
+                }
+            }
+            LsOutput::File(file) => {
+                if !working_dir.contains_file(&file._name) {
+                    working_dir.files.push(file)
+                }
+            }
+        }
     }
 }
