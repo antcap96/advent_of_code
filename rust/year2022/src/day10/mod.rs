@@ -35,12 +35,12 @@ impl Operation {
 }
 
 #[derive(Debug)]
-struct CPU {
+struct Cpu {
     register: i32,
     cycle: u32,
 }
 
-impl CPU {
+impl Cpu {
     fn new() -> Self {
         Self {
             register: 1,
@@ -57,13 +57,13 @@ impl CPU {
     }
 }
 
-struct CRT {
+struct Crt {
     screen: Vec<bool>,
 }
 
-impl CRT {
-    fn new() -> CRT {
-        CRT {
+impl Crt {
+    fn new() -> Crt {
+        Crt {
             screen: vec![false; 240],
         }
     }
@@ -95,9 +95,9 @@ pub fn answer() {
     println!("Answer 2:\n{}", crt.screen());
 }
 
-fn get_answers(operations: Vec<Operation>) -> (CRT, i32) {
-    let mut cpu = CPU::new();
-    let mut crt = CRT::new();
+fn get_answers(operations: Vec<Operation>) -> (Crt, i32) {
+    let mut cpu = Cpu::new();
+    let mut crt = Crt::new();
 
     let mut total = 0;
     let mut cycle = 0;

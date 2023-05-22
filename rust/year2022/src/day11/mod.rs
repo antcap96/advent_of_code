@@ -94,6 +94,7 @@ pub fn answer() {
 fn answer1(mut monkeys: Vec<Monkey1>) -> usize {
     let counts = inspect_count1(&mut monkeys);
 
+    #[allow(clippy::let_and_return)]
     let monkey_business = counts
         .into_iter()
         .sorted_by(|a, b| b.cmp(a))
@@ -127,6 +128,7 @@ fn inspect_count1(monkeys: &mut Vec<Monkey1>) -> Vec<usize> {
 fn answer2(mut monkeys: Vec<Monkey2>) -> usize {
     let counts = inspect_count2(&mut monkeys);
 
+    #[allow(clippy::let_and_return)]
     let monkey_business = counts
         .into_iter()
         .sorted_by(|a, b| b.cmp(a))
