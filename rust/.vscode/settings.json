@@ -1,8 +1,10 @@
 {
     "cSpell.words": [
+        "Deque",
         "ndarray",
         "popn",
         "pushn",
+        "signum",
         "updaten"
     ]
 }
