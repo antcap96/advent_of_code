@@ -1,3 +1,3 @@
 fn main() {
-    year2022::day12::unnecessarily_complex_version::answer();
+    year2022::day13::answer();
 }
