@@ -1,6 +1,3 @@
-pub mod unnecessarily_complex_version;
-use std::vec;
-
 #[derive(Clone)]
 struct Map {
     height: ndarray::Array2<u32>,
@@ -14,48 +11,68 @@ impl Map {
         start: (usize, usize),
         end: (usize, usize),
     ) -> Self {
+        Self { height, start, end }
+    }
+
+    fn surrounding_points(
+        &self,
+        point: (usize, usize),
+    ) -> impl Iterator<Item = (usize, usize)> + '_ {
+        SurroundingPointsIter::new(self, point)
+    }
+
+    fn neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> + '_ {
+        self.surrounding_points(point)
+            .filter(move |&other| self.height[point] + 1 >= self.height[other])
+    }
+
+    fn reverse_neighbors(
+        &self,
+        point: (usize, usize),
+    ) -> impl Iterator<Item = (usize, usize)> + '_ {
+        self.surrounding_points(point)
+            .filter(move |&other| self.height[other] + 1 >= self.height[point])
+    }
+}
+
+struct SurroundingPointsIter<'a> {
+    // could just take width and height, this is just to experiment with lifetimes
+    map: &'a Map,
+    point: (usize, usize),
+    step: usize,
+}
+
+impl<'a> SurroundingPointsIter<'a> {
+    fn new(map: &'a Map, point: (usize, usize)) -> Self {
         Self {
-            height,
-            start,
-            end,
+            map,
+            point,
+            step: 0,
         }
     }
+}
 
-    // A struct could be created to avoid allocating memory.
-    fn neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
-        let (x, y) = point;
-        let mut neighbors = Vec::new();
-        if x > 0 && self.height[[x, y]] + 1 >= self.height[[x - 1, y]]  {
-            neighbors.push((x - 1, y));
-        }
-        if y > 0 && self.height[[x, y]] + 1 >= self.height[[x, y - 1]]  {
-            neighbors.push((x, y - 1));
-        }
-        if x < self.height.dim().0 - 1 && self.height[[x, y]] + 1 >= self.height[[x + 1, y]]  {
-            neighbors.push((x + 1, y));
-        }
-        if y < self.height.dim().1 - 1 && self.height[[x, y]] + 1 >= self.height[[x, y + 1]]  {
-            neighbors.push((x, y + 1));
-        }
-        neighbors.into_iter()
-    }
+impl<'a> Iterator for SurroundingPointsIter<'a> {
+    type Item = (usize, usize);
 
-    fn rev_neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
-        let (x, y) = point;
-        let mut neighbors = Vec::new();
-        if x > 0 && self.height[[x - 1, y]] + 1 >= self.height[[x, y]] {
-            neighbors.push((x - 1, y));
+    fn next(&mut self) -> Option<Self::Item> {
+        let (x, y) = self.point;
+        while self.step < 4 {
+            self.step += 1;
+            if self.step == 1 && x > 0 {
+                return Some((x - 1, y));
+            }
+            if self.step == 2 && y > 0 {
+                return Some((x, y - 1));
+            }
+            if self.step == 3 && x < self.map.height.dim().0 - 1 {
+                return Some((x + 1, y));
+            }
+            if self.step == 4 && y < self.map.height.dim().1 - 1 {
+                return Some((x, y + 1));
+            }
         }
-        if y > 0 && self.height[[x, y - 1]] + 1 >= self.height[[x, y]] {
-            neighbors.push((x, y - 1));
-        }
-        if x < self.height.dim().0 - 1 && self.height[[x + 1, y]] + 1 >= self.height[[x, y]] {
-            neighbors.push((x + 1, y));
-        }
-        if y < self.height.dim().1 - 1 && self.height[[x, y + 1]] + 1 >= self.height[[x, y]] {
-            neighbors.push((x, y + 1));
-        }
-        neighbors.into_iter()
+        None
     }
 }
 
@@ -72,10 +89,10 @@ pub fn answer() {
     println!("Answer 1: {}", distance);
 }
 
-fn bfs<TPointIter: Iterator<Item = (usize, usize)>>(
-    map: &Map,
+fn bfs<'a, TPointIter: Iterator<Item = (usize, usize)>>(
+    map: &'a Map,
     start: (usize, usize),
-    get_neighbors: impl Fn(&Map, (usize, usize)) -> TPointIter,
+    get_neighbors: impl Fn(&'a Map, (usize, usize)) -> TPointIter,
     end_condition: impl Fn(&Map, (usize, usize)) -> bool,
 ) -> u32 {
     let mut to_visit = vec![start];
@@ -102,21 +119,15 @@ fn bfs<TPointIter: Iterator<Item = (usize, usize)>>(
 }
 
 fn distance_start_end(map: &Map) -> u32 {
-    bfs(
-        map,
-        map.start,
-        Map::neighbors,
-        |map, point| point == map.end,
-    )
+    bfs(map, map.start, Map::neighbors, |map, point| {
+        point == map.end
+    })
 }
 
 fn distance_end_a(map: &Map) -> u32 {
-    bfs(
-        map,
-        map.end,
-        Map::rev_neighbors,
-        |map, point| map.height[point] == 0,
-    )
+    bfs(map, map.end, Map::reverse_neighbors, |map, point| {
+        map.height[point] == 0
+    })
 }
 
 fn parse_data(data: &str) -> Map {
@@ -146,3 +157,5 @@ fn parse_data(data: &str) -> Map {
 
     Map::from_height(height, start, end)
 }
+
+
