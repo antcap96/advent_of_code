@@ -12,20 +12,33 @@ impl Element {
     }
 }
 
+#[derive(Debug)]
+enum ElementParseError {
+    UnexpectedCharacter(char),
+    IntParseError(std::num::ParseIntError),
+    UnexpectedEndOfInput,
+}
+
+impl From<std::num::ParseIntError> for ElementParseError {
+    fn from(e: std::num::ParseIntError) -> Self {
+        ElementParseError::IntParseError(e)
+    }
+}
+
 impl FromStr for Element {
-    type Err = ();
+    type Err = ElementParseError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut chars = s.chars();
         if chars.next() == Some('[') {
             parse_element_list(&mut chars)
         } else {
-            Ok(Element::Value(s.parse().map_err(|_| ())?))
+            Ok(Element::Value(s.parse()?))
         }
     }
 }
 
-fn parse_element_list(line: &mut impl Iterator<Item = char>) -> Result<Element, ()> {
+fn parse_element_list(line: &mut impl Iterator<Item = char>) -> Result<Element, ElementParseError> {
     let mut output = Vec::new();
 
     let mut number = String::new();
@@ -39,18 +52,18 @@ fn parse_element_list(line: &mut impl Iterator<Item = char>) -> Result<Element, 
             }
             ']' | ',' => {
                 if !number.is_empty() {
-                    output.push(Element::Value(number.parse().map_err(|_| ())?));
+                    output.push(Element::Value(number.parse()?));
                     number.clear();
                 }
                 if next == ']' {
-                    break;
+                    return Ok(Element::List(output));
                 }
             }
-            _ => Err(())?,
+            c => Err(ElementParseError::UnexpectedCharacter(c))?,
         }
     }
 
-    Ok(Element::List(output))
+    Err(ElementParseError::UnexpectedEndOfInput)
 }
 
 impl Debug for Element {
