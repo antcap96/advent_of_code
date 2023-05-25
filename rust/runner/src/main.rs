@@ -1,3 +1,3 @@
 fn main() {
-    year2022::day14::answer();
+    year2022::day15::answer();
 }
