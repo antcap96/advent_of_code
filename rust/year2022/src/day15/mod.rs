@@ -1,8 +1,5 @@
 use std::{collections::HashSet, str::FromStr};
 
-// Too low: 5441342
-// Too low: 5441344
-
 #[derive(Debug)]
 struct Point {
     x: i32,
@@ -45,12 +42,6 @@ impl FromStr for Sensor {
     }
 }
 
-#[derive(Debug)]
-struct Range {
-    start: i32,
-    end: i32,
-}
-
 fn parse_i32_from_iter(chars: &mut impl Iterator<Item = char>) -> i32 {
     let mut buffer = String::new();
     for c in chars {
@@ -70,41 +61,77 @@ pub fn answer() {
     let sensors = parse_data(&data);
 
     let answer1 = count_impossible(&sensors, 2000000);
-    
-    println!("Answer 1: {}", answer1);
+
+    println!("Answer 1: {}", answer1.0);
 
     for y in 0..4000000 {
-        let _ = count_impossible(&sensors, y);
+        let (_, answer2) = count_impossible(&sensors, y);
+        if let Some(answer2) = answer2 {
+            println!("Answer 2: {}", answer2);
+            break;
+        }
     }
 }
 
-fn count_impossible(sensors: &[Sensor], row: i32) -> i32 {
+fn count_impossible(sensors: &[Sensor], row: i32) -> (usize, Option<i64>) {
     let mut impossible_ranges = Vec::new();
 
     for sensor in sensors {
         let distance = sensor.position.manhattan_distance(&sensor.closest_beacon);
 
-        let impossible_width = (distance - (sensor.position.y - row).abs()) * 2 + 1;
-        
-        if impossible_width <= 0 {
-            continue;
+        if let Some(range) = impossible_range(distance, &sensor.position, row) {
+            impossible_ranges.push(range)
         }
-        let impossible_start = sensor.position.x - impossible_width / 2;
-
-        let impossible_end = impossible_start + impossible_width;
-
-        impossible_ranges.push(Range {
-            start: impossible_start,
-            end: impossible_end,
-        });
     }
-    
+
     impossible_ranges.sort_by(|a, b| a.start.cmp(&b.start).then(a.end.cmp(&b.end)));
 
-    let mut merged_ranges = Vec::new();
-    let mut ranges_iter = impossible_ranges.into_iter();
-    merged_ranges.push(ranges_iter.next().unwrap());
-    for range in ranges_iter {
+    let merged_ranges = merge_ranges(impossible_ranges);
+
+    let impossible_count: usize = merged_ranges.iter().map(|range| range.len()).sum();
+
+    let beacons_in_row = count_beacons_in_row(sensors, row);
+    let impossible_excluding_beacons = impossible_count - beacons_in_row;
+
+    let tunning_frequency = if merged_ranges.len() > 1 {
+        merged_ranges
+            .get(0)
+            .map(|x| x.end as i64 * 4000000 + row as i64)
+    } else {
+        None
+    };
+
+    (impossible_excluding_beacons, tunning_frequency)
+}
+
+fn count_beacons_in_row(sensors: &[Sensor], row: i32) -> usize {
+    let beacons_in_row = sensors
+        .iter()
+        .filter(|sensor| sensor.closest_beacon.y == row)
+        .map(|sensor| sensor.closest_beacon.x)
+        .collect::<HashSet<_>>()
+        .len();
+    beacons_in_row
+}
+
+fn impossible_range(
+    distance: i32,
+    sensor_position: &Point,
+    row: i32,
+) -> Option<std::ops::Range<i32>> {
+    let impossible_width = (distance - (sensor_position.y - row).abs()) * 2 + 1;
+    if impossible_width <= 0 {
+        return None;
+    }
+    let impossible_start = sensor_position.x - impossible_width / 2;
+    let impossible_end = impossible_start + impossible_width;
+    Some(impossible_start..impossible_end)
+}
+
+fn merge_ranges(sorted_ranges: Vec<std::ops::Range<i32>>) -> Vec<std::ops::Range<i32>> {
+    let mut merged_ranges: Vec<std::ops::Range<i32>> = Vec::new();
+
+    for range in sorted_ranges.into_iter() {
         if let Some(last) = merged_ranges.last_mut() {
             if last.end >= range.start {
                 let new_end = last.end.max(range.end);
@@ -114,24 +141,7 @@ fn count_impossible(sensors: &[Sensor], row: i32) -> i32 {
         }
         merged_ranges.push(range);
     }
-
-    let impossible_count: i32 = merged_ranges
-        .iter()
-        .map(|range| range.end - range.start)
-        .sum();
-
-    let beacons_in_row = sensors
-        .iter()
-        .filter(|sensor| sensor.closest_beacon.y == row)
-        .map(|sensor| sensor.closest_beacon.x)
-        .collect::<HashSet<_>>()
-        .len() as i32;
-
-    if merged_ranges.len() > 1{
-        println!("Answer 2: {}", merged_ranges[0].end as i64 * 4000000 + row as i64);
-    }
-
-    impossible_count - beacons_in_row
+    merged_ranges
 }
 
 fn parse_data(data: &str) -> Vec<Sensor> {
