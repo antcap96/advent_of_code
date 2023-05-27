@@ -1,51 +1,73 @@
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
-struct Valve {
+struct UnprocessedValve {
     flow_rate: i32,
     tunnels: Vec<String>,
 }
 
+struct Valve {
+    flow_rate: i32,
+    tunnels: Vec<usize>,
+}
+
 struct SimplifiedSystem {
     distances: ndarray::Array2<i32>,
-    key_map: HashMap<String, usize>,
-    valves: HashMap<String, Valve>,
+    valves: HashMap<usize, Valve>,
+    start: usize,
 }
 
 impl SimplifiedSystem {
-    fn new(system: HashMap<String, Valve>) -> SimplifiedSystem {
+    fn new(system: HashMap<String, UnprocessedValve>) -> SimplifiedSystem {
         let key_map: HashMap<String, usize> = system.keys().cloned().zip(0..).collect();
 
-        let distances = calculate_distances(&system, &key_map);
+        let valves = system
+            .iter()
+            .map(|(k, v)| {
+                let key = *key_map.get(k).unwrap();
+                let tunnels = v
+                    .tunnels
+                    .iter()
+                    .map(|tunnel| *key_map.get(tunnel).unwrap())
+                    .collect();
+
+                (
+                    key,
+                    Valve {
+                        flow_rate: v.flow_rate,
+                        tunnels,
+                    },
+                )
+            })
+            .collect();
+
+        let distances = calculate_distances(&valves);
 
         SimplifiedSystem {
             distances,
-            key_map,
-            valves: system,
+            valves,
+            start: *key_map.get("AA").unwrap(),
         }
     }
 }
 
 fn calculate_distances(
-    system: &HashMap<String, Valve>,
-    key_map: &HashMap<String, usize>,
+    system: &HashMap<usize, Valve>,
 ) -> ndarray::Array2<i32> {
     let mut distances = ndarray::Array2::zeros((system.len(), system.len()));
-    
-    for start in system.keys() {
+
+    for &start in system.keys() {
         let mut next_queue = vec![start];
         let mut distance = 2;
-        let start_idx = *key_map.get(start).unwrap();
-        distances[[start_idx, start_idx]] = 1;
+        distances[[start, start]] = 1;
         while !next_queue.is_empty() {
             let queue = next_queue;
             next_queue = vec![];
             for next in queue {
-                let valve = system.get(next).unwrap();
-                for tunnel in &valve.tunnels {
-                    let next_idx = *key_map.get(tunnel).unwrap();
-                    if distances[[start_idx, next_idx]] == 0 {
-                        distances[[start_idx, next_idx]] = distance;
+                let valve = system.get(&next).unwrap();
+                for &tunnel in &valve.tunnels {
+                    if distances[[start, tunnel]] == 0 {
+                        distances[[start, tunnel]] = distance;
                         next_queue.push(tunnel);
                     }
                 }
@@ -57,18 +79,9 @@ fn calculate_distances(
 }
 
 #[derive(Clone)]
-struct SearchState<'a> {
-    position: &'a str,
-    closed: HashSet<&'a str>,
-}
-
-impl<'a> SearchState<'a> {
-    fn new(closed: HashSet<&'a str>) -> Self {
-        Self {
-            position: "AA",
-            closed,
-        }
-    }
+struct SearchState {
+    position: usize,
+    closed: HashSet<usize>,
 }
 
 pub fn answer() {
@@ -83,19 +96,22 @@ pub fn answer() {
         .valves
         .iter()
         .filter(|(_k, v)| v.flow_rate > 0)
-        .map(|(k, _v)| k.as_str())
+        .map(|(k, _v)| *k)
         .collect();
 
-    let answer1 = find_most_pressure_released(&simplified_system, 30, SearchState::new(closed));
+    let answer1 = find_most_pressure_released(
+        &simplified_system,
+        30,
+        SearchState {
+            position: simplified_system.start,
+            closed,
+        },
+    );
 
     println!("Answer 1 {}", answer1);
 }
 
-fn find_most_pressure_released<'a>(
-    system: &'a SimplifiedSystem,
-    minutes: i32,
-    state: SearchState<'a>,
-) -> i32 {
+fn find_most_pressure_released(system: &SimplifiedSystem, minutes: i32, state: SearchState) -> i32 {
     if minutes <= 0 {
         return 0;
     }
@@ -103,13 +119,13 @@ fn find_most_pressure_released<'a>(
     let mut cost = 0;
 
     for location in &state.closed {
-        let time = system.distances[[system.key_map[state.position], system.key_map[*location]]];
-
+        let time = system.distances[[state.position, *location]];
+        
         let mut new_state = state.clone();
         new_state.closed.remove(location);
-        new_state.position = location;
+        new_state.position = *location;
         let new_time = minutes - time;
-        let release = new_time * system.valves.get(*location).unwrap().flow_rate;
+        let release = new_time * system.valves.get(location).unwrap().flow_rate;
 
         let release_rest = find_most_pressure_released(system, new_time, new_state);
 
@@ -119,7 +135,9 @@ fn find_most_pressure_released<'a>(
     cost
 }
 
-fn parse_valve(input: &str) -> Result<(String, Valve), nom::Err<nom::error::Error<&str>>> {
+fn parse_valve(
+    input: &str,
+) -> Result<(String, UnprocessedValve), nom::Err<nom::error::Error<&str>>> {
     let (input, _) = nom::bytes::complete::tag("Valve ")(input)?;
     let (input, id) = nom::bytes::complete::take(2u32)(input)?;
     let (input, _) = nom::bytes::complete::tag(" has flow rate=")(input)?;
@@ -135,14 +153,14 @@ fn parse_valve(input: &str) -> Result<(String, Valve), nom::Err<nom::error::Erro
 
     let tunnels = tunnels.iter().map(|&tunnel| tunnel.to_owned()).collect();
 
-    Ok((id.to_owned(), Valve { flow_rate, tunnels }))
+    Ok((id.to_owned(), UnprocessedValve { flow_rate, tunnels }))
 }
 
-fn parse_data(data: &str) -> HashMap<String, Valve> {
+fn parse_data(data: &str) -> HashMap<String, UnprocessedValve> {
     let valves = data
         .lines()
         .map(|line| parse_valve(line).unwrap())
-        .collect::<HashMap<String, Valve>>();
+        .collect::<HashMap<String, UnprocessedValve>>();
 
     valves
 }
