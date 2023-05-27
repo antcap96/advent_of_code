@@ -6,76 +6,59 @@ struct Valve {
     tunnels: Vec<String>,
 }
 
-impl Valve {
-    fn new(flow_rate: i32, tunnels: Vec<String>) -> Self {
-        Self { flow_rate, tunnels }
-    }
-}
-
-#[derive(Debug)]
-struct System {
+struct SimplifiedSystem {
+    distances: ndarray::Array2<i32>,
+    key_map: HashMap<String, usize>,
     valves: HashMap<String, Valve>,
 }
 
-impl System {
-    fn new(valves: HashMap<String, Valve>) -> Self {
-        Self { valves }
-    }
+impl SimplifiedSystem {
+    fn new(system: HashMap<String, Valve>) -> SimplifiedSystem {
+        let key_map: HashMap<String, usize> = system.keys().cloned().zip(0..).collect();
 
-    fn possible_actions(&self, state: &SearchState) -> Vec<Action> {
-        let valve = self.valves.get(state.position).unwrap();
+        let distances = calculate_distances(&system, &key_map);
 
-        let mut actions = vec![];
-
-        if state.closed.contains(state.position) && valve.flow_rate > 0 {
-            actions.push(Action::Open);
-        }
-
-        for tunnel in &valve.tunnels {
-            if state
-                .previous_position
-                .map(|value| value != tunnel)
-                .unwrap_or(true)
-            {
-                actions.push(Action::Move(tunnel.as_str()));
-            }
-        }
-
-        actions
-    }
-
-    fn perform_action<'a>(
-        &self,
-        action: Action<'a>,
-        minutes: i32,
-        state: &mut SearchState<'a>,
-    ) -> u32 {
-        match action {
-            Action::Open => {
-                let valve = self.valves.get(state.position).unwrap();
-                state.closed.remove(state.position);
-                state.previous_position = None;
-                (valve.flow_rate * (minutes - 1)) as u32
-            }
-            Action::Move(tunnel) => {
-                state.previous_position = Some(state.position);
-                state.position = tunnel;
-                0
-            }
+        SimplifiedSystem {
+            distances,
+            key_map,
+            valves: system,
         }
     }
 }
 
-#[derive(Debug)]
-enum Action<'a> {
-    Open,
-    Move(&'a str),
+fn calculate_distances(
+    system: &HashMap<String, Valve>,
+    key_map: &HashMap<String, usize>,
+) -> ndarray::Array2<i32> {
+    let mut distances = ndarray::Array2::zeros((system.len(), system.len()));
+    
+    for start in system.keys() {
+        let mut next_queue = vec![start];
+        let mut distance = 2;
+        let start_idx = *key_map.get(start).unwrap();
+        distances[[start_idx, start_idx]] = 1;
+        while !next_queue.is_empty() {
+            let queue = next_queue;
+            next_queue = vec![];
+            for next in queue {
+                let valve = system.get(next).unwrap();
+                for tunnel in &valve.tunnels {
+                    let next_idx = *key_map.get(tunnel).unwrap();
+                    if distances[[start_idx, next_idx]] == 0 {
+                        distances[[start_idx, next_idx]] = distance;
+                        next_queue.push(tunnel);
+                    }
+                }
+            }
+            distance += 1;
+        }
+    }
+    distances
 }
 
 #[derive(Clone)]
 struct SearchState<'a> {
     position: &'a str,
-    previous_position: Option<&'a str>,
     closed: HashSet<&'a str>,
 }
 
@@ -83,7 +66,6 @@ impl<'a> SearchState<'a> {
     fn new(closed: HashSet<&'a str>) -> Self {
         Self {
             position: "AA",
-            previous_position: None,
             closed,
         }
     }
@@ -95,42 +77,41 @@ pub fn answer() {
 
     let system = parse_data(&data);
 
-    let closed = system
+    let simplified_system = SimplifiedSystem::new(system);
+
+    let closed = simplified_system
         .valves
-        .keys()
-        .map(|k| k.as_str())
-        .filter(|&k| system.valves.get(k).unwrap().flow_rate > 0)
+        .iter()
+        .filter(|(_k, v)| v.flow_rate > 0)
+        .map(|(k, _v)| k.as_str())
         .collect();
 
-    let answer1 = find_most_pressure_released(&system, 30, SearchState::new(closed));
+    let answer1 = find_most_pressure_released(&simplified_system, 30, SearchState::new(closed));
 
     println!("Answer 1 {}", answer1);
 }
 
 fn find_most_pressure_released<'a>(
-    system: &'a System,
+    system: &'a SimplifiedSystem,
     minutes: i32,
     state: SearchState<'a>,
-) -> u32 {
-    if minutes > 25 {
-        dbg!(minutes);
-    }
+) -> i32 {
     if minutes <= 0 {
         return 0;
     }
-    let actions = system.possible_actions(&state);
-
-    // dbg!(minutes, &state.position, &state.previous_position, &actions);
 
     let mut cost = 0;
 
-    let into_iter = actions.into_iter();
+    for location in &state.closed {
+        let time = system.distances[[system.key_map[state.position], system.key_map[*location]]];
 
-    for action in into_iter {
         let mut new_state = state.clone();
-        let release = system.perform_action(action, minutes, &mut new_state);
+        new_state.closed.remove(location);
+        new_state.position = location;
+        let new_time = minutes - time;
+        let release = new_time * system.valves.get(*location).unwrap().flow_rate;
 
-        let release_rest = find_most_pressure_released(system, minutes - 1, new_state);
+        let release_rest = find_most_pressure_released(system, new_time, new_state);
 
         let total_release = release + release_rest;
         cost = cost.max(total_release);
@@ -154,14 +135,14 @@ fn parse_valve(input: &str) -> Result<(String, Valve), nom::Err<nom::error::Erro
 
     let tunnels = tunnels.iter().map(|&tunnel| tunnel.to_owned()).collect();
 
-    Ok((id.to_owned(), Valve::new(flow_rate, tunnels)))
+    Ok((id.to_owned(), Valve { flow_rate, tunnels }))
 }
 
-fn parse_data(data: &str) -> System {
+fn parse_data(data: &str) -> HashMap<String, Valve> {
     let valves = data
         .lines()
         .map(|line| parse_valve(line).unwrap())
         .collect::<HashMap<String, Valve>>();
 
-    System::new(valves)
+    valves
 }
