@@ -51,9 +51,7 @@ impl SimplifiedSystem {
     }
 }
 
-fn calculate_distances(
-    system: &HashMap<usize, Valve>,
-) -> ndarray::Array2<i32> {
+fn calculate_distances(system: &HashMap<usize, Valve>) -> ndarray::Array2<i32> {
     let mut distances = ndarray::Array2::zeros((system.len(), system.len()));
 
     for &start in system.keys() {
@@ -79,9 +77,25 @@ fn calculate_distances(
 }
 
 #[derive(Clone)]
-struct SearchState {
-    position: usize,
+struct SearchState<const N: usize> {
+    position: [usize; N],
+    time_to_action: [i32; N],
     closed: HashSet<usize>,
+}
+
+impl<const N: usize> SearchState<N> {
+    fn new(system: &SimplifiedSystem) -> SearchState<N> {
+        SearchState {
+            position: [system.start; N],
+            time_to_action: [0; N],
+            closed: system
+                .valves
+                .iter()
+                .filter(|(_k, v)| v.flow_rate > 0)
+                .map(|(k, _v)| *k)
+                .collect(),
+        }
+    }
 }
 
 pub fn answer() {
@@ -92,45 +106,71 @@ pub fn answer() {
 
     let simplified_system = SimplifiedSystem::new(system);
 
-    let closed = simplified_system
-        .valves
-        .iter()
-        .filter(|(_k, v)| v.flow_rate > 0)
-        .map(|(k, _v)| *k)
-        .collect();
-
     let answer1 = find_most_pressure_released(
         &simplified_system,
         30,
-        SearchState {
-            position: simplified_system.start,
-            closed,
-        },
+        SearchState::<1>::new(&simplified_system),
     );
 
     println!("Answer 1 {}", answer1);
+
+    let answer2 = find_most_pressure_released(
+        &simplified_system,
+        26,
+        SearchState::<2>::new(&simplified_system),
+    );
+
+    println!("Answer 2 {}", answer2);
 }
 
-fn find_most_pressure_released(system: &SimplifiedSystem, minutes: i32, state: SearchState) -> i32 {
+fn find_most_pressure_released<const N: usize>(
+    system: &SimplifiedSystem,
+    minutes: i32,
+    state: SearchState<N>,
+) -> i32 {
     if minutes <= 0 {
         return 0;
     }
 
     let mut cost = 0;
 
-    for location in &state.closed {
-        let time = system.distances[[state.position, *location]];
-        
-        let mut new_state = state.clone();
-        new_state.closed.remove(location);
-        new_state.position = *location;
-        let new_time = minutes - time;
-        let release = new_time * system.valves.get(location).unwrap().flow_rate;
+    for i in 0..N {
+        for location in &state.closed {
+            if state.time_to_action[i] > 0 {
+                continue;
+            }
+            let time = system.distances[[state.position[i], *location]];
 
-        let release_rest = find_most_pressure_released(system, new_time, new_state);
+            let mut new_state = state.clone();
+            new_state.position[i] = *location;
+            new_state.time_to_action[i] = time;
+            new_state.closed.remove(location);
 
-        let total_release = release + release_rest;
-        cost = cost.max(total_release);
+            let time_delta = *new_state.time_to_action.iter().min().unwrap();
+            new_state
+                .time_to_action
+                .iter_mut()
+                .for_each(|t| *t = *t - time_delta);
+
+            if minutes == 26 {
+                println!("{:?}", (i, location));
+            }
+
+            let open_time = minutes - time;
+            let release = if open_time > 0 {
+                open_time * system.valves.get(location).unwrap().flow_rate
+            } else {
+                0
+            };
+
+            let release_rest = find_most_pressure_released(system, minutes - time_delta, new_state);
+
+            let total_release = release + release_rest;
+            cost = cost.max(total_release);
+            if minutes >= 26 {
+                dbg!(cost);
+            }
+        }
     }
     cost
 }
