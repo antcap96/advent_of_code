@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 #[must_use = "iterator adaptors are lazy and do nothing unless consumed"]
 struct CycleEnumerate<I> {
