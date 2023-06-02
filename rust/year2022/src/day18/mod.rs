@@ -122,36 +122,43 @@ struct Face {
     direction: Direction,
 }
 
-fn flood(cubes: HashSet<Cube>, max: Point) -> HashSet<Face> {
-    let start = max.clone();
-    let mut faces = HashSet::new();
-    let mut queue = vec![start.clone()];
-    let mut visited: HashSet<Point> = [start].into_iter().collect();
+struct SearchArea {
+    min: Point,
+    max: Point,
+    cubes: HashSet<Cube>,
+}
 
-    while let Some(point) = queue.pop() {
-        let cube = Cube { location: point };
+impl SearchArea {
+    fn find_outside_faces(&self) -> HashSet<Face> {
+        let mut faces = HashSet::new();
+        let mut queue = vec![self.max.clone()];
+        let mut visited: HashSet<Point> = [self.max.clone()].into_iter().collect();
 
-        if !cubes.contains(&cube) {
-            for face in cube.faces() {
-                faces.insert(face);
-            }
-            for neighbor in cube.neighbors() {
-                if !visited.contains(&neighbor)
-                    && neighbor.x <= max.x
-                    && neighbor.y <= max.y
-                    && neighbor.z <= max.z
-                    && neighbor.x >= -1
-                    && neighbor.y >= -1
-                    && neighbor.z >= -1
-                {
-                    visited.insert(neighbor.clone());
-                    queue.push(neighbor);
+        while let Some(point) = queue.pop() {
+            let cube = Cube { location: point };
+
+            if !self.cubes.contains(&cube) {
+                for face in cube.faces() {
+                    faces.insert(face);
+                }
+                for neighbor in cube.neighbors() {
+                    if !visited.contains(&neighbor)
+                        && neighbor.x <= self.max.x
+                        && neighbor.y <= self.max.y
+                        && neighbor.z <= self.max.z
+                        && neighbor.x >= self.min.x
+                        && neighbor.y >= self.min.y
+                        && neighbor.z >= self.min.z
+                    {
+                        visited.insert(neighbor.clone());
+                        queue.push(neighbor);
+                    }
                 }
             }
         }
-    }
 
-    faces
+        faces
+    }
 }
 
 pub fn answer() {
@@ -159,6 +166,23 @@ pub fn answer() {
         std::fs::read_to_string("year2022/src/day18/input.txt").expect("Failed to read file");
 
     let cubes = parse_data(&data);
+
+    let faces = find_faces_count(&cubes);
+    let unpaired_faces = faces.iter().filter(|(_, &count)| count == 1);
+    let answer1 = unpaired_faces.clone().count();
+
+    println!("Answer1: {}", answer1);
+
+    let outside_faces = find_outside_faces(cubes);
+
+    let answer2 = unpaired_faces
+        .filter(|(face, _)| outside_faces.contains(face))
+        .count();
+
+    println!("Answer2: {:?}", answer2);
+}
+
+fn find_outside_faces(cubes: HashSet<Cube>) -> HashSet<Face> {
     let min_x = cubes.iter().map(|cube| cube.location.x).min().unwrap();
     let max_x = cubes.iter().map(|cube| cube.location.x).max().unwrap();
     let min_y = cubes.iter().map(|cube| cube.location.y).min().unwrap();
@@ -166,34 +190,36 @@ pub fn answer() {
     let min_z = cubes.iter().map(|cube| cube.location.z).min().unwrap();
     let max_z = cubes.iter().map(|cube| cube.location.z).max().unwrap();
 
+    let search_area = SearchArea {
+        min: Point {
+            x: min_x - 1,
+            y: min_y - 1,
+            z: min_z - 1,
+        },
+        max: Point {
+            x: max_x + 1,
+            y: max_y + 1,
+            z: max_z + 1,
+        },
+        cubes,
+    };
+
+    search_area.find_outside_faces()
+}
+
+fn find_faces_count(cubes: &HashSet<Cube>) -> HashMap<Face, i32> {
     let mut faces = HashMap::new();
 
-    for cube in &cubes {
+    for cube in cubes {
         for face in cube.faces() {
             *faces.entry(face).or_insert(0) += 1;
         }
     }
 
-    let unpaired_faces = faces.iter().filter(|(_, &count)| count == 1);
-    let answer1 = unpaired_faces.clone().count();
-
-    println!("Answer1: {}", answer1);
-
-    let outside_faces = flood(
-        cubes.into_iter().collect(),
-        Point {
-            x: max_x + 1,
-            y: max_y + 1,
-            z: max_z + 1,
-        },
-    );
-
-    let answer2 = unpaired_faces.filter(|(face, _)| outside_faces.contains(face)).count();
-
-    println!("Answer2: {:?}", answer2);
+    faces
 }
 
-fn parse_data(data: &str) -> Vec<Cube> {
+fn parse_data(data: &str) -> HashSet<Cube> {
     data.lines()
         .map(|line| {
             let mut numbers = line.split(',');

@@ -8,7 +8,7 @@ struct Point {
 
 impl Point {
     fn manhattan_distance(&self, other: &Self) -> i32 {
-        ((self.x - other.x).abs() + (self.y - other.y).abs()) as i32
+        (self.x - other.x).abs() + (self.y - other.y).abs()
     }
 }
 

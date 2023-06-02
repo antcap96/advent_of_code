@@ -150,7 +150,7 @@ fn find_most_pressure_released<const N: usize>(
             new_state
                 .time_to_action
                 .iter_mut()
-                .for_each(|t| *t = *t - time_delta);
+                .for_each(|t| *t -= time_delta);
 
             if minutes == 26 {
                 println!("{:?}", (i, location));
