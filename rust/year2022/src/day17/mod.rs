@@ -316,8 +316,6 @@ fn test1() {
 
     let answer = find_pattern(chamber, &pieces, &jet_stream);
 
-    
     assert!(answer.of(2022) == 3068);
     assert!(answer.of(1000000000000) == 1514285714288);
-
 }

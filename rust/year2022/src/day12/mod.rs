@@ -14,27 +14,23 @@ impl Map {
         start: (usize, usize),
         end: (usize, usize),
     ) -> Self {
-        Self {
-            height,
-            start,
-            end,
-        }
+        Self { height, start, end }
     }
 
     // A struct could be created to avoid allocating memory.
     fn neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
         let (x, y) = point;
         let mut neighbors = Vec::new();
-        if x > 0 && self.height[[x, y]] + 1 >= self.height[[x - 1, y]]  {
+        if x > 0 && self.height[[x, y]] + 1 >= self.height[[x - 1, y]] {
             neighbors.push((x - 1, y));
         }
-        if y > 0 && self.height[[x, y]] + 1 >= self.height[[x, y - 1]]  {
+        if y > 0 && self.height[[x, y]] + 1 >= self.height[[x, y - 1]] {
             neighbors.push((x, y - 1));
         }
-        if x < self.height.dim().0 - 1 && self.height[[x, y]] + 1 >= self.height[[x + 1, y]]  {
+        if x < self.height.dim().0 - 1 && self.height[[x, y]] + 1 >= self.height[[x + 1, y]] {
             neighbors.push((x + 1, y));
         }
-        if y < self.height.dim().1 - 1 && self.height[[x, y]] + 1 >= self.height[[x, y + 1]]  {
+        if y < self.height.dim().1 - 1 && self.height[[x, y]] + 1 >= self.height[[x, y + 1]] {
             neighbors.push((x, y + 1));
         }
         neighbors.into_iter()
@@ -102,21 +98,15 @@ fn bfs<TPointIter: Iterator<Item = (usize, usize)>>(
 }
 
 fn distance_start_end(map: &Map) -> u32 {
-    bfs(
-        map,
-        map.start,
-        Map::neighbors,
-        |map, point| point == map.end,
-    )
+    bfs(map, map.start, Map::neighbors, |map, point| {
+        point == map.end
+    })
 }
 
 fn distance_end_a(map: &Map) -> u32 {
-    bfs(
-        map,
-        map.end,
-        Map::rev_neighbors,
-        |map, point| map.height[point] == 0,
-    )
+    bfs(map, map.end, Map::rev_neighbors, |map, point| {
+        map.height[point] == 0
+    })
 }
 
 fn parse_data(data: &str) -> Map {

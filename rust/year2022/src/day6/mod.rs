@@ -26,7 +26,7 @@ fn find_first_n_distinct(data: &str, n: usize) -> Option<usize> {
         if memory.get(&removed) == Some(&idx) {
             memory.remove(&removed);
         }
-        
+
         memory.insert(new, idx + n);
     }
     None

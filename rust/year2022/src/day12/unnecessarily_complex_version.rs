@@ -157,5 +157,3 @@ fn parse_data(data: &str) -> Map {
 
     Map::from_height(height, start, end)
 }
-
-
