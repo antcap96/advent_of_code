@@ -1,0 +1,4 @@
+name = "AdventOfCode"
+uuid = "ca7e90bc-21c7-4dcf-99a6-96e065b9f0a7"
+authors = ["António Capela <antonio.capela@xpand-it.com>"]
+version = "0.1.0"
