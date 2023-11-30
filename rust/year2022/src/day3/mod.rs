@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day3/input.txt").expect("Failed to load data");
+    let data = include_str!("input.txt");
 
-    let data = parse_data(&data);
+    let data = parse_data(data);
 
     let cost = get_rucksacks_error_cost(&data);
 

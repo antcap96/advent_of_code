@@ -83,10 +83,9 @@ impl Crt {
 
 // during
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day10/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let operations = parse_data(&data);
+    let operations = parse_data(data);
 
     let (crt, total) = get_answers(operations);
 

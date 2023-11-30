@@ -65,9 +65,7 @@ impl SimulationState {
 fn max_geodes(blueprint: &Blueprint) -> i32 {
     let state = SimulationState::new();
 
-    let max = step(state, blueprint, 0);
-
-    max
+    step(state, blueprint, 0)
 }
 
 fn step(state: SimulationState, blueprint: &Blueprint, i: u32) -> i32 {
@@ -116,13 +114,12 @@ fn step(state: SimulationState, blueprint: &Blueprint, i: u32) -> i32 {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day19/input.txt").expect("Failed to read file");
+    let data = include_str!("input.txt");
 
-    let blueprints = parse_blueprint_wrapper(&data);
+    let blueprints = parse_blueprint_wrapper(data);
 
     for blueprint in &blueprints {
-        let max_geodes = max_geodes(&blueprint);
+        let max_geodes = max_geodes(blueprint);
         dbg!(max_geodes);
     }
 }

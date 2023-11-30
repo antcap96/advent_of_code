@@ -55,10 +55,9 @@ fn parse_i32_from_iter(chars: &mut impl Iterator<Item = char>) -> i32 {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day15/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let sensors = parse_data(&data);
+    let sensors = parse_data(data);
 
     let answer1 = count_impossible(&sensors, 2000000);
 

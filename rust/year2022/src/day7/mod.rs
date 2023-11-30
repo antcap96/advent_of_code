@@ -94,9 +94,9 @@ fn recursion(dir: &Directory, necessary_space: u64, mut best_so_far: u64) -> u64
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day7/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let command_list = parse_input(&data);
+    let command_list = parse_input(data);
 
     let root = build_directory(&mut command_list.into_iter().skip(1));
     // let root = build_directories(&mut command_list.into_iter().skip(1));

@@ -83,9 +83,9 @@ impl<const N: usize> Rope<N> {
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day9/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let movements = parse_data(&data);
+    let movements = parse_data(data);
 
     let mut rope1 = Rope {
         // using map because array constructor requires Copy trait

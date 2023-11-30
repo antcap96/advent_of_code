@@ -11,10 +11,9 @@ struct Puzzle {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day14/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let puzzle = parse_data(&data);
+    let puzzle = parse_data(data);
 
     let answers = simulate_sand_falling(puzzle);
 
@@ -57,7 +56,7 @@ fn simulate_sand_falling(puzzle: Puzzle) -> (u32, u32) {
 fn parse_data(data: &str) -> Puzzle {
     let paths = data.lines().map(|line| {
         line.split("->").map(|part| {
-            let Some((x,y)) = part.trim().split(',').collect_tuple() else {
+            let Some((x, y)) = part.trim().split(',').collect_tuple() else {
                 panic!("Invalid input")
             };
             let x = x.parse::<i32>().unwrap();

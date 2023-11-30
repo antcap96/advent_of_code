@@ -41,9 +41,9 @@ impl FromStr for Range {
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day4/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let ranges = parse_data(&data);
+    let ranges = parse_data(data);
 
     let contained = number_of_contained(&ranges);
 

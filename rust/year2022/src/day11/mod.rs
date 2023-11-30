@@ -79,10 +79,9 @@ struct Monkey2 {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day11/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let (monkeys, monkeys2) = parse_data(&data);
+    let (monkeys, monkeys2) = parse_data(data);
 
     let monkey_business = answer1(monkeys);
     println!("{:?}", monkey_business);

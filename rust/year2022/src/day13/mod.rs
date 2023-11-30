@@ -106,7 +106,7 @@ impl Eq for Element {}
 
 impl PartialOrd for Element {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(ordering(self, other))
+        Some(self.cmp(other))
     }
 }
 
@@ -117,10 +117,9 @@ impl Ord for Element {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day13/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let elements = parse_data(&data);
+    let elements = parse_data(data);
 
     let result1 = answer1(&elements);
     println!("Answer 1: {}", result1);

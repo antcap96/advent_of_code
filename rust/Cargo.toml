@@ -1,6 +1,3 @@
 [workspace]
-
-members = [
-    "runner",
-    "year2022",
-]
+resolver = "1"
+members = ["runner", "year2022"]

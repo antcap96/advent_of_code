@@ -231,10 +231,9 @@ fn find_pattern(mut chamber: Chamber, pieces: &[Piece], jet_stream: &[Direction]
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day17/input.txt").expect("Failed to read file");
+    let data = include_str!("input.txt");
 
-    let jet_stream = parse_data(&data);
+    let jet_stream = parse_data(data);
     let pieces = build_pieces();
     let chamber = Chamber {
         stopped_rocks: HashSet::new(),

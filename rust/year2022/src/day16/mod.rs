@@ -99,10 +99,9 @@ impl<const N: usize> SearchState<N> {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day16/input.txt").expect("Failed to read file");
+    let data = include_str!("input.txt");
 
-    let system = parse_data(&data);
+    let system = parse_data(data);
 
     let simplified_system = SimplifiedSystem::new(system);
 

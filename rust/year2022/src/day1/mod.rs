@@ -1,5 +1,5 @@
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day1/input.txt").expect("Failed to read file");
+    let data = include_str!("input.txt");
 
     let mut calories = parse_data(data);
 
@@ -12,7 +12,7 @@ pub fn answer() {
     println!("top3: {}", total);
 }
 
-fn parse_data(data: String) -> Vec<i32> {
+fn parse_data(data: &str) -> Vec<i32> {
     let elves_calories = data.split("\n\n");
 
     let elves_total_calories = elves_calories.map(|elf_calories| {

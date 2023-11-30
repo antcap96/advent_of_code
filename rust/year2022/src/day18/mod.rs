@@ -162,10 +162,9 @@ impl SearchArea {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day18/input.txt").expect("Failed to read file");
+    let data = include_str!("input.txt");
 
-    let cubes = parse_data(&data);
+    let cubes = parse_data(data);
 
     let faces = find_faces_count(&cubes);
     let unpaired_faces = faces.iter().filter(|(_, &count)| count == 1);

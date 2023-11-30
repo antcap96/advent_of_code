@@ -1,7 +1,7 @@
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day8/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let tree_heights = parse_data(&data);
+    let tree_heights = parse_data(data);
 
     let count = answer1(&tree_heights);
     println!("Answer 1: {}", count);

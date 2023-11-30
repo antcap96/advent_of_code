@@ -39,10 +39,9 @@ impl FromStr for PlayerPlay {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day2/input.txt").expect("Could not read the file");
+    let data = include_str!("input.txt");
 
-    let data = parse_data(&data);
+    let data = parse_data(data);
 
     let points = calculate_points_question1(&data);
 

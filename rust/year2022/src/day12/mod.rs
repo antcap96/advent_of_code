@@ -56,10 +56,9 @@ impl Map {
 }
 
 pub fn answer() {
-    let data =
-        std::fs::read_to_string("year2022/src/day12/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let map = parse_data(&data);
+    let map = parse_data(data);
 
     let distance = distance_start_end(&map);
     println!("Answer 1: {}", distance);

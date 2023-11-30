@@ -66,9 +66,9 @@ impl Operation {
 }
 
 pub fn answer() {
-    let data = std::fs::read_to_string("year2022/src/day5/input.txt").expect("Unable to read file");
+    let data = include_str!("input.txt");
 
-    let (ship, operations) = parse_input(&data);
+    let (ship, operations) = parse_input(data);
 
     let mut ship1 = ship.clone();
     print_answer1(&mut ship1, &operations);
