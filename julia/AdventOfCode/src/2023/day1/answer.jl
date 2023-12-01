@@ -46,7 +46,7 @@ function spelled_out_to_digit(line)
 
     (
         line
-        # Keep the sorounding characters in case they are shared (eg. twone -> 21)
+        # Keep the surrounding characters in case they are shared (eg. twone -> 21)
         |> _replace("one" => "one1one")
         |> _replace("two" => "two2two")
         |> _replace("three" => "three3three")
@@ -65,8 +65,8 @@ function answer()
     ans1 = answer1(data)
     ans2 = answer2(data)
 
-    println("The 1º answer is: $ans1")
-    println("The 2º answer is: $ans2")
+    println("Answer 1 is: $ans1")
+    println("Answer 2 is: $ans2")
 end
 
 answer()
