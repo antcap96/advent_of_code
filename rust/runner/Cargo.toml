@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.3.21", features = ["derive"] }
 year2022 = { path = "../year2022"}
+year2023 = { path = "../year2023"}
