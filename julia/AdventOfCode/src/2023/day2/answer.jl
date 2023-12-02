@@ -12,12 +12,10 @@ function parse_line(line)
     revealed = map(results) do revealed
         each = split(revealed, ',')
         DefaultDict(0,
-            Dict(
-                map(each) do group
-                    count, color = split(group)
-                    color => parse(Int, count)
-                end
-            )
+            map(each) do group
+                count, color = split(group)
+                color => parse(Int, count)
+            end...
         )
     end
 
