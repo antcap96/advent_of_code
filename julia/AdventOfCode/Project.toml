@@ -2,3 +2,6 @@ name = "AdventOfCode"
 uuid = "ca7e90bc-21c7-4dcf-99a6-96e065b9f0a7"
 authors = ["António Capela <antonio.capela@xpand-it.com>"]
 version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"

@@ -1,3 +1,7 @@
 {
-    "julia.environmentPath": "./AdventOfCode"
+    "julia.environmentPath": "./AdventOfCode",
+    "cSpell.enableFiletypes": [
+        "!plaintext",
+        "julia"
+    ]
 }
