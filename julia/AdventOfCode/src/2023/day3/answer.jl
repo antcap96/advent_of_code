@@ -14,15 +14,15 @@ end
 #= Shared =#
 
 struct FoundNumber
-    start::CartesianIndex
-    end_::CartesianIndex
+    range::CartesianIndices
     value::Int
 end
 
 function FoundNumber(pos, str)
+    start = CartesianIndex(pos[1], pos[2] - length(str))
+    end_ = CartesianIndex(pos[1], pos[2] - 1)
     FoundNumber(
-        CartesianIndex(pos[1], pos[2] - length(str)),
-        CartesianIndex(pos[1], pos[2] - 1),
+        start:end_,
         parse(Int, str),
     )
 end
@@ -73,7 +73,7 @@ function answer1(input)
     numbers = get_numbers(input)
 
     valid_numbers = filter(numbers) do number
-        any(neighbors[number.start:number.end_])
+        any(neighbors[number.range])
     end
 
     sum(valid_numbers) do number
@@ -94,7 +94,7 @@ function answer2(input)
 
     sum(gears) do gear
         neighbors = filter(numbers) do number
-            neighbor(gear, number.start:number.end_)
+            neighbor(gear, number.range)
         end
         if length(neighbors) != 2
             return 0
