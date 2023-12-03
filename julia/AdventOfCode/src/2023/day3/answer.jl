@@ -18,17 +18,17 @@ struct FoundNumber
     value::Int
 end
 
-function FoundNumber(pos, str)
+function FoundNumber(pos::Tuple{Int,Int}, str::Union{AbstractString,Char})
     start = CartesianIndex(pos[1], pos[2] - length(str))
-    end_ = CartesianIndex(pos[1], pos[2] - 1)
+    stop = CartesianIndex(pos[1], pos[2] - 1)
     FoundNumber(
-        start:end_,
+        start:stop,
         parse(Int, str),
     )
 end
 
-function get_numbers(input)
-    numbers = []
+function get_numbers(input::AbstractMatrix{Char})
+    numbers = FoundNumber[]
 
     for y in axes(input, 1)
         in_number = false
@@ -58,22 +58,27 @@ function get_numbers(input)
     numbers
 end
 
+function expand(idxs::CartesianIndices)
+    xs = idxs.indices[1]
+    ys = idxs.indices[2]
+    xstart = xs.start - 1
+    xstop = xs.stop + 1
+    ystart = ys.start - 1
+    ystop = ys.stop + 1
+
+    CartesianIndices((xstart:xstop, ystart:ystop))
+end
+
 #= Answer1 =#
 
 function answer1(input)
-    symbols = .!(isdigit.(input) .|| input .== '.')
-    neighbors = circshift(symbols, (-1, -1)) .||
-                circshift(symbols, (-1, 0)) .||
-                circshift(symbols, (-1, 1)) .||
-                circshift(symbols, (0, -1)) .||
-                circshift(symbols, (0, 1)) .||
-                circshift(symbols, (1, -1)) .||
-                circshift(symbols, (1, 0)) .||
-                circshift(symbols, (1, 1))
+    symbols = @. !(isdigit(input) || input == '.')
     numbers = get_numbers(input)
 
+    valid_indices = eachindex(IndexCartesian(), input)
     valid_numbers = filter(numbers) do number
-        any(neighbors[number.range])
+        neighbors = intersect(expand(number.range), valid_indices)
+        any(symbols[neighbors])
     end
 
     sum(valid_numbers) do number
@@ -83,10 +88,6 @@ end
 
 #= Answer2 =#
 
-function neighbor(idx::CartesianIndex, idxs::CartesianIndices)
-    any([idx + CartesianIndex(x, y) in idxs for x in -1:1 for y in -1:1])
-end
-
 function answer2(input)
     gears = findall(input .== '*')
 
@@ -94,7 +95,7 @@ function answer2(input)
 
     sum(gears) do gear
         neighbors = filter(numbers) do number
-            neighbor(gear, number.range)
+            gear in expand(number.range)
         end
         if length(neighbors) != 2
             return 0
