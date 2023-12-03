@@ -119,8 +119,6 @@ pub fn answer() {
 
     let input = parse_data(data);
 
-    dbg!(&input);
-
     let ans1 = answer1(&input);
     println!("answer1: {}", ans1);
 
