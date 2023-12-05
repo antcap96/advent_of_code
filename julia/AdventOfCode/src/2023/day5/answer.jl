@@ -58,16 +58,16 @@ end
 
 include("ranges.jl")
 
-function next(origin::Ranges, mappings::Vector{Vector{MappingRange}})
+function next(origin::RangeSet, mappings::Vector{Vector{MappingRange}})
     for mapping in mappings
         origin = next(origin, mapping)
     end
     origin
 end
 
-function next(origin::Ranges, mapping::Vector{MappingRange})
+function next(origin::RangeSet, mapping::Vector{MappingRange})
     unmapped = origin
-    mapped_to = Ranges([])
+    mapped_to = RangeSet()
     for range in mapping
         intersection = intersect(origin, origin_range(range))
         if !isempty(intersection)
@@ -84,7 +84,7 @@ end
 function answer2(input)
     seeds, mappings = input
     ranges = map(zip(seeds[1:2:end], seeds[2:2:end])) do (start, len)
-        next(Ranges(start:start+len), mappings)
+        next(RangeSet(start:start+len), mappings)
     end
     minimum(ranges) do range
         minimum(range)
