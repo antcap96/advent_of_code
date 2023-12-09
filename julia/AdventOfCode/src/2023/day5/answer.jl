@@ -147,7 +147,6 @@ humidity-to-location map:
 60 56 37
 56 93 4
 " |> split_newline
-test_input_2 = "" |> split_newline
 
 @test answer1(test_input_1 |> parse_input) == 35
 
