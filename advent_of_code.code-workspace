@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "rust"
+		},
+		{
+			"path": "julia"
+		}
+	],
+	"settings": {
+		"julia.environmentPath": "/home/antonio-pc/Antonio/advent_of_code/julia/AdventOfCode"
+	}
+}
