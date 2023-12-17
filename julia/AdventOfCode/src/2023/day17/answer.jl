@@ -33,77 +33,67 @@ end
 end
 
 # ╔═╡ fc77ac42-d45a-424d-94fb-f82551b309ff
-struct CrucibleState1
-	move::Int
-	direction::Direction
+struct CrucibleState{T}
+    move::Int
+    direction::Direction
 end
+
+# ╔═╡ 1468ef0b-ff3e-4bf9-b57b-1b7dd06da085
+max_moves(::Type{CrucibleState{1}}) = 3
+
+# ╔═╡ 5799a8d3-7273-47ab-baa3-a5d861e5a388
+max_moves(::Type{CrucibleState{2}}) = 10
 
 # ╔═╡ 0babc792-c48d-4971-bc2b-90ee3d87ab43
-function index(state::CrucibleState1)
-	state.move + (Int(state.direction)-1)*3
-end
-
-# ╔═╡ 3d52aac9-4064-4874-916f-5218178a38cf
-struct CrucibleState2
-	move::Int
-	direction::Direction
-end
-
-# ╔═╡ 589da640-ce8d-44de-b433-5d409121e8d1
-function index(state::CrucibleState2)
-	state.move + (Int(state.direction)-1)*10
+function index(state::T) where {T<:CrucibleState}
+    state.move + (Int(state.direction) - 1) * max_moves(T)
 end
 
 # ╔═╡ ded55e98-0c49-427d-9710-18dd3a096857
-function Base.instances(::Type{CrucibleState1})
-	[CrucibleState1(i, d) for i in 1:3, d in instances(Direction)]
-end
-
-# ╔═╡ df754ecc-7245-4117-b454-bafeab88837c
-function Base.instances(::Type{CrucibleState2})
-	[CrucibleState1(i, d) for i in 1:10, d in instances(Direction)]
+function Base.instances(::Type{T}) where {T<:CrucibleState}
+    [T(i, d) for i in 1:max_moves(T), d in instances(Direction)]
 end
 
 # ╔═╡ 2cb4a7a0-1598-48f9-ad23-5d3b858aeb56
 function turn_left(direction::Direction)
-	Direction(
-		mod((Int(direction) - 2), 4) + 1
-	)
+    Direction(
+        mod((Int(direction) - 2), 4) + 1
+    )
 end
 
 # ╔═╡ 1c495002-0f0a-4afa-a05f-640827da6237
 function turn_right(direction::Direction)
-	Direction(
-		mod(Int(direction), 4) + 1
-	)
+    Direction(
+        mod(Int(direction), 4) + 1
+    )
 end
 
 # ╔═╡ 73f7a1a8-fcac-4bab-8efc-43c80f05f999
-function next_moves(state::CrucibleState1)
-	moves = CrucibleState1[
-		CrucibleState1(1, turn_left(state.direction)),	
-		CrucibleState1(1, turn_right(state.direction)),	
-	]
-	if state.move < 3
-		push!(moves, 
-			CrucibleState1(state.move+1, state.direction)
-		)
-	end
-	moves
+function next_moves(state::CrucibleState{1})
+    moves = CrucibleState{1}[
+        CrucibleState{1}(1, turn_left(state.direction)),
+        CrucibleState{1}(1, turn_right(state.direction)),
+    ]
+    if state.move < 3
+        push!(moves,
+            CrucibleState{1}(state.move + 1, state.direction)
+        )
+    end
+    moves
 end
 
 # ╔═╡ 9ba063b6-2860-462d-a3d3-b1cb69c56701
-function next_moves(state::CrucibleState2)
-	moves = if state.move < 10
-		CrucibleState2[CrucibleState2(state.move+1, state.direction)]
-	else
-		CrucibleState2[]
-	end
-	if state.move >= 4
-		push!(moves, CrucibleState2(1, turn_left(state.direction)))
-		push!(moves, CrucibleState2(1, turn_right(state.direction)))
-	end
-	moves
+function next_moves(state::CrucibleState{2})
+    moves = if state.move < 10
+        CrucibleState{2}[CrucibleState{2}(state.move + 1, state.direction)]
+    else
+        CrucibleState{2}[]
+    end
+    if state.move >= 4
+        push!(moves, CrucibleState{2}(1, turn_left(state.direction)))
+        push!(moves, CrucibleState{2}(1, turn_right(state.direction)))
+    end
+    moves
 end
 
 # ╔═╡ 4e5a0993-3871-44b3-89ec-d8a04552dbe9
@@ -115,48 +105,47 @@ const direction_map = Dict(
 )
 
 # ╔═╡ 96ecc081-1a3e-4e4c-879d-68e434e59927
-function dijkstra(::Type{T}, matrix) where T
-	distances = fill(typemax(Int), size(matrix)..., length(instances(T)))
-	pq = PriorityQueue{Tuple{CartesianIndex, T}, Int}()
+function dijkstra(::Type{T}, matrix) where {T<:CrucibleState}
+    distances = fill(typemax(Int), size(matrix)..., length(instances(T)))
+    pq = PriorityQueue{Tuple{CartesianIndex,T},Int}()
 
-	for (p, d) in (
-		(CartesianIndex(1,2), T(1, Right)),
-		(CartesianIndex(2,1), T(1, Down)),
-	)
-		distances[p, index(d)] = matrix[p]
-		enqueue!(pq, (p, d) => distances[p, index(d)])
-	end
+    for (p, d) in (
+        (CartesianIndex(1, 2), T(1, Right)),
+        (CartesianIndex(2, 1), T(1, Down)),
+    )
+        distances[p, index(d)] = matrix[p]
+        enqueue!(pq, (p, d) => distances[p, index(d)])
+    end
 
-	while !isempty(pq)
-		point, state = dequeue!(pq)
-		for next_state in next_moves(state)
-			next_point = point + direction_map[next_state.direction]
-			if !checkbounds(Bool, matrix, next_point)
-				continue
-			end
-			cost = distances[point, index(state)] + matrix[next_point]
-			if cost < distances[next_point, index(next_state)]
-				distances[next_point, index(next_state)] = cost
-				pq[(next_point, next_state)] = cost
-				
-			end
-		end
-	end
-	distances
+    while !isempty(pq)
+        point, state = dequeue!(pq)
+        for next_state in next_moves(state)
+            next_point = point + direction_map[next_state.direction]
+            if !checkbounds(Bool, matrix, next_point)
+                continue
+            end
+            cost = distances[point, index(state)] + matrix[next_point]
+            if cost < distances[next_point, index(next_state)]
+                distances[next_point, index(next_state)] = cost
+                pq[(next_point, next_state)] = cost
+            end
+        end
+    end
+    distances
 end
 
 # ╔═╡ 6b582f4e-32f6-4510-a23b-2fbe3152ab4d
 function answer1(input)
-	distances = dijkstra(CrucibleState1, input)
-	minimum(distances[end, end, :])
+    distances = dijkstra(CrucibleState{1}, input)
+    minimum(distances[end, end, :])
 end
 
 # ╔═╡ 2fafbde3-65ac-48e7-b8ac-ce6ef73bb42a
 function answer2(input)
-	distances = dijkstra(CrucibleState2, input)
-	minimum(distances[end, end, [
-		index(state) for state in instances(CrucibleState2) if state.move >=4
-	]])
+    distances = dijkstra(CrucibleState{2}, input)
+    minimum(distances[end, end, [
+        index(state) for state in instances(CrucibleState{2}) if state.move >= 4
+    ]])
 end
 
 # ╔═╡ aa10cf48-c754-4037-81f2-4c4220209637
@@ -292,13 +281,12 @@ uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 # ╠═42d0b1b6-981a-11ee-0a01-6f7d5b828f97
 # ╠═37725a67-02b1-45d6-b4b9-3e110aa03f8b
 # ╠═fc77ac42-d45a-424d-94fb-f82551b309ff
-# ╠═3d52aac9-4064-4874-916f-5218178a38cf
 # ╠═73f7a1a8-fcac-4bab-8efc-43c80f05f999
 # ╠═9ba063b6-2860-462d-a3d3-b1cb69c56701
+# ╠═1468ef0b-ff3e-4bf9-b57b-1b7dd06da085
+# ╠═5799a8d3-7273-47ab-baa3-a5d861e5a388
 # ╠═0babc792-c48d-4971-bc2b-90ee3d87ab43
-# ╠═589da640-ce8d-44de-b433-5d409121e8d1
 # ╠═ded55e98-0c49-427d-9710-18dd3a096857
-# ╠═df754ecc-7245-4117-b454-bafeab88837c
 # ╠═dc5bc992-1f09-4771-a0a3-a81467db4d53
 # ╠═2cb4a7a0-1598-48f9-ad23-5d3b858aeb56
 # ╠═1c495002-0f0a-4afa-a05f-640827da6237
