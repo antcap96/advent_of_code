@@ -12,9 +12,9 @@ using Test
 
 # ╔═╡ 2f51cf4a-91d8-47a9-87cc-87048cd27465
 begin
-	using Plots;
-	test = randn(3,3)
-	heatmap(test, c = :greys)
+    using Plots
+    test = randn(3, 3)
+    heatmap(test, c=:greys)
 end
 
 # ╔═╡ 42d0b1b6-981a-11ee-0a01-6f7d5b828f97
@@ -24,25 +24,25 @@ end
 
 # ╔═╡ 83629869-c3af-4d78-97a1-1bcbc6941395
 function parse_input(data)
-	vcat(permutedims.(collect.(split(data, '\n')))...)
+    vcat(permutedims.(collect.(split(data, '\n')))...)
 end
 
 # ╔═╡ c2407fee-545e-4b0e-89c1-59c659a7d40c
 function next_moves(matrix, point)
-	output=CartesianIndex{2}[]
-	for delta in [
-		CartesianIndex(1,0),
-		CartesianIndex(-1,0),
-		CartesianIndex(0,1),
-		CartesianIndex(0,-1),
-	]
-		next_point = point + delta
-		if !checkbounds(Bool, matrix, next_point) || matrix[next_point] == '#'
-			continue
-		end
-		push!(output, next_point)
-	end
-	output
+    output = CartesianIndex{2}[]
+    for delta in [
+        CartesianIndex(1, 0),
+        CartesianIndex(-1, 0),
+        CartesianIndex(0, 1),
+        CartesianIndex(0, -1),
+    ]
+        next_point = point + delta
+        if !checkbounds(Bool, matrix, next_point) || matrix[next_point] == '#'
+            continue
+        end
+        push!(output, next_point)
+    end
+    output
 end
 
 # ╔═╡ 08da5099-cb13-47e3-846f-e462d9d62938
@@ -50,8 +50,8 @@ function dijkstra(matrix, start)
     distances = fill(typemax(Int), size(matrix)...)
     pq = PriorityQueue{CartesianIndex,Int}()
 
-	distances[start] = 0
-	enqueue!(pq, start => 0)
+    distances[start] = 0
+    enqueue!(pq, start => 0)
 
     while !isempty(pq)
         point = dequeue!(pq)
@@ -68,14 +68,14 @@ end
 
 # ╔═╡ f950d0a3-bdd7-42f0-889e-7e9358851a76
 function answer1_(input, n)
-	distances = dijkstra(input, findfirst(input .== 'S'))
+    distances = dijkstra(input, findfirst(input .== 'S'))
 
-	sum(iseven.(distances) .&& distances .<= n)
+    sum(iseven.(distances) .&& distances .<= n)
 end
 
 # ╔═╡ 6b582f4e-32f6-4510-a23b-2fbe3152ab4d
 function answer1(input)
-	answer1_(input, 64)
+    answer1_(input, 64)
 end
 
 # ╔═╡ 312576c0-ff06-41a4-b2d8-891ded62eef7
@@ -95,107 +95,107 @@ test_input_1 = "...........
 @test answer1_(test_input_1 |> parse_input, 6) == 16
 
 # ╔═╡ 0ce4a989-b39b-4449-96c1-23f00ecab63f
-(307369-94963)
+(307369 - 94963)
 
 # ╔═╡ 368def68-2fde-43b7-a3fb-d0647cfa4d11
-7602*16+7556*12
+7602 * 16 + 7556 * 12
 
 # ╔═╡ 160ddccd-1949-40c1-b682-01d38cd1e962
 f0, f1, f2 = (
-	3821,
-	34234,
-	94963,
+    3821,
+    34234,
+    94963,
 )
 
 # ╔═╡ a2fea44e-23b5-432a-ba05-f82af395d827
 begin
-	c = f0
-	a = (f2 - 2*f1 + f0) ÷ 2 # Don't worry this is an integer :-)
-	b = f1 - f0 - a
-	# Now we have our polynomial!
-	f_ = n -> a*n^2 + b*n + c
-	N = (26501365 - 65) ÷ 131
-	println(f_(N))
+    c = f0
+    a = (f2 - 2 * f1 + f0) ÷ 2 # Don't worry this is an integer :-)
+    b = f1 - f0 - a
+    # Now we have our polynomial!
+    f_ = n -> a * n^2 + b * n + c
+    N = (26501365 - 65) ÷ 131
+    println(f_(N))
 end
 
 # ╔═╡ ee3203b4-5a94-4d80-b3d3-052e5d31087b
 struct Map
-	start::CartesianIndex{2}
-	up::Tuple{Int, Vector{Int}}
-	down::Tuple{Int, Vector{Int}}
-	left::Tuple{Int, Vector{Int}}
-	right::Tuple{Int, Vector{Int}}
-	up_left::Int
-	up_right::Int
-	down_left::Int
-	down_right::Int
-	distances::Matrix{Int}
+    start::CartesianIndex{2}
+    up::Tuple{Int,Vector{Int}}
+    down::Tuple{Int,Vector{Int}}
+    left::Tuple{Int,Vector{Int}}
+    right::Tuple{Int,Vector{Int}}
+    up_left::Int
+    up_right::Int
+    down_left::Int
+    down_right::Int
+    distances::Matrix{Int}
 end
 
 # ╔═╡ 1462469f-93cf-4caa-ae0c-966322763f68
 function create_map(input, start)
-	distances = dijkstra(input, start)
+    distances = dijkstra(input, start)
 
-	min_up = minimum(distances[1,:])
-	min_down = minimum(distances[end,:])
-	min_left = minimum(distances[:,1])
-	min_right = minimum(distances[:,end])
-	
-	Map(
-		start,
-		(min_up+1, findall(distances[1,:] .== min_up)),
-		(min_down+1, findall(distances[end,:] .== min_down)),
-		(min_left+1, findall(distances[:,1] .== min_left)),
-		(min_right+1, findall(distances[:,end] .== min_right)),
-		distances[1,1]+2,
-		distances[1,end]+2,
-		distances[end,1]+2,
-		distances[end,end]+2,
-		distances,
-	)
+    min_up = minimum(distances[1, :])
+    min_down = minimum(distances[end, :])
+    min_left = minimum(distances[:, 1])
+    min_right = minimum(distances[:, end])
+
+    Map(
+        start,
+        (min_up + 1, findall(distances[1, :] .== min_up)),
+        (min_down + 1, findall(distances[end, :] .== min_down)),
+        (min_left + 1, findall(distances[:, 1] .== min_left)),
+        (min_right + 1, findall(distances[:, end] .== min_right)),
+        distances[1, 1] + 2,
+        distances[1, end] + 2,
+        distances[end, 1] + 2,
+        distances[end, end] + 2,
+        distances,
+    )
 end
 
 # ╔═╡ 7dfad5f2-3050-4fb7-9ad5-799a56cb0133
 function all_maps(input, start)
-	map1 = create_map(input, start)
-	maps = Dict()
-	#=maps = Dict(start => map1)
-	for p in [
-		CartesianIndex(1,1),
-		CartesianIndex(1,size(input,2)),
-		CartesianIndex(size(input,1),1),
-		CartesianIndex(size(input,1),size(input,2)),
-	]
-	maps[p] = create_map(input, p)
-	end=#
-	dq = Deque{CartesianIndex{2}}()
-	push!(dq, start)
+    map1 = create_map(input, start)
+    maps = Dict()
+    #=maps = Dict(start => map1)
+    	for p in [
+    		CartesianIndex(1,1),
+    		CartesianIndex(1,size(input,2)),
+    		CartesianIndex(size(input,1),1),
+    		CartesianIndex(size(input,1),size(input,2)),
+    	]
+    	maps[p] = create_map(input, p)
+    	end=#
+    dq = Deque{CartesianIndex{2}}()
+    push!(dq, start)
 
-	while !isempty(dq)
-		point = popfirst!(dq)
-		if haskey(maps, point)
-			continue
-		end
-		map = create_map(input, point)
-		maps[point] = map
-		for p in map.up[2]
-			push!(dq, CartesianIndex(1, p))
-		end
-		for p in map.down[2]
-			push!(dq, CartesianIndex(size(input,1), p))
-		end
-		for p in map.left[2]
-			push!(dq, CartesianIndex(p, 1)) 
-		end
-		for p in map.right[2]
-			push!(dq, CartesianIndex(p, size(input, 2))) 
-		end
-	end
-	maps
+    while !isempty(dq)
+        point = popfirst!(dq)
+        if haskey(maps, point)
+            continue
+        end
+        map = create_map(input, point)
+        maps[point] = map
+        for p in map.up[2]
+            push!(dq, CartesianIndex(1, p))
+        end
+        for p in map.down[2]
+            push!(dq, CartesianIndex(size(input, 1), p))
+        end
+        for p in map.left[2]
+            push!(dq, CartesianIndex(p, 1))
+        end
+        for p in map.right[2]
+            push!(dq, CartesianIndex(p, size(input, 2)))
+        end
+    end
+    maps
 end
 
 # ╔═╡ affc6297-bf6f-4a47-8850-617414d7fead
-all_maps(load_data() |> parse_input, CartesianIndex(66,66))
+all_maps(load_data() |> parse_input, CartesianIndex(66, 66))
 
 # ╔═╡ e3e82aaa-322e-4c54-827c-c9ee9a6e31a8
 heatmap([
@@ -211,143 +211,173 @@ heatmap([
 ])
 
 # ╔═╡ 2a95f1e5-f68d-4812-b0b6-8fe6e51ba47d
-f(k)=2k*(k+1)+1
+f(k) = 2k * (k + 1) + 1
 
 # ╔═╡ 35b6b892-fda4-4bd8-b30c-812f7723d4da
 f(202299)
 
 # ╔═╡ 14b20fb8-e7f1-4c46-b2dc-2516c9f12bf5
-4(202300÷2-1)^2 + 4(202300÷2)*(202300÷2+1)+1
+4(202300 ÷ 2 - 1)^2 + 4(202300 ÷ 2) * (202300 ÷ 2 + 1) + 1
 
 # ╔═╡ e634ed2d-786e-455f-a199-c04a4e6488a5
-202300(202300*2+3)
+202300(202300 * 2 + 3)
 
 # ╔═╡ a122a8d2-7f04-464f-94e5-d49291239e7e
-((202300÷2)*(202300*2+5),(202300÷2)*(202300*2+1))
+((202300 ÷ 2) * (202300 * 2 + 5), (202300 ÷ 2) * (202300 * 2 + 1))
 
 # ╔═╡ 7255fb9e-efba-4e8e-a2d6-e46cadfd69ab
 begin
-	maps = all_maps(load_data() |> parse_input, CartesianIndex(66,66))
-	m1 = sum(
-		isodd.(maps[CartesianIndex(66, 66)].distances)
-		.&& (maps[CartesianIndex(66, 66)].distances .<= 999999))
-	m2 = sum(
-		isodd.(maps[CartesianIndex(1, 66)].distances)
-		.&& (maps[CartesianIndex(1, 66)].distances .<= 131))
-	m3 = sum(
-		isodd.(maps[CartesianIndex(131, 66)].distances)
-		.&& (maps[CartesianIndex(131, 66)].distances .<= 131))
-	m4 = sum(
-		isodd.(maps[CartesianIndex(66, 1)].distances)
-		.&& (maps[CartesianIndex(66, 1)].distances .<= 131))
-	m5 = sum(
-		isodd.(maps[CartesianIndex(66, 131)].distances)
-		.&& (maps[CartesianIndex(66, 131)].distances .<= 131))
-	m6 = sum(
-		isodd.(maps[CartesianIndex(1, 1)].distances)
-		.&& (maps[CartesianIndex(1, 1)].distances .<= 66))
-	m7 = sum(
-		isodd.(maps[CartesianIndex(131, 1)].distances)
-		.&& (maps[CartesianIndex(131, 1)].distances .<= 66))
-	m8 = sum(
-		isodd.(maps[CartesianIndex(1, 131)].distances)
-		.&& (maps[CartesianIndex(1, 131)].distances .<= 66))
-	m9 = sum(
-		isodd.(maps[CartesianIndex(131, 131)].distances)
-		.&& (maps[CartesianIndex(131, 131)].distances .<= 66))
-	m10 = sum( # compare with sides
-		isodd.(maps[CartesianIndex(1, 1)].distances)
-		.&& (maps[CartesianIndex(1, 1)].distances .<= 195))
-	m11 = sum( # compare with sides
-		isodd.(maps[CartesianIndex(131, 1)].distances)
-		.&& (maps[CartesianIndex(131, 1)].distances .<= 195))
-	m12 = sum( # compare with sides
-		isodd.(maps[CartesianIndex(1, 131)].distances)
-		.&& (maps[CartesianIndex(1, 131)].distances .<= 195))
-	m13 = sum( # compare with sides
-		isodd.(maps[CartesianIndex(131, 131)].distances)
-		.&& (maps[CartesianIndex(131, 131)].distances .<= 195))
-	m14 = sum(
-		isodd.(maps[CartesianIndex(1, 66)].distances)
-		.&& (maps[CartesianIndex(1, 66)].distances .<= 999999))
-	m15 = sum(
-		iseven.(maps[CartesianIndex(1, 66)].distances)
-		.&& (maps[CartesianIndex(1, 66)].distances .<= 999999))
-	(m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15,
-		m2 + m3 + m4 + m5
-		+ 202300(m6 + m7 + m8 + m9)
-		+ 202299(m10 + m11 + m12 + m13)
-		+ 4(202300÷2-1)^2*m14
-		+ (4(202300÷2)*(202300÷2+1)+1)*m15
-	)	
+    maps = all_maps(load_data() |> parse_input, CartesianIndex(66, 66))
+    m1 = sum(
+        isodd.(maps[CartesianIndex(66, 66)].distances)
+        .&&
+        (maps[CartesianIndex(66, 66)].distances .<= 999999))
+    m2 = sum(
+        isodd.(maps[CartesianIndex(1, 66)].distances)
+        .&&
+        (maps[CartesianIndex(1, 66)].distances .<= 131))
+    m3 = sum(
+        isodd.(maps[CartesianIndex(131, 66)].distances)
+        .&&
+        (maps[CartesianIndex(131, 66)].distances .<= 131))
+    m4 = sum(
+        isodd.(maps[CartesianIndex(66, 1)].distances)
+        .&&
+        (maps[CartesianIndex(66, 1)].distances .<= 131))
+    m5 = sum(
+        isodd.(maps[CartesianIndex(66, 131)].distances)
+        .&&
+        (maps[CartesianIndex(66, 131)].distances .<= 131))
+    m6 = sum(
+        isodd.(maps[CartesianIndex(1, 1)].distances)
+        .&&
+        (maps[CartesianIndex(1, 1)].distances .<= 66))
+    m7 = sum(
+        isodd.(maps[CartesianIndex(131, 1)].distances)
+        .&&
+        (maps[CartesianIndex(131, 1)].distances .<= 66))
+    m8 = sum(
+        isodd.(maps[CartesianIndex(1, 131)].distances)
+        .&&
+        (maps[CartesianIndex(1, 131)].distances .<= 66))
+    m9 = sum(
+        isodd.(maps[CartesianIndex(131, 131)].distances)
+        .&&
+        (maps[CartesianIndex(131, 131)].distances .<= 66))
+    m10 = sum( # compare with sides
+        isodd.(maps[CartesianIndex(1, 1)].distances)
+        .&&
+        (maps[CartesianIndex(1, 1)].distances .<= 195))
+    m11 = sum( # compare with sides
+        isodd.(maps[CartesianIndex(131, 1)].distances)
+        .&&
+        (maps[CartesianIndex(131, 1)].distances .<= 195))
+    m12 = sum( # compare with sides
+        isodd.(maps[CartesianIndex(1, 131)].distances)
+        .&&
+        (maps[CartesianIndex(1, 131)].distances .<= 195))
+    m13 = sum( # compare with sides
+        isodd.(maps[CartesianIndex(131, 131)].distances)
+        .&&
+        (maps[CartesianIndex(131, 131)].distances .<= 195))
+    m14 = sum(
+        isodd.(maps[CartesianIndex(1, 66)].distances)
+        .&&
+        (maps[CartesianIndex(1, 66)].distances .<= 999999))
+    m15 = sum(
+        iseven.(maps[CartesianIndex(1, 66)].distances)
+        .&&
+        (maps[CartesianIndex(1, 66)].distances .<= 999999))
+    (m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15,
+        m2 + m3 + m4 + m5
+        + 202300(m6 + m7 + m8 + m9)
+        + 202299(m10 + m11 + m12 + m13)
+        + 4(202300 ÷ 2 - 1)^2 * m14
+        + (4(202300 ÷ 2) * (202300 ÷ 2 + 1) + 1) * m15
+    )
 end
 
 # ╔═╡ b43763e8-e0c0-4106-8fad-38f4fde0fa1f
 function fixme(n)
-	if isodd(n)
-		isodd_ = isodd
-		iseven_ = iseven
-	else
-		isodd_ = iseven
-		iseven_ = isodd
-	end
-	distance = 65+131n
-	if n == 0
-		sum(iseven_.(maps[CartesianIndex(66, 66)].distances)
-		.&& (maps[CartesianIndex(66, 66)].distances .<= distance))
-	else
-		s1 = (1+4sum(2:2:(n-1)))*sum(
-			iseven_.(maps[CartesianIndex(66, 66)].distances)
-			.&& (maps[CartesianIndex(66, 66)].distances .<= distance)) +
-			(4*sum(1:2:(n-1)))*sum(
-			isodd_.(maps[CartesianIndex(66, 66)].distances)
-			.&& (maps[CartesianIndex(66, 66)].distances .<= distance))
-		s2 = (
-			sum(iseven.(maps[CartesianIndex(1, 66)].distances)
-				.&& (maps[CartesianIndex(1, 66)].distances .<= 131))
-			+sum(iseven.(maps[CartesianIndex(131, 66)].distances)
-				.&& (maps[CartesianIndex(131, 66)].distances .<= 131))
-			+sum(iseven.(maps[CartesianIndex(66, 1)].distances)
-				.&& (maps[CartesianIndex(66, 1)].distances .<= 131))
-			+sum(iseven.(maps[CartesianIndex(66, 131)].distances)
-				.&& (maps[CartesianIndex(66, 131)].distances .<= 131))
-		)
-		s3 = n*(
-			sum(
-				iseven.(maps[CartesianIndex(1, 1)].distances)
-				.&& (maps[CartesianIndex(1, 1)].distances .<= 65))
-			+sum(
-				iseven.(maps[CartesianIndex(131, 1)].distances)
-				.&& (maps[CartesianIndex(131, 1)].distances .<= 65))
-			+sum(
-				iseven.(maps[CartesianIndex(1, 131)].distances)
-				.&& (maps[CartesianIndex(1, 131)].distances .<= 65))
-			+sum(
-				iseven.(maps[CartesianIndex(131, 131)].distances)
-				.&& (maps[CartesianIndex(131, 131)].distances .<= 65))
-		)
-		s4 = (n-1) * (
-			sum(
-				isodd.(maps[CartesianIndex(1, 1)].distances)
-				.&& (maps[CartesianIndex(1, 1)].distances .<= 196))
-			+sum(
-				isodd.(maps[CartesianIndex(131, 1)].distances)
-				.&& (maps[CartesianIndex(131, 1)].distances .<= 196))
-			+sum(
-				isodd.(maps[CartesianIndex(1, 131)].distances)
-				.&& (maps[CartesianIndex(1, 131)].distances .<= 196))
-			+sum(
-				isodd.(maps[CartesianIndex(131, 131)].distances)
-				.&& (maps[CartesianIndex(131, 131)].distances .<= 196))
-		)
-		s1+s2+s3+s4
+    if isodd(n)
+        isodd_ = isodd
+        iseven_ = iseven
+    else
+        isodd_ = iseven
+        iseven_ = isodd
+    end
+    distance = 65 + 131n
+    if n == 0
+        sum(iseven_.(maps[CartesianIndex(66, 66)].distances)
+            .&&
+            (maps[CartesianIndex(66, 66)].distances .<= distance))
+    else
+        s1 = (1 + 4sum(2:2:(n-1))) * sum(
+            iseven_.(maps[CartesianIndex(66, 66)].distances)
+            .&&
+            (maps[CartesianIndex(66, 66)].distances .<= distance)) +
+             (4 * sum(1:2:(n-1))) * sum(
+            isodd_.(maps[CartesianIndex(66, 66)].distances)
+            .&&
+            (maps[CartesianIndex(66, 66)].distances .<= distance))
+        s2 = (
+            sum(iseven.(maps[CartesianIndex(1, 66)].distances)
+                .&&
+                (maps[CartesianIndex(1, 66)].distances .<= 131))
+            + sum(iseven.(maps[CartesianIndex(131, 66)].distances)
+                  .&&
+                  (maps[CartesianIndex(131, 66)].distances .<= 131))
+            + sum(iseven.(maps[CartesianIndex(66, 1)].distances)
+                  .&&
+                  (maps[CartesianIndex(66, 1)].distances .<= 131))
+            + sum(iseven.(maps[CartesianIndex(66, 131)].distances)
+                  .&&
+                  (maps[CartesianIndex(66, 131)].distances .<= 131))
+        )
+        s3 = n * (
+            sum(
+                iseven.(maps[CartesianIndex(1, 1)].distances)
+                .&&
+                (maps[CartesianIndex(1, 1)].distances .<= 65))
+            + sum(
+                iseven.(maps[CartesianIndex(131, 1)].distances)
+                .&&
+                (maps[CartesianIndex(131, 1)].distances .<= 65))
+            + sum(
+                iseven.(maps[CartesianIndex(1, 131)].distances)
+                .&&
+                (maps[CartesianIndex(1, 131)].distances .<= 65))
+            + sum(
+                iseven.(maps[CartesianIndex(131, 131)].distances)
+                .&&
+                (maps[CartesianIndex(131, 131)].distances .<= 65))
+        )
+        s4 = (n - 1) * (
+            sum(
+                isodd.(maps[CartesianIndex(1, 1)].distances)
+                .&&
+                (maps[CartesianIndex(1, 1)].distances .<= 196))
+            + sum(
+                isodd.(maps[CartesianIndex(131, 1)].distances)
+                .&&
+                (maps[CartesianIndex(131, 1)].distances .<= 196))
+            + sum(
+                isodd.(maps[CartesianIndex(1, 131)].distances)
+                .&&
+                (maps[CartesianIndex(1, 131)].distances .<= 196))
+            + sum(
+                isodd.(maps[CartesianIndex(131, 131)].distances)
+                .&&
+                (maps[CartesianIndex(131, 131)].distances .<= 196))
+        )
+        s1 + s2 + s3 + s4
 
-	end
+    end
 end
 
 # ╔═╡ 2fafbde3-65ac-48e7-b8ac-ce6ef73bb42a
 function answer2(input)
-	fixme(26501365 ÷ size(input,1))
+    fixme(26501365 ÷ size(input, 1))
 end
 
 # ╔═╡ aa10cf48-c754-4037-81f2-4c4220209637
@@ -368,57 +398,71 @@ answer()
 
 # ╔═╡ bafe7e83-6816-4449-b653-8ef91757a5e3
 begin
-	(
-	4sum(
-		iseven.(maps[CartesianIndex(66, 66)].distances)
-		.&& (maps[CartesianIndex(66, 66)].distances .<= 9999999))
-	+sum(
-		isodd.(maps[CartesianIndex(66, 66)].distances)
-		.&& (maps[CartesianIndex(66, 66)].distances .<= 9999999))
-	+sum(
-		isodd.(maps[CartesianIndex(1, 66)].distances)
-		.&& (maps[CartesianIndex(1, 66)].distances .<= 131))
-	+sum(
-		isodd.(maps[CartesianIndex(131, 66)].distances)
-		.&& (maps[CartesianIndex(131, 66)].distances .<= 131))
-	+sum(
-		isodd.(maps[CartesianIndex(66, 1)].distances)
-		.&& (maps[CartesianIndex(66, 1)].distances .<= 131))
-	+sum(
-		isodd.(maps[CartesianIndex(66, 131)].distances)
-		.&& (maps[CartesianIndex(66, 131)].distances .<= 131))
-	+2sum(
-		isodd.(maps[CartesianIndex(1, 1)].distances)
-		.&& (maps[CartesianIndex(1, 1)].distances .<= 65))
-	+2sum(
-		isodd.(maps[CartesianIndex(131, 1)].distances)
-		.&& (maps[CartesianIndex(131, 1)].distances .<= 65))
-	+2sum(
-		isodd.(maps[CartesianIndex(1, 131)].distances)
-		.&& (maps[CartesianIndex(1, 131)].distances .<= 65))
-	+2sum(
-		isodd.(maps[CartesianIndex(131, 131)].distances)
-		.&& (maps[CartesianIndex(131, 131)].distances .<= 65))
-	+sum( # compare with sides
-		iseven.(maps[CartesianIndex(1, 1)].distances)
-		.&& (maps[CartesianIndex(1, 1)].distances .<= 196))
-	+sum( # compare with sides
-		iseven.(maps[CartesianIndex(131, 1)].distances)
-		.&& (maps[CartesianIndex(131, 1)].distances .<= 196))
-	+sum( # compare with sides
-		iseven.(maps[CartesianIndex(1, 131)].distances)
-		.&& (maps[CartesianIndex(1, 131)].distances .<= 196))
-	+sum( # compare with sides
-		iseven.(maps[CartesianIndex(131, 131)].distances)
-		.&& (maps[CartesianIndex(131, 131)].distances .<= 196))
-	)
+    (
+        4sum(
+            iseven.(maps[CartesianIndex(66, 66)].distances)
+            .&&
+            (maps[CartesianIndex(66, 66)].distances .<= 9999999))
+        + sum(
+            isodd.(maps[CartesianIndex(66, 66)].distances)
+            .&&
+            (maps[CartesianIndex(66, 66)].distances .<= 9999999))
+        + sum(
+            isodd.(maps[CartesianIndex(1, 66)].distances)
+            .&&
+            (maps[CartesianIndex(1, 66)].distances .<= 131))
+        + sum(
+            isodd.(maps[CartesianIndex(131, 66)].distances)
+            .&&
+            (maps[CartesianIndex(131, 66)].distances .<= 131))
+        + sum(
+            isodd.(maps[CartesianIndex(66, 1)].distances)
+            .&&
+            (maps[CartesianIndex(66, 1)].distances .<= 131))
+        + sum(
+            isodd.(maps[CartesianIndex(66, 131)].distances)
+            .&&
+            (maps[CartesianIndex(66, 131)].distances .<= 131))
+        + 2sum(
+            isodd.(maps[CartesianIndex(1, 1)].distances)
+            .&&
+            (maps[CartesianIndex(1, 1)].distances .<= 65))
+        + 2sum(
+            isodd.(maps[CartesianIndex(131, 1)].distances)
+            .&&
+            (maps[CartesianIndex(131, 1)].distances .<= 65))
+        + 2sum(
+            isodd.(maps[CartesianIndex(1, 131)].distances)
+            .&&
+            (maps[CartesianIndex(1, 131)].distances .<= 65))
+        + 2sum(
+            isodd.(maps[CartesianIndex(131, 131)].distances)
+            .&&
+            (maps[CartesianIndex(131, 131)].distances .<= 65))
+        + sum( # compare with sides
+            iseven.(maps[CartesianIndex(1, 1)].distances)
+            .&&
+            (maps[CartesianIndex(1, 1)].distances .<= 196))
+        + sum( # compare with sides
+            iseven.(maps[CartesianIndex(131, 1)].distances)
+            .&&
+            (maps[CartesianIndex(131, 1)].distances .<= 196))
+        + sum( # compare with sides
+            iseven.(maps[CartesianIndex(1, 131)].distances)
+            .&&
+            (maps[CartesianIndex(1, 131)].distances .<= 196))
+        + sum( # compare with sides
+            iseven.(maps[CartesianIndex(131, 131)].distances)
+            .&&
+            (maps[CartesianIndex(131, 131)].distances .<= 196))
+    )
 end
 
 # ╔═╡ 2dfee06c-01fd-488f-b1e8-de4ecda35c70
-maps[CartesianIndex(131, 131)].distances[1,:]
+maps[CartesianIndex(131, 131)].distances[1, :]
 
 # ╔═╡ dca9bff3-de5d-466c-9f96-c8230acec1f3
-maps[CartesianIndex(131, 66)].distances[1,:]
+maps[CartesianIndex(131, 66)].distances[1, :]
 
 # ╔═╡ 6bb422b0-81d5-44e8-8b30-19359289769a
 1404637057498586 ÷ 2
@@ -427,10 +471,10 @@ maps[CartesianIndex(131, 66)].distances[1,:]
 26501366^2
 
 # ╔═╡ c4e2f3d2-9088-43f5-b42d-e4b114a32539
-((202299*2+1)^2-1) ÷ 2
+((202299 * 2 + 1)^2 - 1) ÷ 2
 
 # ╔═╡ 22c90d7d-5486-48f8-8f9a-0c6de0420249
-131*131 / 2
+131 * 131 / 2
 
 # ╔═╡ 8d049e7f-d2a7-4da3-8276-28a2618be63e
 9605
@@ -439,41 +483,57 @@ maps[CartesianIndex(131, 66)].distances[1,:]
 26501365^2
 
 # ╔═╡ 58eac03b-c993-467c-81f9-759d04d81c76
-(26501365-65) / 131
+(26501365 - 65) / 131
 
 # ╔═╡ 7c5b0d6f-98f1-4831-8dfd-f27d5d1b755b
 # 0,0: 0
-create_map(test_input_1 |> parse_input, CartesianIndex(6,6))
+create_map(test_input_1 |> parse_input, CartesianIndex(6, 6))
 
 # ╔═╡ fe3da041-c87e-452b-9e20-082e19cc9194
 # -1, 0: 9
-create_map(test_input_1 |> parse_input, CartesianIndex(11,9))
+create_map(test_input_1 |> parse_input, CartesianIndex(11, 9))
 
 # ╔═╡ 1d8e0c0d-d8fc-4d1a-8d46-92c262086c4b
 # -2, 0: 22
-create_map(test_input_1 |> parse_input, CartesianIndex(11,11))
+create_map(test_input_1 |> parse_input, CartesianIndex(11, 11))
 
 # ╔═╡ 07886eb2-543d-4fc2-a066-fb58b65d2c06
 # 0, 1: 9
-create_map(test_input_1 |> parse_input, CartesianIndex(5,1))
+create_map(test_input_1 |> parse_input, CartesianIndex(5, 1))
 
 # ╔═╡ f22dacd5-b886-42bb-b765-15c25787542b
 # 1,1: 12
-create_map(test_input_1 |> parse_input, CartesianIndex(1,1))
+create_map(test_input_1 |> parse_input, CartesianIndex(1, 1))
 
 # ╔═╡ 4038271d-4aae-4f21-8941-f2456a9a8b2c
 begin
-	function FIXME()
-		n = 0
-		matrix = test_input_1 |> parse_input
-		matrix[6,6] = '.'
-		matrix3 = repeat(matrix, 2n+1, 2n+1)
-		distances = dijkstra(matrix3, CartesianIndex(11*n+6, 11*n+6))
-		distances[distances.==9223372036854775807] .= -1
-		heatmap(distances)
-	end
-	FIXME()
+    function FIXME()
+        n = 0
+        matrix = test_input_1 |> parse_input
+        matrix[6, 6] = '.'
+        matrix3 = repeat(matrix, 2n + 1, 2n + 1)
+        distances = dijkstra(matrix3, CartesianIndex(11 * n + 6, 11 * n + 6))
+        distances[distances.==9223372036854775807] .= -1
+        heatmap(distances)
+    end
+    FIXME()
 end
+
+# ╔═╡ 12074846-2e87-42ef-bbdf-2a3b27cb4bc7
+#=╠═╡
+begin
+	n = 4
+	matrix = load_data() |> parse_input
+	matrix2 = repeat(matrix, 2n+1, 2n+1)
+
+	distances = dijkstra(matrix2, CartesianIndex(131n+66,131n+66))
+	if isodd(65+131n)
+		sum(isodd.(distances) .&& distances .<= 65+131n)
+	else
+		sum(iseven.(distances) .&& distances .<= 65+131n)
+	end
+end
+  ╠═╡ =#
 
 # ╔═╡ c3259424-d356-454f-b586-b800491c4a2e
 # ╠═╡ disabled = true
@@ -483,20 +543,6 @@ begin
 	findall(distances[1,:] .== minimum(distances[1,:]))
 end
   ╠═╡ =#
-
-# ╔═╡ 12074846-2e87-42ef-bbdf-2a3b27cb4bc7
-begin
-	n = 4
-	matrix = load_data() |> parse_input
-	matrix2 = repeat(matrix, 2n+1, 2n+1)
-	
-	distances = dijkstra(matrix2, CartesianIndex(131n+66,131n+66))
-	if isodd(65+131n)
-		sum(isodd.(distances) .&& distances .<= 65+131n)
-	else
-		sum(iseven.(distances) .&& distances .<= 65+131n)
-	end
-end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
