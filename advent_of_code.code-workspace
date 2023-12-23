@@ -8,6 +8,6 @@
 		}
 	],
 	"settings": {
-		"julia.environmentPath": "/home/antonio-pc/Antonio/advent_of_code/julia/AdventOfCode"
+		"julia.environmentPath": "./julia/AdventOfCode"
 	}
 }
