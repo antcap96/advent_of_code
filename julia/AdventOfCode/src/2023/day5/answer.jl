@@ -1,13 +1,38 @@
-#= Data parsing =#
+### A Pluto.jl notebook ###
+# v0.19.36
 
-function load_data()
-    readlines(@__DIR__() * "/input.txt")
+using Markdown
+using InteractiveUtils
+
+# ╔═╡ fc492531-5f5f-4c3f-8acf-eb5733e67029
+begin
+    using Pkg
+    Pkg.activate(Base.current_project())
+    Pkg.instantiate()
 end
 
+# ╔═╡ 033d0af9-6edf-4d2e-83e1-cb13e0fd0628
+using Test
+
+# ╔═╡ 28e1b0ba-993e-4c9d-af1c-2651c2a083c0
+include("ranges.jl")
+
+# ╔═╡ 019eb054-1a68-4b5e-a3b7-541c34d946d1
+function load_data()
+    readchomp(@__DIR__() * "/input.txt")
+end
+
+# ╔═╡ 03376d68-b4a8-4619-b7b5-4dc716647499
+struct MappingRange
+    destination::Int
+    origin::Int
+    length::Int
+end
+
+# ╔═╡ d6462b57-141b-4abf-b85d-6254a1d19afa
 function parse_input(data)
-    empty_lines = [findall(isempty.(data)); length(data) + 1]
-    ranges = range.([1; empty_lines[1:end-1] .+ 1], empty_lines .- 1)
-    chunks = [data[idx] for idx in ranges]
+	chunks = split.(split(data, "\n\n"), '\n')
+
     seed_str = split(chunks[1][1], ':')[2]
     seeds = parse.(Int, split(seed_str))
 
@@ -19,20 +44,12 @@ function parse_input(data)
     seeds, mappings
 end
 
-#= Shared =#
-
-struct MappingRange
-    destination::Int
-    origin::Int
-    length::Int
-end
-
+# ╔═╡ e68d6a7e-bcc6-4840-b660-ff13730d2eae
 function origin_range(mapping::MappingRange)
     (mapping.origin):(mapping.origin+mapping.length-1)
 end
 
-#= Answer1 =#
-
+# ╔═╡ 440d607d-a299-4c52-b9a0-853fcde17559
 function next(origin, mapping::Vector{MappingRange})
     for range in mapping
         if origin in origin_range(range)
@@ -42,6 +59,7 @@ function next(origin, mapping::Vector{MappingRange})
     origin
 end
 
+# ╔═╡ 426bbfe3-e94f-4686-a3fc-11bb4148c750
 function next(origin, mappings::Vector{Vector{MappingRange}})
     for mapping in mappings
         origin = next(origin, mapping)
@@ -49,15 +67,7 @@ function next(origin, mappings::Vector{Vector{MappingRange}})
     origin
 end
 
-function answer1(input)
-    seeds, mappings = input
-    minimum([next(seed, mappings) for seed in seeds])
-end
-
-#= Answer2 =#
-
-include("ranges.jl")
-
+# ╔═╡ fe602630-462e-4f37-b00d-133ef3e522df
 function next(origin::RangeSet, mappings::Vector{Vector{MappingRange}})
     for mapping in mappings
         origin = next(origin, mapping)
@@ -65,6 +75,7 @@ function next(origin::RangeSet, mappings::Vector{Vector{MappingRange}})
     origin
 end
 
+# ╔═╡ fd62574c-2b07-46d6-a9ef-3da7f883dc77
 function next(origin::RangeSet, mapping::Vector{MappingRange})
     unmapped = origin
     mapped_to = RangeSet()
@@ -80,7 +91,13 @@ function next(origin::RangeSet, mapping::Vector{MappingRange})
     union(mapped_to, unmapped)
 end
 
+# ╔═╡ 9b40b9c0-d55d-4908-88f2-595c1ef2c47f
+function answer1(input)
+    seeds, mappings = input
+    minimum([next(seed, mappings) for seed in seeds])
+end
 
+# ╔═╡ e5c84b64-2695-4a6f-8272-264cf170b19e
 function answer2(input)
     seeds, mappings = input
     ranges = map(zip(seeds[1:2:end], seeds[2:2:end])) do (start, len)
@@ -91,8 +108,7 @@ function answer2(input)
     end
 end
 
-#= Print answer =#
-
+# ╔═╡ 3b65d3b0-1f31-4d31-b3cd-e3194caad819
 function answer()
     data = load_data()
 
@@ -105,14 +121,10 @@ function answer()
     println("Answer 2 is: $ans2")
 end
 
+# ╔═╡ b6e36731-dde8-4d8a-8987-58a7fbd52824
 answer()
 
-#= Tests =#
-
-using Test
-
-split_newline = s -> split(s, '\n')
-
+# ╔═╡ ee5c316f-113a-4b91-881e-0d837818b4c9
 test_input_1 = "seeds: 79 14 55 13
 
 seed-to-soil map:
@@ -145,9 +157,30 @@ temperature-to-humidity map:
 
 humidity-to-location map:
 60 56 37
-56 93 4
-" |> split_newline
+56 93 4"
 
+# ╔═╡ ff84a7fa-d219-4173-97fb-a9bb1d2db96e
 @test answer1(test_input_1 |> parse_input) == 35
 
+# ╔═╡ 195e0502-db89-45d1-ad28-43a13b86386d
 @test answer2(test_input_1 |> parse_input) == 46
+
+# ╔═╡ Cell order:
+# ╠═fc492531-5f5f-4c3f-8acf-eb5733e67029
+# ╠═019eb054-1a68-4b5e-a3b7-541c34d946d1
+# ╠═d6462b57-141b-4abf-b85d-6254a1d19afa
+# ╠═03376d68-b4a8-4619-b7b5-4dc716647499
+# ╠═e68d6a7e-bcc6-4840-b660-ff13730d2eae
+# ╠═440d607d-a299-4c52-b9a0-853fcde17559
+# ╠═426bbfe3-e94f-4686-a3fc-11bb4148c750
+# ╠═9b40b9c0-d55d-4908-88f2-595c1ef2c47f
+# ╠═28e1b0ba-993e-4c9d-af1c-2651c2a083c0
+# ╠═fe602630-462e-4f37-b00d-133ef3e522df
+# ╠═fd62574c-2b07-46d6-a9ef-3da7f883dc77
+# ╠═e5c84b64-2695-4a6f-8272-264cf170b19e
+# ╠═3b65d3b0-1f31-4d31-b3cd-e3194caad819
+# ╠═b6e36731-dde8-4d8a-8987-58a7fbd52824
+# ╠═033d0af9-6edf-4d2e-83e1-cb13e0fd0628
+# ╠═ee5c316f-113a-4b91-881e-0d837818b4c9
+# ╠═ff84a7fa-d219-4173-97fb-a9bb1d2db96e
+# ╠═195e0502-db89-45d1-ad28-43a13b86386d
