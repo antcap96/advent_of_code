@@ -11,11 +11,24 @@ begin
     Pkg.instantiate()
 end
 
+# ╔═╡ afd02ace-a9f7-4b04-b0d8-dd69f342d381
+using Intervals
+
 # ╔═╡ 033d0af9-6edf-4d2e-83e1-cb13e0fd0628
 using Test
 
-# ╔═╡ 28e1b0ba-993e-4c9d-af1c-2651c2a083c0
-include("ranges.jl")
+# ╔═╡ 6dc20dae-d634-4a57-bcc4-244f75c7299e
+function Base.:+(a::IntervalSet, b)
+    IntervalSet(map(x -> x + b, convert(Array, a)))
+end
+
+# ╔═╡ 8b2294ae-89ce-4b18-b968-30167a503845
+Base.:+(b, a::IntervalSet) = a + b
+
+# ╔═╡ 1fc48119-12fe-4e97-8f01-4db83e6fdbb6
+function Base.minimum(s::IntervalSet)
+    minimum(map(minimum, convert(Array, s)))
+end
 
 # ╔═╡ 019eb054-1a68-4b5e-a3b7-541c34d946d1
 function load_data()
@@ -31,7 +44,7 @@ end
 
 # ╔═╡ d6462b57-141b-4abf-b85d-6254a1d19afa
 function parse_input(data)
-	chunks = split.(split(data, "\n\n"), '\n')
+    chunks = split.(split(data, "\n\n"), '\n')
 
     seed_str = split(chunks[1][1], ':')[2]
     seeds = parse.(Int, split(seed_str))
@@ -45,14 +58,14 @@ function parse_input(data)
 end
 
 # ╔═╡ e68d6a7e-bcc6-4840-b660-ff13730d2eae
-function origin_range(mapping::MappingRange)
-    (mapping.origin):(mapping.origin+mapping.length-1)
+function origin_interval(mapping::MappingRange)
+    Interval{Closed,Open}(mapping.origin, mapping.origin + mapping.length)
 end
 
 # ╔═╡ 440d607d-a299-4c52-b9a0-853fcde17559
 function next(origin, mapping::Vector{MappingRange})
     for range in mapping
-        if origin in origin_range(range)
+        if origin in origin_interval(range)
             return origin + (range.destination - range.origin)
         end
     end
@@ -68,7 +81,7 @@ function next(origin, mappings::Vector{Vector{MappingRange}})
 end
 
 # ╔═╡ fe602630-462e-4f37-b00d-133ef3e522df
-function next(origin::RangeSet, mappings::Vector{Vector{MappingRange}})
+function next(origin::IntervalSet, mappings::Vector{Vector{MappingRange}})
     for mapping in mappings
         origin = next(origin, mapping)
     end
@@ -76,32 +89,34 @@ function next(origin::RangeSet, mappings::Vector{Vector{MappingRange}})
 end
 
 # ╔═╡ fd62574c-2b07-46d6-a9ef-3da7f883dc77
-function next(origin::RangeSet, mapping::Vector{MappingRange})
+function next(origin::IntervalSet, mapping::Vector{MappingRange})
     unmapped = origin
-    mapped_to = RangeSet()
+    mapped_to = IntervalSet(Interval{Int,Closed,Open}[])
     for range in mapping
-        intersection = intersect(origin, origin_range(range))
+        intersection = origin ∩ origin_interval(range)
         if !isempty(intersection)
             delta = range.destination - range.origin
             unmapped = setdiff(unmapped, intersection)
-            mapped_to = union(mapped_to, intersection + delta)
+            mapped_to = (mapped_to ∪ (intersection + delta))
         end
     end
     # Any source numbers that aren't mapped correspond to the same destination number.
-    union(mapped_to, unmapped)
+    mapped_to ∪ unmapped
 end
 
 # ╔═╡ 9b40b9c0-d55d-4908-88f2-595c1ef2c47f
 function answer1(input)
     seeds, mappings = input
-    minimum([next(seed, mappings) for seed in seeds])
+    minimum(seeds) do seed
+        next(seed, mappings)
+    end
 end
 
 # ╔═╡ e5c84b64-2695-4a6f-8272-264cf170b19e
 function answer2(input)
     seeds, mappings = input
     ranges = map(zip(seeds[1:2:end], seeds[2:2:end])) do (start, len)
-        next(RangeSet(start:start+len), mappings)
+        next(IntervalSet(Interval{Closed,Open}(start, start + len)), mappings)
     end
     minimum(ranges) do range
         minimum(range)
@@ -167,6 +182,10 @@ humidity-to-location map:
 
 # ╔═╡ Cell order:
 # ╠═fc492531-5f5f-4c3f-8acf-eb5733e67029
+# ╠═afd02ace-a9f7-4b04-b0d8-dd69f342d381
+# ╠═6dc20dae-d634-4a57-bcc4-244f75c7299e
+# ╠═8b2294ae-89ce-4b18-b968-30167a503845
+# ╠═1fc48119-12fe-4e97-8f01-4db83e6fdbb6
 # ╠═019eb054-1a68-4b5e-a3b7-541c34d946d1
 # ╠═d6462b57-141b-4abf-b85d-6254a1d19afa
 # ╠═03376d68-b4a8-4619-b7b5-4dc716647499
@@ -174,7 +193,6 @@ humidity-to-location map:
 # ╠═440d607d-a299-4c52-b9a0-853fcde17559
 # ╠═426bbfe3-e94f-4686-a3fc-11bb4148c750
 # ╠═9b40b9c0-d55d-4908-88f2-595c1ef2c47f
-# ╠═28e1b0ba-993e-4c9d-af1c-2651c2a083c0
 # ╠═fe602630-462e-4f37-b00d-133ef3e522df
 # ╠═fd62574c-2b07-46d6-a9ef-3da7f883dc77
 # ╠═e5c84b64-2695-4a6f-8272-264cf170b19e
