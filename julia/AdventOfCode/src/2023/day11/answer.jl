@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.35
+# v0.19.36
 
 using Markdown
 using InteractiveUtils
@@ -16,14 +16,14 @@ using Test
 
 # ╔═╡ 42d0b1b6-981a-11ee-0a01-6f7d5b828f97
 function load_data()
-    readlines(@__DIR__() * "/input.txt")
+    readchomp(@__DIR__() * "/input.txt")
 end
 
 # ╔═╡ 37725a67-02b1-45d6-b4b9-3e110aa03f8b
 function parse_input(data)
-    data = filter(!isempty, data)
+    lines = split(data, '\n')
 
-    matrix = vcat(permutedims.(collect.(data))...)
+    matrix = vcat(permutedims.(collect.(lines))...)
 
     matrix .== '#'
 end
@@ -63,9 +63,6 @@ end
 # ╔═╡ 182d55e5-f46c-444e-95d9-b898cf48969b
 answer()
 
-# ╔═╡ 8013f1c8-2250-41bc-b78a-6c0f944ce5ec
-split_newline = s -> split(s, '\n')
-
 # ╔═╡ 312576c0-ff06-41a4-b2d8-891ded62eef7
 test_input_1 = "...#......
 .......#..
@@ -76,8 +73,7 @@ test_input_1 = "...#......
 .........#
 ..........
 .......#..
-#...#.....
-" |> split_newline
+#...#....."
 
 # ╔═╡ ef19a91f-4eee-4c4e-bc4a-dd8d38f299b1
 @test answer1(test_input_1 |> parse_input) == 374
@@ -99,7 +95,6 @@ test_input_1 = "...#......
 # ╠═aa10cf48-c754-4037-81f2-4c4220209637
 # ╠═182d55e5-f46c-444e-95d9-b898cf48969b
 # ╠═68b82337-ea65-4091-872c-7f51dfd826e9
-# ╠═8013f1c8-2250-41bc-b78a-6c0f944ce5ec
 # ╠═312576c0-ff06-41a4-b2d8-891ded62eef7
 # ╠═ef19a91f-4eee-4c4e-bc4a-dd8d38f299b1
 # ╠═68b7b111-21c6-4960-83a0-47045ebecde8
