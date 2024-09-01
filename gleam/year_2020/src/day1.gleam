@@ -52,7 +52,7 @@ pub fn answer2(numbers) {
 }
 
 pub fn main() {
-  let assert Ok(contents) = simplifile.read("../../inputs/2020/1/input.txt")
+  let assert Ok(contents) = simplifile.read("../../inputs/2020/day1.txt")
 
   let assert Ok(numbers) = parse_inputs(contents)
 
