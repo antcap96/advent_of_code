@@ -58,10 +58,6 @@ canContainShinyGoldAux = \cache, bags, name ->
         Ok found -> (cache, found)
         Err KeyNotFound ->
             # ignoreRepeated = Dict.insert cache name Bool.false
-            dbg Dict.len cache
-
-            dbg name
-
             if name == "shiny gold" then
                 (cache, Bool.true)
             else
@@ -86,22 +82,27 @@ calcAnswer1 = \lst ->
 
 bagsInBag : List BagInfo, Str -> U64
 bagsInBag = \bags, name ->
-    firstElem : Result (List {
-        amount : U64,
-        name : Str,
-    }) [NotFound]
+    firstElem : Result
+            (List {
+                amount : U64,
+                name : Str,
+            })
+            [NotFound]
     firstElem = Result.map (List.findFirst bags \bag -> bag.name == name) \x -> x.contains
     when firstElem is
-        OK contains ->
-            
-            List.map contains \{name: childName, amount} ->
-                amount * (bagsInBag bags childName)
-            |> List.sum
+        Ok contains ->
+            (
+                List.map contains \{ name: childName, amount } ->
+                    amount * (bagsInBag bags childName)
+                |> List.sum
+            )
+            + 1
 
         Err NotFound -> crash "unexpected bag '$(name)"
 
 calcAnswer2 = \lst ->
-    1
+    (bagsInBag lst "shiny gold") - 1
+
 main =
     input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day7.txt")
 
@@ -142,6 +143,17 @@ testInput =
     dotted black bags contain no other bags.
     """
 
+testInput2 =
+    """
+    shiny gold bags contain 2 dark red bags.
+    dark red bags contain 2 dark orange bags.
+    dark orange bags contain 2 dark yellow bags.
+    dark yellow bags contain 2 dark green bags.
+    dark green bags contain 2 dark blue bags.
+    dark blue bags contain 2 dark violet bags.
+    dark violet bags contain no other bags.
+    """
+
 expect
     value = parseInput testInput
     value
@@ -164,3 +176,19 @@ expect
         |> Result.map calcAnswer1
 
     value == Ok 4
+
+expect
+    value =
+        testInput
+        |> parseInput
+        |> Result.map calcAnswer2
+
+    value == Ok 32
+
+expect
+    value =
+        testInput2
+        |> parseInput
+        |> Result.map calcAnswer2
+
+    value == Ok 126
