@@ -3,8 +3,10 @@ app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/downlo
 import pf.Stdout
 import pf.Path exposing [Path]
 
-BagInfo : { name : Str, contains : List { name : Str, amount : U64 } }
+Contains : List { name : Str, amount : U64 }
+BagData : Dict Str Contains
 
+parseBegin : Str -> Result Str Str
 parseBegin = \begining ->
     Ok (begining |> Str.dropSuffix " bags")
 
@@ -15,93 +17,96 @@ parseAfter = \after ->
         Ok []
     else
         noDotAfter
-            |> Str.split ", "
-            |> List.mapTry \elem ->
-                when Str.splitFirst elem " " is
-                    Ok { before: numStr, after: rest } ->
-                        amount = Str.toU64 numStr |> Result.mapErr? \_ -> "failed to parse num $(numStr)"
-                        name = rest |> Str.dropSuffix " bags" |> Str.dropSuffix " bag"
-                        Ok { name, amount }
+        |> Str.split ", "
+        |> List.mapTry parseAmountName
 
-                    Err NotFound -> Err "failed to parse containing '$(elem)'"
+parseAmountName = \str ->
+    when Str.splitFirst str " " is
+        Ok { before: numStr, after: rest } ->
+            amount = Str.toU64 numStr |> Result.mapErr? \_ -> "failed to parse num $(numStr)"
+            name = rest |> Str.dropSuffix " bags" |> Str.dropSuffix " bag"
+            Ok { name, amount }
 
-parseRow : Str -> Result BagInfo Str
+        Err NotFound -> Err "failed to parse containing '$(str)'"
+
+parseRow : Str -> Result (Str, Contains) Str
 parseRow = \row ->
     when row |> Str.splitFirst " contain " is
         Ok { before, after } ->
-            Result.map2 (parseBegin before) (parseAfter after) \name, contains ->
-                { name, contains }
+            name = parseBegin? before
+            contains = parseAfter? after
+            Ok (name, contains)
 
-        # name = parseBegin? before
-        # contains = parseAfter? after
-        # OK {name, contains}
         Err NotFound -> Err "row doesn't contain ' contain ' $(row)"
 
-parseInput : Str -> Result (List BagInfo) Str
+parseInput : Str -> Result BagData Str
 parseInput = \str ->
     str
     |> Str.trimEnd
     |> Str.split "\n"
     |> List.mapTry parseRow
+    |> Result.map Dict.fromList
 
 Cache : Dict Str Bool
+canContainShinyGold : Cache, BagData, Contains -> (Cache, Bool)
+canContainShinyGold = \originalCache, bags, contains ->
+    List.walk contains (originalCache, Bool.false) \(cache, ans), { name, amount: _ } ->
+        (updatedCache, newAns) = canContainShinyGoldAuxCache cache bags name
+        (updatedCache, newAns || ans)
 
-canContainShinyGold : Cache, List BagInfo, BagInfo -> (Cache, Bool)
-canContainShinyGold = \cache, bags, bagInfo ->
-    List.walk bagInfo.contains (cache, Bool.false) \(newCache, ans), { name, amount: _ } ->
-        (newNewCache, newAns) = canContainShinyGoldAux newCache bags name
-        (newNewCache, newAns || ans)
+canContainShinyGoldAuxCache : Cache, BagData, Str -> (Cache, Bool)
+canContainShinyGoldAuxCache = \cache, bags, name ->
+    if name == "shiny gold" then
+        (cache, Bool.true)
+    else
+        when Dict.get cache name is
+            Ok found -> (cache, found)
+            Err KeyNotFound ->
+                failOnRepeated = cache |> Dict.insert name Bool.false
+                (newcache, ans) = canContainShinyGoldAux failOnRepeated bags name
+                (newcache |> Dict.insert name ans, ans)
 
-canContainShinyGoldAux : Cache, List BagInfo, Str -> (Cache, Bool)
-canContainShinyGoldAux = \cache, bags, name ->
-    when Dict.get cache name is
-        Ok found -> (cache, found)
-        Err KeyNotFound ->
-            # ignoreRepeated = Dict.insert cache name Bool.false
-            if name == "shiny gold" then
-                (cache, Bool.true)
-            else
-                when List.findFirst bags \bag -> bag.name == name is
-                    Ok bag ->
-                        answer = List.walk bag.contains (cache, Bool.false) \(newCache, ans), { name: innerName, amount: _ } ->
-                            ignoreRepeated = Dict.insert newCache name Bool.false
-
-                            (updatedCache, newAns) = canContainShinyGoldAux ignoreRepeated bags innerName
-                            (updatedCache |> Dict.insert innerName newAns |> Dict.remove name, newAns || ans)
-
-                        answer
-
-                    Err NotFound -> crash "unexpected bag name '$(name)'"
-
-calcAnswer1 : List BagInfo -> U64
-calcAnswer1 = \lst ->
-    List.walk lst (Dict.empty {}, 0) \(cache, amount), bagInfo ->
-        (newCache, contains) = canContainShinyGold cache lst bagInfo
-        (newCache, if contains then amount + 1 else amount)
-    |> \(_, count) -> count
-
-bagsInBag : List BagInfo, Str -> U64
-bagsInBag = \bags, name ->
-    firstElem : Result
-            (List {
-                amount : U64,
-                name : Str,
-            })
-            [NotFound]
-    firstElem = Result.map (List.findFirst bags \bag -> bag.name == name) \x -> x.contains
-    when firstElem is
+canContainShinyGoldAux : Cache, BagData, Str -> (Cache, Bool)
+canContainShinyGoldAux = \originalCache, data, name ->
+    when Dict.get data name is
         Ok contains ->
-            (
+            List.walk
+                contains
+                (originalCache, Bool.false)
+                \(cache, ans), { name: innerName, amount: _ } ->
+                    (updatedCache, newAns) =
+                        canContainShinyGoldAuxCache cache data innerName
+                    (updatedCache, newAns || ans)
+
+        Err KeyNotFound -> crash "unexpected bag name '$(name)'"
+
+calcAnswer1 : BagData -> U64
+calcAnswer1 = \data ->
+    (_finalCache, count) = Dict.walk
+        data
+        (Dict.empty {}, 0)
+        \(cache, amount), _name, contains ->
+            (newCache, itContains) = canContainShinyGold cache data contains
+            (newCache, if itContains then amount + 1 else amount)
+    count
+
+bagsInBag : BagData, Str -> U64
+bagsInBag = \data, name ->
+    when Dict.get data name is
+        Ok contains ->
+            1
+            + (
                 List.map contains \{ name: childName, amount } ->
-                    amount * (bagsInBag bags childName)
+                    amount * (bagsInBag data childName)
                 |> List.sum
             )
-            + 1
 
-        Err NotFound -> crash "unexpected bag '$(name)"
+        Err KeyNotFound -> crash "unexpected bag '$(name)"
 
-calcAnswer2 = \lst ->
-    (bagsInBag lst "shiny gold") - 1
+calcAnswer2 : BagData -> U64
+calcAnswer2 = \data ->
+    # -1 to remove the shiny gold bag from the total count
+    (bagsInBag data "shiny gold") - 1
 
 main =
     input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day7.txt")
@@ -157,17 +162,20 @@ testInput2 =
 expect
     value = parseInput testInput
     value
-    == Ok [
-        { name: "light red", contains: [{ amount: 1, name: "bright white" }, { amount: 2, name: "muted yellow" }] },
-        { name: "dark orange", contains: [{ amount: 3, name: "bright white" }, { amount: 4, name: "muted yellow" }] },
-        { name: "bright white", contains: [{ amount: 1, name: "shiny gold" }] },
-        { name: "muted yellow", contains: [{ amount: 2, name: "shiny gold" }, { amount: 9, name: "faded blue" }] },
-        { name: "shiny gold", contains: [{ amount: 1, name: "dark olive" }, { amount: 2, name: "vibrant plum" }] },
-        { name: "dark olive", contains: [{ amount: 3, name: "faded blue" }, { amount: 4, name: "dotted black" }] },
-        { name: "vibrant plum", contains: [{ amount: 5, name: "faded blue" }, { amount: 6, name: "dotted black" }] },
-        { name: "faded blue", contains: [] },
-        { name: "dotted black", contains: [] },
-    ]
+    == Ok
+        (
+            Dict.fromList [
+                ("light red", [{ amount: 1, name: "bright white" }, { amount: 2, name: "muted yellow" }]),
+                ("dark orange", [{ amount: 3, name: "bright white" }, { amount: 4, name: "muted yellow" }]),
+                ("bright white", [{ amount: 1, name: "shiny gold" }]),
+                ("muted yellow", [{ amount: 2, name: "shiny gold" }, { amount: 9, name: "faded blue" }]),
+                ("shiny gold", [{ amount: 1, name: "dark olive" }, { amount: 2, name: "vibrant plum" }]),
+                ("dark olive", [{ amount: 3, name: "faded blue" }, { amount: 4, name: "dotted black" }]),
+                ("vibrant plum", [{ amount: 5, name: "faded blue" }, { amount: 6, name: "dotted black" }]),
+                ("faded blue", []),
+                ("dotted black", []),
+            ]
+        )
 
 expect
     value =
