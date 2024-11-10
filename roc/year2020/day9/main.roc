@@ -5,9 +5,10 @@ import pf.Path exposing [Path]
 
 parseInput : Str -> Result (List U64) Str
 parseInput = \str ->
-    str |> Str.trimEnd
-        |> Str.split "\n"
-        |> List.mapTry parseRow
+    str
+    |> Str.trimEnd
+    |> Str.split "\n"
+    |> List.mapTry parseRow
 
 parseRow = \str ->
     Str.toU64 str |> Result.mapErr \_ -> "invalid number '$(str)'"
@@ -16,13 +17,13 @@ calcAnswer1 = \lst ->
     calcAnswer1Aux lst 25
 
 calcAnswer1Aux = \lst, n ->
-    List.sublist lst {start: n, len: (List.len lst) - n}
+    List.sublist lst { start: n, len: (List.len lst) - n }
     |> List.walkWithIndexUntil 0 \_, elem, idx ->
-            preamble = List.sublist lst {start :idx, len: n} |> Set.fromList
+        preamble = List.sublist lst { start: idx, len: n } |> Set.fromList
 
-            when preambleContains preamble elem is
-                Found -> Continue 0
-                NotFound -> Break elem
+        when preambleContains preamble elem is
+            Found -> Continue 0
+            NotFound -> Break elem
 
 preambleContains = \preamble, next ->
     Set.walkUntil preamble NotFound \_, elem ->
@@ -31,18 +32,17 @@ preambleContains = \preamble, next ->
         else
             Continue NotFound
 
-
-calcAnswer2 = \lst -> 
+calcAnswer2 = \lst ->
     calcAnswer2Aux lst 25
 
 calcAnswer2Aux : List U64, U64 -> Result U64 Str
 calcAnswer2Aux = \lst, n ->
     invalidNumber = calcAnswer1Aux lst n
     ans = List.walkUntil
-        (List.range {start: At 0, end: Before (List.len lst)})
+        (List.range { start: At 0, end: Before (List.len lst) })
         NoSolution
         \_, start ->
-            sublist = (List.sublist lst {start, len: (List.len lst)-start})
+            sublist = List.sublist lst { start, len: (List.len lst) - start }
             (sum, min, max) = rangeSum sublist invalidNumber
             if sum == invalidNumber then
                 Break (Solution (min, max))
@@ -120,7 +120,7 @@ expect
     value =
         testInput
         |> parseInput
-        |> Result.map \lst -> calcAnswer1Aux lst 5 
+        |> Result.map \lst -> calcAnswer1Aux lst 5
 
     value == Ok 127
 

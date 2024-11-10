@@ -9,15 +9,16 @@ Instruction : [
     Nop I64,
 ]
 
-State : {acc: I64, ip: U64}
+State : { acc : I64, ip : U64 }
 startingState : State
-startingState = {acc: 0, ip: 0}
+startingState = { acc: 0, ip: 0 }
 
 parseInput : Str -> Result (List Instruction) Str
 parseInput = \str ->
-    str |> Str.trimEnd
-        |> Str.split "\n"
-        |> List.mapTry parseRow
+    str
+    |> Str.trimEnd
+    |> Str.split "\n"
+    |> List.mapTry parseRow
 
 parseRow = \str ->
     when Str.split str " " is
@@ -28,6 +29,7 @@ parseRow = \str ->
                 "jmp" -> Ok (Jmp amount)
                 "nop" -> Ok (Nop amount)
                 _ -> Err "Invalid op '$(op)'"
+
         _ -> Err "Invalid row '$(str)"
 
 calcAnswer1 = \instructions ->
@@ -38,8 +40,11 @@ run : List Instruction, State, Set U64 -> State
 run = \instructions, state, seen ->
     newState = step instructions state
     newSeen = Set.insert seen state.ip
-    if Set.contains seen newState.ip
-    || newState.ip == List.len instructions then
+    if
+        Set.contains seen newState.ip
+        || newState.ip
+        == List.len instructions
+    then
         newState
     else
         run instructions newState newSeen
@@ -50,24 +55,27 @@ step = \instructions, state ->
         Err OutOfBounds -> crash "invalid index $(Num.toStr state.ip)"
         Ok instruction ->
             when instruction is
-                Acc amount -> {
-                    ip: state.ip + 1,
-                    acc: state.acc + amount
-                }
-                Jmp amount -> {
-                    ip: Num.addWrap state.ip (Num.toU64 amount),
-                    acc: state.acc
-                }
-                Nop _ -> {
-                    ip: state.ip + 1,
-                    acc: state.acc
-                }
-                
+                Acc amount ->
+                    {
+                        ip: state.ip + 1,
+                        acc: state.acc + amount,
+                    }
 
+                Jmp amount ->
+                    {
+                        ip: Num.addWrap state.ip (Num.toU64 amount),
+                        acc: state.acc,
+                    }
+
+                Nop _ ->
+                    {
+                        ip: state.ip + 1,
+                        acc: state.acc,
+                    }
 
 calcAnswer2 = \instructions ->
     List.walkWithIndexUntil instructions 0 \_, toChange, index ->
-        {list: newInstructions} = List.replace instructions index (swapInstruction toChange)
+        { list: newInstructions } = List.replace instructions index (swapInstruction toChange)
         finalState = run newInstructions startingState (Set.empty {})
         if finalState.ip == List.len instructions then
             Break finalState.acc
