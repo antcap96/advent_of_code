@@ -1,43 +1,61 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
+app [main] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+    parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.8.0/PCkJq9IGyIpMfwuW-9hjfXd6x-bHb1_OZdacogpBcPM.tar.br",
+}
 
 import pf.Stdout
 import pf.Path exposing [Path]
 
+import parser.Parser
+import parser.String
+
 Contains : List { name : Str, amount : U64 }
 BagData : Dict Str Contains
 
-parseBegin : Str -> Result Str Str
-parseBegin = \begining ->
-    Ok (begining |> Str.dropSuffix " bags")
+bagNameParser : Parser.Parser _ Str
+bagNameParser =
+    bagSuffixParser = Parser.alt
+        (String.string " bags")
+        (String.string " bag")
 
-parseAfter : Str -> Result (List { name : Str, amount : U64 }) Str
-parseAfter = \after ->
-    noDotAfter = Str.dropSuffix after "."
-    if noDotAfter == "no other bags" then
-        Ok []
-    else
-        noDotAfter
-        |> Str.split ", "
-        |> List.mapTry parseAmountName
+    Parser.const (\first -> \second -> "$(String.strFromUtf8 first) $(String.strFromUtf8 second)")
+    |> Parser.keep (Parser.chompUntil ' ')
+    |> Parser.skip (String.codeunit ' ')
+    |> Parser.keep (Parser.chompUntil ' ')
+    |> Parser.skip bagSuffixParser
 
-parseAmountName = \str ->
-    when Str.splitFirst str " " is
-        Ok { before: numStr, after: rest } ->
-            amount = Str.toU64 numStr |> Result.mapErr? \_ -> "failed to parse num $(numStr)"
-            name = rest |> Str.dropSuffix " bags" |> Str.dropSuffix " bag"
-            Ok { name, amount }
+beginingParser : Parser.Parser _ Str
+beginingParser =
+    Parser.const (\x -> x)
+    |> Parser.keep bagNameParser
+    |> Parser.skip (String.string " contain ")
 
-        Err NotFound -> Err "failed to parse containing '$(str)'"
+containsParser : Parser.Parser _ Contains
+containsParser =
+    noBagsParser = Parser.const (\_ -> []) |> Parser.keep (String.string "no other bags")
+
+    withBagsParser =
+        elementParser
+        |> Parser.sepBy1 (String.string ", ")
+
+    elementParser =
+        Parser.const (\amount -> \name -> { amount, name })
+        |> Parser.keep String.digits
+        |> Parser.skip (String.codeunit ' ')
+        |> Parser.keep bagNameParser
+
+    Parser.alt noBagsParser withBagsParser
+    |> Parser.skip (String.codeunit '.')
+
+rowParser : Parser.Parser _ (Str, Contains)
+rowParser =
+    Parser.const (\name -> \contains -> (name, contains))
+    |> Parser.keep beginingParser
+    |> Parser.keep containsParser
 
 parseRow : Str -> Result (Str, Contains) Str
 parseRow = \row ->
-    when row |> Str.splitFirst " contain " is
-        Ok { before, after } ->
-            name = parseBegin? before
-            contains = parseAfter? after
-            Ok (name, contains)
-
-        Err NotFound -> Err "row doesn't contain ' contain ' $(row)"
+    Result.mapErr (String.parseStr rowParser row) Inspect.toStr
 
 parseInput : Str -> Result BagData Str
 parseInput = \str ->
