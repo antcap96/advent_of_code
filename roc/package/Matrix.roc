@@ -9,8 +9,7 @@ module [
     walk,
 ]
 
-Matrix a := { rows : U64, cols : U64, data : List (List a) } implements [Eq, Inspect]
-
+Matrix a := { rows : U64, cols : U64, data : List a } implements [Eq, Inspect]
 
 nRows : Matrix a -> U64
 nRows = \@Matrix m -> m.rows
@@ -20,7 +19,10 @@ nCols = \@Matrix m -> m.cols
 
 get : Matrix a, U64, U64 -> Result a [OutOfBounds]
 get = \@Matrix m, i, j ->
-    List.get m.data i |> Result.try (\l -> List.get l j)
+    if i < m.rows && j < m.cols then
+        List.get m.data (i * m.cols + j)
+    else
+        Err OutOfBounds
 
 fromListOfList : List (List a) -> Result (Matrix a) [InconsistentColumns]
 fromListOfList = \lst ->
@@ -32,26 +34,22 @@ fromListOfList = \lst ->
             All soFar -> if soFar == cols then All soFar else Inconsistent
             Inconsistent -> Inconsistent
 
+    data = List.walk lst [] List.concat
     when colsTest is
-        Empty -> Ok (@Matrix { rows, cols: 0, data: lst })
-        All cols -> Ok (@Matrix { rows, cols, data: lst })
+        Empty -> Ok (@Matrix { rows, cols: 0, data })
+        All cols -> Ok (@Matrix { rows, cols, data })
         Inconsistent -> Err InconsistentColumns
 
 map : Matrix a, (a -> b) -> Matrix b
 map = \@Matrix m, func ->
-    newData = List.map m.data \row ->
-        List.map row \elem -> func elem
-
+    newData = List.map m.data func
     @Matrix { cols: m.cols, rows: m.rows, data: newData }
 
 mapWithIndex : Matrix a, (a, U64, U64 -> b) -> Matrix b
 mapWithIndex = \@Matrix m, func ->
-    newData = List.mapWithIndex m.data \row, i ->
-        List.mapWithIndex row \elem, j -> func elem i j
-
+    newData = List.mapWithIndex m.data \elem, i -> func elem (i // m.cols) (i % m.cols)
     @Matrix { cols: m.cols, rows: m.rows, data: newData }
 
 walk : Matrix a, state, (state, a -> state) -> state
 walk = \@Matrix m, state, func ->
-    List.walk m.data state \newState, row ->
-        List.walk row newState func
+    List.walk m.data state func
