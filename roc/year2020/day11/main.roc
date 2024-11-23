@@ -1,55 +1,13 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
+app [main] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+    adventOfCode: "../../package/main.roc",
+}
 
 import pf.Stdout
 import pf.Path exposing [Path]
+import adventOfCode.Matrix exposing [Matrix]
 
 Seat : [Floor, Empty, Occupied]
-
-Matrix a := { rows : U64, cols : U64, data : List (List a) } implements [Eq, Inspect]
-
-matrixNRows : Matrix a -> U64
-matrixNRows = \@Matrix m -> m.rows
-
-matrixNCols : Matrix a -> U64
-matrixNCols = \@Matrix m -> m.cols
-
-matrixGet : Matrix a, U64, U64 -> Result a [OutOfBounds]
-matrixGet = \@Matrix m, i, j ->
-    List.get m.data i |> Result.try (\l -> List.get l j)
-
-fromListOfList : List (List a) -> Result (Matrix a) [InconsistentColumns]
-fromListOfList = \lst ->
-    rows = List.len lst
-    colsTest = List.walk lst Empty \state, elem ->
-        cols = List.len elem
-        when state is
-            Empty -> All cols
-            All soFar -> if soFar == cols then All soFar else Inconsistent
-            Inconsistent -> Inconsistent
-
-    when colsTest is
-        Empty -> Ok (@Matrix { rows, cols: 0, data: lst })
-        All cols -> Ok (@Matrix { rows, cols, data: lst })
-        Inconsistent -> Err InconsistentColumns
-
-matrixMap : Matrix a, (a -> b) -> Matrix b
-matrixMap = \@Matrix m, func ->
-    newData = List.map m.data \row ->
-        List.map row \elem -> func elem
-
-    @Matrix { cols: m.cols, rows: m.rows, data: newData }
-
-matrixMapWithIndex : Matrix a, (a, U64, U64 -> b) -> Matrix b
-matrixMapWithIndex = \@Matrix m, func ->
-    newData = List.mapWithIndex m.data \row, i ->
-        List.mapWithIndex row \elem, j -> func elem i j
-
-    @Matrix { cols: m.cols, rows: m.rows, data: newData }
-
-matrixWalk : Matrix a, state, (state, a -> state) -> state
-matrixWalk = \@Matrix m, state, func ->
-    List.walk m.data state \newState, row ->
-        List.walk row newState func
 
 parseInput : Str -> Result (Matrix Seat) Str
 parseInput = \str ->
@@ -57,7 +15,7 @@ parseInput = \str ->
         |> Str.trimEnd
         |> Str.split "\n"
         |> List.mapTry? parseRow
-        |> fromListOfList
+        |> Matrix.fromListOfList
         |> Result.mapErr \_ -> "Input isn't a square"
 
 parseRow = \str ->
@@ -81,7 +39,7 @@ countOcuppiedAround1 = \matrix, row, col ->
         (Num.subWrap row 1, Num.subWrap col 1),
     ]
     List.map around \(i, j) ->
-        when matrixGet matrix i j is
+        when Matrix.get matrix i j is
             Ok Occupied -> 1
             _ -> 0
     |> List.sum
@@ -96,7 +54,7 @@ seatRules1 = \state, adjacentOcuppied ->
 
 step1 : Matrix Seat -> Matrix Seat
 step1 = \matrix ->
-    matrixMapWithIndex matrix \elem, i, j ->
+    Matrix.mapWithIndex matrix \elem, i, j ->
         adjacent = countOcuppiedAround1 matrix i j
         seatRules1 elem adjacent
 
@@ -112,7 +70,7 @@ run1 = \matrix ->
 calcAnswer1 : Matrix Seat -> U64
 calcAnswer1 = \matrix ->
     finalMatrix = run1 matrix
-    matrixWalk finalMatrix 0 \state, elem ->
+    Matrix.walk finalMatrix 0 \state, elem ->
         if elem == Occupied then
             state + 1
         else
@@ -122,7 +80,7 @@ isOcupiedInDirection2 : Matrix Seat, (U64, U64), (U64, U64) -> Bool
 isOcupiedInDirection2 = \matrix, (atI, atJ), (dirI, dirJ) ->
     nextI = Num.addWrap atI dirI
     nextJ = Num.addWrap atJ dirJ
-    when matrixGet matrix nextI nextJ is
+    when Matrix.get matrix nextI nextJ is
         Ok Occupied -> Bool.true
         Ok Floor -> isOcupiedInDirection2 matrix (nextI, nextJ) (dirI, dirJ)
         _ -> Bool.false
@@ -152,7 +110,7 @@ seatRules2 = \state, adjacentOcuppied ->
 
 step2 : Matrix Seat -> Matrix Seat
 step2 = \matrix ->
-    matrixMapWithIndex matrix \elem, i, j ->
+    Matrix.mapWithIndex matrix \elem, i, j ->
         adjacent = countOcuppiedAround2 matrix i j
         seatRules2 elem adjacent
 
@@ -168,7 +126,7 @@ run2 = \matrix ->
 calcAnswer2 : Matrix Seat -> U64
 calcAnswer2 = \matrix ->
     finalMatrix = run2 matrix
-    matrixWalk finalMatrix 0 \state, elem ->
+    Matrix.walk finalMatrix 0 \state, elem ->
         if elem == Occupied then
             state + 1
         else
