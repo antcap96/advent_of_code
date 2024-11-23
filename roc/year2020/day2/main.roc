@@ -1,36 +1,36 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
+app [main] {
+    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+    parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.8.0/PCkJq9IGyIpMfwuW-9hjfXd6x-bHb1_OZdacogpBcPM.tar.br",
+}
 
 import pf.Stdout
 import pf.Path exposing [Path]
+import parser.Parser
+import parser.String
 
 Policy : { key : U8, first : U64, second : U64 }
 
 Entry : { policy : Policy, password : Str }
 
-strToNum = \str -> Result.mapErr (Str.toU64 str) \_ -> "Failed to parse number '$(str)'"
+policyParser : Parser.Parser _ Policy
+policyParser =
+    Parser.const (\first -> \second -> \key -> { key, first, second })
+    |> Parser.keep String.digits
+    |> Parser.skip (String.string "-")
+    |> Parser.keep String.digits
+    |> Parser.skip (String.string " ")
+    |> Parser.keep String.anyCodeunit
 
-parsePolicy : Str -> Result Policy Str
-parsePolicy = \str ->
-    when Str.split str " " is
-        [range, keyStr] ->
-            key = keyStr |> Str.toUtf8 |> List.first |> Result.mapErr? \_ -> "Empty key in '$(str)'"
-            when Str.split range "-" is
-                [firstStr, secondStr] ->
-                    first = strToNum? firstStr
-                    second = strToNum? secondStr
-                    Ok { key, first, second }
-
-                _ -> Err "Unexpected split of range '$(range)'"
-
-        _ -> Err "Unexpected split of policy '$(str)'"
+entryParser : Parser.Parser _ Entry
+entryParser =
+    Parser.const (\policy -> \password -> { policy, password })
+    |> Parser.keep policyParser
+    |> Parser.skip (String.string ": ")
+    |> Parser.keep String.anyString
 
 parseEntry : Str -> Result Entry Str
 parseEntry = \str ->
-    when Str.split str ": " is
-        [policyStr, password] ->
-            Result.map (parsePolicy policyStr) \policy -> { policy, password }
-
-        _ -> Err "Unexpected split of row '$(str)'"
+    Result.mapErr (String.parseStr entryParser str) Inspect.toStr
 
 parseInput : Str -> Result (List Entry) Str
 parseInput = \str ->
