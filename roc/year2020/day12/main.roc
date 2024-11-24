@@ -7,6 +7,9 @@ import pf.Path exposing [Path]
 
 Direction : [North, South, East, West]
 Action : [North, South, East, West, Left, Right, Forward]
+Position : (I64, I64)
+State1 : (Position, Direction)
+State2 : { ship : Position, waypoint : Position }
 
 parseInput : Str -> Result (List (Action, U32)) Str
 parseInput = \str ->
@@ -24,24 +27,19 @@ parseRow = \str ->
             |> Result.mapErr? \_ -> "Failed to parse number of $(str)"
 
     action =
-        when before is
-            ['N'] -> Ok North
-            ['S'] -> Ok South
-            ['E'] -> Ok East
-            ['W'] -> Ok West
-            ['L'] -> Ok Left
-            ['R'] -> Ok Right
-            ['F'] -> Ok Forward
+        # Matching on the list was crashing the compiler, so I'm converting it to a
+        # string first
+        when Str.fromUtf8 before is
+            Ok "N" -> Ok North
+            Ok "S" -> Ok South
+            Ok "E" -> Ok East
+            Ok "W" -> Ok West
+            Ok "L" -> Ok Left
+            Ok "R" -> Ok Right
+            Ok "F" -> Ok Forward
             _ -> Err "invalid action $(Inspect.toStr (Str.fromUtf8 before))"
 
     Result.map action \act -> (act, amount)
-
-remainder = \x1, x2 ->
-    temp = x1 % x2
-    if temp < 0 then
-        temp + x2
-    else
-        temp
 
 rotate90 : Direction -> Direction
 rotate90 = \direction ->
@@ -57,48 +55,89 @@ rotate180 = \direction -> rotate90 (rotate90 direction)
 rotate270 : Direction -> Direction
 rotate270 = \direction -> rotate90 (rotate180 direction)
 
-step : ((I64, I64), Direction), (Action, U32) -> ((I64, I64), Direction)
-step = \((x, y), facing), (action, amount) ->
-    (direction, distance) =
-        when action is
-            Left ->
-                nextDirection =
-                    when remainder (-amount // 90) 4 is
-                        0 -> facing
-                        1 -> rotate90 facing
-                        2 -> rotate180 facing
-                        3 -> rotate270 facing
-                        _ -> crash "garantied by remainder"
-                (nextDirection, 0)
+rotate : Direction, Int * -> Direction
+rotate = \facing, amount ->
+    when amount is
+        1 -> rotate90 facing
+        2 -> rotate180 facing
+        3 -> rotate270 facing
+        _ -> facing
 
-            Right ->
-                nextDirection =
-                    when remainder (amount // 90) 4 is
-                        0 -> facing
-                        1 -> rotate90 facing
-                        2 -> rotate180 facing
-                        3 -> rotate270 facing
-                        _ -> crash "garantied by remainder"
-                (nextDirection, 0)
-
-            Forward -> (facing, 0)
-            North -> (North, Num.toI64 amount)
-            South -> (South, Num.toI64 amount)
-            East -> (East, Num.toI64 amount)
-            West -> (West, Num.toI64 amount)
-
+move : Position, Direction, I64 -> Position
+move = \(x, y), direction, distance ->
     when direction is
-        North -> ((x, y + distance), North)
-        South -> ((x, y - distance), South)
-        East -> ((x + distance, y), East)
-        West -> ((x - distance, y), West)
+        North -> (x, y + distance)
+        South -> (x, y - distance)
+        East -> (x + distance, y)
+        West -> (x - distance, y)
+
+step1 : State1, (Action, U32) -> State1
+step1 = \state, (action, amount) ->
+    (position, facing) = state
+
+    nextPosition =
+        when action is
+            Forward -> move position facing (Num.toI64 amount)
+            North -> move position North (Num.toI64 amount)
+            East -> move position East (Num.toI64 amount)
+            South -> move position South (Num.toI64 amount)
+            West -> move position West (Num.toI64 amount)
+            Left -> position
+            Right -> position
+
+    nextFacing =
+        when action is
+            Left -> rotate facing (4 - (amount // 90))
+            Right -> rotate facing (amount // 90)
+            Forward -> facing
+            North -> facing
+            East -> facing
+            South -> facing
+            West -> facing
+
+    (nextPosition, nextFacing)
 
 calcAnswer1 : List (Action, U32) -> U64
 calcAnswer1 = \instructions ->
-    ((x, y), _direction) = List.walk instructions ((0, 0), North) step
+    ((x, y), _direction) = List.walk instructions ((0, 0), East) step1
     Num.toU64 (Num.abs x) + Num.toU64 (Num.abs y)
 
-# calcAnswer2 : List (Action, U32) -> U64
+
+rotate90AroundOrigin : Position -> Position
+rotate90AroundOrigin = \(x, y) -> (y, -x)
+
+rotate180AroundOrigin : Position -> Position
+rotate180AroundOrigin = \position -> rotate90AroundOrigin (rotate90AroundOrigin position)
+
+rotate270AroundOrigin : Position -> Position
+rotate270AroundOrigin = \position -> rotate90AroundOrigin (rotate180AroundOrigin position)
+
+rotateAroundOrigin : Position, Int * -> Position
+rotateAroundOrigin = \point, amount ->
+    when amount is
+        1 -> rotate90AroundOrigin point
+        2 -> rotate180AroundOrigin point
+        3 -> rotate270AroundOrigin point
+        _ -> point
+
+positionAdd = \(x1, y1), (x2, y2) -> (x1 + x2, y1 + y2)
+positionMultiply = \(x1, y1), factor -> (x1 * factor, y1 * factor)
+
+step2 : State2, (Action, U32) -> State2
+step2 = \{ ship, waypoint }, (action, amount) ->
+    when action is
+        Left -> { ship, waypoint: rotateAroundOrigin waypoint (4 - (amount // 90)) }
+        Right -> { ship, waypoint: rotateAroundOrigin waypoint (amount // 90) }
+        North -> { ship, waypoint: move waypoint North (Num.toI64 amount) }
+        East -> { ship, waypoint: move waypoint East (Num.toI64 amount) }
+        South -> { ship, waypoint: move waypoint South (Num.toI64 amount) }
+        West -> { ship, waypoint: move waypoint West (Num.toI64 amount) }
+        Forward -> { ship: positionAdd ship (positionMultiply waypoint (Num.toI64 amount)), waypoint }
+
+calcAnswer2 : List (Action, U32) -> U64
+calcAnswer2 = \instructions ->
+    { ship: (x, y) } = List.walk instructions { ship: (0, 0), waypoint: (10, 1) } step2
+    Num.toU64 (Num.abs x) + Num.toU64 (Num.abs y)
 
 main =
     input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day12.txt")
@@ -144,10 +183,10 @@ expect
 
     value == Ok (25)
 
-# expect
-#     value =
-#         testInput
-#         |> parseInput
-#         |> Result.map calcAnswer2
+expect
+    value =
+        testInput
+        |> parseInput
+        |> Result.map calcAnswer2
 
-#     value == Ok (26)
+    value == Ok (286)
