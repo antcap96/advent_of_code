@@ -1,13 +1,15 @@
 app [main] {
     pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+    adventOfCode: "../../package/main.roc",
 }
 
 import pf.Stdout
 import pf.Path exposing [Path]
+import adventOfCode.Point2D exposing [Point2D]
 
 Direction : [North, South, East, West]
 Action : [North, South, East, West, Left, Right, Forward]
-Position : (I64, I64)
+Position : Point2D (Integer Signed64)
 State1 : (Position, Direction)
 State2 : { ship : Position, waypoint : Position }
 
@@ -97,47 +99,26 @@ step1 = \state, (action, amount) ->
 
     (nextPosition, nextFacing)
 
-calcAnswer1 : List (Action, U32) -> U64
+calcAnswer1 : List (Action, U32) -> I64
 calcAnswer1 = \instructions ->
-    ((x, y), _direction) = List.walk instructions ((0, 0), East) step1
-    Num.toU64 (Num.abs x) + Num.toU64 (Num.abs y)
-
-
-rotate90AroundOrigin : Position -> Position
-rotate90AroundOrigin = \(x, y) -> (y, -x)
-
-rotate180AroundOrigin : Position -> Position
-rotate180AroundOrigin = \position -> rotate90AroundOrigin (rotate90AroundOrigin position)
-
-rotate270AroundOrigin : Position -> Position
-rotate270AroundOrigin = \position -> rotate90AroundOrigin (rotate180AroundOrigin position)
-
-rotateAroundOrigin : Position, Int * -> Position
-rotateAroundOrigin = \point, amount ->
-    when amount is
-        1 -> rotate90AroundOrigin point
-        2 -> rotate180AroundOrigin point
-        3 -> rotate270AroundOrigin point
-        _ -> point
-
-positionAdd = \(x1, y1), (x2, y2) -> (x1 + x2, y1 + y2)
-positionMultiply = \(x1, y1), factor -> (x1 * factor, y1 * factor)
+    (pos, _direction) = List.walk instructions ((0, 0), East) step1
+    Point2D.modulo pos
 
 step2 : State2, (Action, U32) -> State2
 step2 = \{ ship, waypoint }, (action, amount) ->
     when action is
-        Left -> { ship, waypoint: rotateAroundOrigin waypoint (4 - (amount // 90)) }
-        Right -> { ship, waypoint: rotateAroundOrigin waypoint (amount // 90) }
+        Left -> { ship, waypoint: Point2D.rotateAroundOrigin waypoint (4 - (amount // 90)) }
+        Right -> { ship, waypoint: Point2D.rotateAroundOrigin waypoint (amount // 90) }
         North -> { ship, waypoint: move waypoint North (Num.toI64 amount) }
         East -> { ship, waypoint: move waypoint East (Num.toI64 amount) }
         South -> { ship, waypoint: move waypoint South (Num.toI64 amount) }
         West -> { ship, waypoint: move waypoint West (Num.toI64 amount) }
-        Forward -> { ship: positionAdd ship (positionMultiply waypoint (Num.toI64 amount)), waypoint }
+        Forward -> { ship: Point2D.add ship (Point2D.mul waypoint (Num.toI64 amount)), waypoint }
 
-calcAnswer2 : List (Action, U32) -> U64
+calcAnswer2 : List (Action, U32) -> I64
 calcAnswer2 = \instructions ->
-    { ship: (x, y) } = List.walk instructions { ship: (0, 0), waypoint: (10, 1) } step2
-    Num.toU64 (Num.abs x) + Num.toU64 (Num.abs y)
+    { ship } = List.walk instructions { ship: (0, 0), waypoint: (10, 1) } step2
+    Point2D.modulo ship
 
 main =
     input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day12.txt")
