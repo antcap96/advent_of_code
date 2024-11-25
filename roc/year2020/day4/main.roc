@@ -39,7 +39,7 @@ parsePassport : Str -> Result Passport Str
 parsePassport = \str ->
     str
         |> Str.replaceEach "\n" " "
-        |> Str.split " "
+        |> Str.splitOn " "
         |> List.mapTry? \field ->
             when Str.splitFirst field ":" is
                 Ok { before, after } -> Ok (before, after)
@@ -49,7 +49,7 @@ parsePassport = \str ->
 
 parseInput : Str -> Result (List Passport) Str
 parseInput = \str ->
-    str |> Str.trimEnd |> Str.split "\n\n" |> List.mapTry parsePassport
+    str |> Str.trimEnd |> Str.splitOn "\n\n" |> List.mapTry parsePassport
 
 calcAnswer1 : List Passport -> U64
 calcAnswer1 = \lst ->

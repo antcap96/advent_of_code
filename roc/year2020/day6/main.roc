@@ -6,12 +6,12 @@ import pf.Path exposing [Path]
 parseGroup : Str -> List (Set U8)
 parseGroup = \str ->
     str
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.map \row -> Str.toUtf8 row |> Set.fromList
 
 parseInput : Str -> List (List (Set U8))
 parseInput = \str ->
-    str |> Str.trimEnd |> Str.split "\n\n" |> List.map parseGroup
+    str |> Str.trimEnd |> Str.splitOn "\n\n" |> List.map parseGroup
 
 setUnionCardinality : List (Set U8) -> U64
 setUnionCardinality = \group ->

@@ -1,6 +1,6 @@
 app [main] {
     pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
-    parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.8.0/PCkJq9IGyIpMfwuW-9hjfXd6x-bHb1_OZdacogpBcPM.tar.br",
+    parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.9.0/w8YKp2YAgQt5REYk912HfKAHBjcXsrnvtjI0CBzoAT4.tar.br",
 }
 
 import pf.Stdout
@@ -61,7 +61,7 @@ parseInput : Str -> Result BagData Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry parseRow
     |> Result.map Dict.fromList
 

@@ -9,7 +9,7 @@ parseInput : Str -> Result (Set I64) [InvalidRow Str]
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split ("\n")
+    |> Str.splitOn ("\n")
     |> List.mapTry strToNum
     |> Result.map Set.fromList
 

@@ -28,7 +28,7 @@ parseCol = \lst ->
 parseBoardingPass : Str -> Result BoardingPass Str
 parseBoardingPass = \str ->
     Str.toUtf8 str
-        |> List.split 7
+        |> List.splitAt 7
         |> \{ before, others } ->
             row = parseRow? before
             col = parseCol? others
@@ -38,7 +38,7 @@ parseInput : Str -> Result (List BoardingPass) Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry parseBoardingPass
 
 boardingPassId : BoardingPass -> U64

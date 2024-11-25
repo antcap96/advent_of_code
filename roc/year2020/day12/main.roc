@@ -17,12 +17,12 @@ parseInput : Str -> Result (List (Action, U32)) Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry parseRow
 
 parseRow : Str -> Result (Action, U32) Str
 parseRow = \str ->
-    { before, others } = List.split (Str.toUtf8 str) 1
+    { before, others } = List.splitAt (Str.toUtf8 str) 1
     amount =
         (Str.fromUtf8 others)
             |> Result.try Str.toU32

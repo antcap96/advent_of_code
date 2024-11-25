@@ -17,11 +17,11 @@ parseInput : Str -> Result (List Instruction) Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry parseRow
 
 parseRow = \str ->
-    when Str.split str " " is
+    when Str.splitOn str " " is
         [op, amountStr] ->
             amount = Str.toI64 amountStr |> Result.mapErr? \_ -> "Invalid number '$(amountStr)'"
             when op is

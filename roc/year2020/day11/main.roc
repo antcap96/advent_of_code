@@ -13,7 +13,7 @@ parseInput : Str -> Result (Matrix Seat) Str
 parseInput = \str ->
     str
         |> Str.trimEnd
-        |> Str.split "\n"
+        |> Str.splitOn "\n"
         |> List.mapTry? parseRow
         |> Matrix.fromListOfList
         |> Result.mapErr \_ -> "Input isn't a square"

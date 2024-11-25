@@ -7,7 +7,7 @@ parseInput : Str -> Result (List U64) Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry parseRow
 
 parseRow = \str ->

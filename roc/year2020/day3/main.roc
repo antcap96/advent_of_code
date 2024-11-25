@@ -15,7 +15,7 @@ parseInput : Str -> Result Map Str
 parseInput = \str ->
     str
     |> Str.trimEnd
-    |> Str.split "\n"
+    |> Str.splitOn "\n"
     |> List.mapTry \row ->
         Str.toUtf8 row
         |> List.mapTry \elem ->
