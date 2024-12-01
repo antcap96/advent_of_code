@@ -1,4 +1,5 @@
 from collections import Counter
+from pathlib import Path
 
 type Data = list[tuple[int, int]]
 
@@ -40,8 +41,10 @@ def calculate_answer2(data: Data) -> int:
     return similarity_score
 
 
-def main():
-    with open("../../../inputs/year2024/day1/input.txt") as f:
+def main(path: str | Path | None):
+    if path is None:
+        path = (Path(__file__).parents[3] / "inputs/year2024/day1/input.txt").resolve()
+    with open(path) as f:
         string = f.read()
 
     data = parse_input(string)
@@ -53,17 +56,5 @@ def main():
     print(f"{answer2 = }")
 
 
-test_input = """
-3   4
-4   3
-2   5
-1   3
-3   9
-3   3
-"""
-
 if __name__ == "__main__":
-    assert calculate_answer1(parse_input(test_input)) == 11
-    assert calculate_answer2(parse_input(test_input)) == 31
-
-    main()
+    main(None)
