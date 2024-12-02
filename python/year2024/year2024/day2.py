@@ -1,7 +1,6 @@
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import IO
 
 num_cores = os.cpu_count()
 
@@ -12,7 +11,8 @@ def parse_line(string: str) -> list[int]:
     return [int(s) for s in string.split()]
 
 
-def parse_input(lines: IO[str]) -> Data:
+def parse_input(lines: str) -> Data:
+    print(list(lines))
     non_empty_lines = filter(lambda x: len(x) > 0, lines)
     with ThreadPoolExecutor(num_cores) as pool:
         output = list(pool.map(parse_line, non_empty_lines))
@@ -83,8 +83,9 @@ def main(path: str | Path | None):
     if path is None:
         path = (Path(__file__).parents[3] / "inputs/year2024/day2/input.txt").resolve()
     with open(path) as f:
-        data = parse_input(f)
+        string = f.read()
 
+    data = parse_input(string)
 
     answer1 = calculate_answer1(data)
     print(f"{answer1 = }")
