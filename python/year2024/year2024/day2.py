@@ -11,7 +11,8 @@ def parse_line(string: str) -> list[int]:
     return [int(s) for s in string.split()]
 
 
-def parse_input(lines: str) -> Data:
+def parse_input(string: str) -> Data:
+    lines = string.strip().splitlines()
     non_empty_lines = filter(lambda x: len(x) > 0, lines)
     with ThreadPoolExecutor(num_cores) as pool:
         output = list(pool.map(parse_line, non_empty_lines))
