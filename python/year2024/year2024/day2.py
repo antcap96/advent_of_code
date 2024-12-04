@@ -20,6 +20,10 @@ def parse_input(string: str) -> Data:
     return output
 
 
+def valid_delta(delta: int) -> bool:
+    return 1 <= delta <= 3
+
+
 def is_safe1(row: list[int]) -> bool:
     if row[1] > row[0]:
         sign = +1
@@ -28,7 +32,7 @@ def is_safe1(row: list[int]) -> bool:
 
     for a, b in zip(row, row[1:]):
         delta = b - a
-        if not 1 <= (delta * sign) <= 3:
+        if not valid_delta(delta * sign):
             return False
 
     return True
@@ -49,25 +53,27 @@ def is_safe2(row: list[int]) -> bool:
     else:
         row = [-x for x in row]
 
-    failing = [i for i, x in enumerate(deltas) if not 1 <= x <= 3]
+    failing = [i for i, x in enumerate(deltas) if not valid_delta(x)]
 
     match failing:
         case []:
             return True
-        case [idx] if idx == len(row) - 2 or idx == 0:
+        case [idx] if (
+            # Remove last
+            idx == len(row) - 2
+            # Remove first
+            or idx == 0
+            # Remove idx
+            or valid_delta(row[idx + 1] - row[idx - 1])
+        ):
             return True
-        case [idx]:
-            if (1 <= (row[idx + 2] - row[idx]) <= 3) or (
-                1 <= (row[idx + 1] - row[idx - 1]) <= 3
-            ):
-                return True
-            return False
-        case [first, second]:
-            if second - first != 1:
-                return False
-            if 1 <= (row[first + 2] - row[first]) <= 3:
-                return True
-            return False
+        case [first, second] if (
+            # Must be consecutive
+            second - first == 1
+            # Remove second
+            and valid_delta(row[first + 2] - row[first])
+        ):
+            return True
         case _:
             return False
 
