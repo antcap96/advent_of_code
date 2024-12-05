@@ -38,3 +38,12 @@ def test_answer2_extra():
     assert calculate_answer2(parse_input("4 3 3 1 1 0")) == 0
     # Removing wrong delta doesn't help
     assert calculate_answer2(parse_input("1 2 6 7 8 9")) == 0
+    # Solution is increasing, but hard to tell by counting deltas
+    assert calculate_answer2(parse_input("1 1 2")) == 1
+    assert calculate_answer2(parse_input("1 100 2")) == 1
+    assert calculate_answer2(parse_input("1 0 4 5")) == 1
+    # Solution is decreasing, but hard to tell by counting deltas
+    assert calculate_answer2(parse_input("1 1 0")) == 1
+    assert calculate_answer2(parse_input("2 100 1")) == 1
+    assert calculate_answer2(parse_input("5 0 2 1")) == 1
+
