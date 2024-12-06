@@ -9,8 +9,13 @@ from year2024.utils.matrix import Matrix
 
 @dataclass
 class Data:
-    map: Matrix[bool]
+    map: Matrix[Cell]
     starting_position: tuple[int, int]
+
+
+class Cell(enum.Enum):
+    Floor = "."
+    Obstruction = "#"
 
 
 class Direction(enum.Enum):
@@ -55,9 +60,9 @@ def parse_input(string: str) -> Data:
     lines = string.strip().splitlines()
     guard = None
 
-    map: list[list[bool]] = []
+    map: list[list[Cell]] = []
     for i, line in enumerate(lines):
-        map.append([x == "#" for x in line])
+        map.append([Cell.Obstruction if x == "#" else Cell.Floor for x in line])
         j = line.find("^")
         if j != -1:
             guard = i, j
@@ -67,14 +72,14 @@ def parse_input(string: str) -> Data:
     return Data(Matrix.from_list_of_list(map), guard)
 
 
-def step(map: Matrix[bool], state: State) -> State | None:
+def step(map: Matrix[Cell], state: State) -> State | None:
     try_position = state.next_position()
     match map.get(try_position):
         case None:
             return None
-        case False:
+        case Cell.Floor:
             return State(try_position, state.direction)
-        case True:
+        case Cell.Obstruction:
             return state.rotate()
 
 
@@ -89,10 +94,10 @@ def calculate_answer1(data: Data) -> int:
     return len(visited)
 
 
-def is_loop_with_obstacle(map: Matrix[bool], starting_state: State) -> bool:
+def is_loop_with_obstacle(map: Matrix[Cell], starting_state: State) -> bool:
     next_position = starting_state.next_position()
     before = map[next_position]
-    map[next_position] = True
+    map[next_position] = Cell.Obstruction
 
     visited: set[State] = set()
     state: State | None = starting_state
@@ -115,7 +120,7 @@ def calculate_answer2(data: Data) -> int:
         visited.add(state.position)
         next_position = state.next_position()
         if (
-            data.map.get(next_position) is False
+            data.map.get(next_position) == Cell.Floor
             and next_position not in loop_positions
             and next_position not in visited
             and is_loop_with_obstacle(data.map, state)
