@@ -7,6 +7,9 @@ module [
     map,
     mapWithIndex,
     walk,
+    walkWithIndex,
+    walkWithIndexUntil,
+    replace,
 ]
 
 Matrix a := { rows : U64, cols : U64, data : List a } implements [Eq, Inspect]
@@ -53,3 +56,16 @@ mapWithIndex = \@Matrix m, func ->
 walk : Matrix a, state, (state, a -> state) -> state
 walk = \@Matrix m, state, func ->
     List.walk m.data state func
+
+walkWithIndex : Matrix a, state, (state, a, U64, U64 -> state) -> state
+walkWithIndex = \@Matrix m, state, func ->
+    List.walkWithIndex m.data state \state2, elem, i -> func state2 elem (i // m.cols) (i % m.cols)
+
+walkWithIndexUntil : Matrix a, state, (state, a, U64, U64 -> [Continue state, Break state]) -> state
+walkWithIndexUntil = \@Matrix m, state, func ->
+    List.walkWithIndexUntil m.data state \state2, elem, i -> func state2 elem (i // m.cols) (i % m.cols)
+
+replace : Matrix a, U64, U64, a -> { matrix : Matrix a, value : a }
+replace = \@Matrix m, i, j, toReplace ->
+    { list: data, value } = List.replace m.data (i * m.cols + j) toReplace
+    { matrix: @Matrix { cols: m.cols, rows: m.rows, data }, value }
