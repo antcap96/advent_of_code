@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path
 from dataclasses import dataclass
+from pathlib import Path
+
+from year2024.utils.matrix import Matrix
 
 
 @dataclass
 class Data:
-    map: list[list[bool]]
+    map: Matrix[bool]
     starting_position: tuple[int, int]
 
 
@@ -62,25 +64,18 @@ def parse_input(string: str) -> Data:
 
     assert guard is not None
 
-    return Data(map, guard)
+    return Data(Matrix.from_list_of_list(map), guard)
 
 
-def index(map: list[list[bool]], position: tuple[int, int]) -> bool:
-    return map[position[0]][position[1]]
-
-
-def inside(map: list[list[bool]], position: tuple[int, int]) -> bool:
-    return 0 <= position[0] < len(map) and 0 <= position[1] < len(map[0])
-
-
-def step(map: list[list[bool]], state: State) -> State | None:
+def step(map: Matrix[bool], state: State) -> State | None:
     try_position = state.next_position()
-    if not inside(map, try_position):
-        return None
-    if not index(map, try_position):
-        return State(try_position, state.direction)
-    else:
-        return state.rotate()
+    match map.get(try_position):
+        case None:
+            return None
+        case False:
+            return State(try_position, state.direction)
+        case True:
+            return state.rotate()
 
 
 def calculate_answer1(data: Data) -> int:
@@ -94,9 +89,10 @@ def calculate_answer1(data: Data) -> int:
     return len(visited)
 
 
-def is_loop_with_obstacle(map: list[list[bool]], starting_state: State) -> bool:
+def is_loop_with_obstacle(map: Matrix[bool], starting_state: State) -> bool:
     next_position = starting_state.next_position()
-    map[next_position[0]][next_position[1]] = True
+    before = map[next_position]
+    map[next_position] = True
 
     visited: set[State] = set()
     state: State | None = starting_state
@@ -104,7 +100,7 @@ def is_loop_with_obstacle(map: list[list[bool]], starting_state: State) -> bool:
         visited.add(state)
         state = step(map, state)
 
-    map[next_position[0]][next_position[1]] = False
+    map[next_position] = before
 
     return state is not None
 
@@ -119,8 +115,7 @@ def calculate_answer2(data: Data) -> int:
         visited.add(state.position)
         next_position = state.next_position()
         if (
-            inside(data.map, next_position)
-            and not index(data.map, next_position)
+            data.map.get(next_position) is False
             and next_position not in loop_positions
             and next_position not in visited
             and is_loop_with_obstacle(data.map, state)
