@@ -12,7 +12,7 @@ def parse_num(string: str, max_digits: int = 3) -> tuple[str, int | None]:
         if len(string) <= digits or not string[digits].isdecimal():
             break
         digits += 1
-    
+
     if digits == 0:
         return string, None
 
@@ -99,7 +99,7 @@ def calculate_answer2(string: str) -> int:
 
 def main(path: str | Path | None):
     if path is None:
-        path = (Path(__file__).parents[3] / "inputs/year2024/day3/input.txt").resolve()
+        path = Path(__file__).resolve().parents[3] / "inputs/year2024/day3/input.txt"
     with open(path) as f:
         string = f.read()
 

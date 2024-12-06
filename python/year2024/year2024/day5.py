@@ -122,7 +122,7 @@ def calculate_answer2(data: Data) -> int:
 
 def main(path: str | Path | None):
     if path is None:
-        path = (Path(__file__).parents[3] / "inputs/year2024/day5/input.txt").resolve()
+        path = Path(__file__).resolve().parents[3] / "inputs/year2024/day5/input.txt"
     with open(path) as f:
         string = f.read()
 
