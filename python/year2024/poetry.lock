@@ -26,6 +26,16 @@ files = [
 ]
 
 [[package]]
+name = "flameprof"
+version = "0.4"
+description = "cProfile flamegraph generator"
+optional = false
+python-versions = "*"
+files = [
+    {file = "flameprof-0.4.tar.gz", hash = "sha256:dbc86d4190cbbba624f1e0a40f44d9db96138e27534d83c8ef42d420857875a3"},
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.0.0"
 description = "brain-dead simple config-ini parsing"
@@ -281,4 +291,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.13"
-content-hash = "935f994d0efe8c1ec9899578d497343ce4510395fe3833d081903473a4eaec00"
+content-hash = "4b927c1289859e0a0609a59b5f687a03ec91b8ddda012bd1da6b851b74eab195"
