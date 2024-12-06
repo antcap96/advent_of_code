@@ -94,12 +94,14 @@ def calculate_answer1(data: Data) -> int:
     return len(visited)
 
 
-def is_loop_with_obstacle(map: Matrix[Cell], starting_state: State) -> bool:
+def is_loop_with_obstacle(
+    map: Matrix[Cell], starting_state: State, starting_visited: set[State]
+) -> bool:
     next_position = starting_state.next_position()
     before = map[next_position]
     map[next_position] = Cell.Obstruction
 
-    visited: set[State] = set()
+    visited: set[State] = starting_visited.copy()
     state: State | None = starting_state
     while state is not None and state not in visited:
         visited.add(state)
@@ -111,29 +113,31 @@ def is_loop_with_obstacle(map: Matrix[Cell], starting_state: State) -> bool:
 
 
 def calculate_answer2(data: Data) -> int:
-    visited: set[tuple[int, int]] = set()
-    loop_positions: set[tuple[int, int]] = set()
+    visited_positions: set[tuple[int, int]] = set()
+    visited_states: set[State] = set()
+
+    count = 0
 
     state = State(data.starting_position, Direction.North)
     while state is not None:
-        print(len(visited), len(loop_positions), state)
-        visited.add(state.position)
+        print(len(visited_states), count, state)
+        visited_positions.add(state.position)
         next_position = state.next_position()
         if (
             data.map.get(next_position) == Cell.Floor
-            and next_position not in loop_positions
-            and next_position not in visited
-            and is_loop_with_obstacle(data.map, state)
+            and next_position not in visited_positions
+            and is_loop_with_obstacle(data.map, state, visited_states)
         ):
-            loop_positions.add(next_position)
+            count += 1
+        visited_states.add(state)
         state = step(data.map, state)
-    print(sorted(list(loop_positions)))
-    return len(loop_positions)
+
+    return count
 
 
 def main(path: str | Path | None):
     if path is None:
-        path = (Path(__file__).parents[3] / "inputs/year2024/day6/input.txt").resolve()
+        path = Path(__file__).resolve().parents[3] / "inputs/year2024/day6/input.txt"
     with open(path) as f:
         string = f.read()
 
