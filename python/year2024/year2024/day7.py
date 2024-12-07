@@ -11,6 +11,20 @@ class Equation:
     numbers: list[int]
 
 
+@dataclass
+class ReverseOperation:
+    op: Callable[[int, int], int]
+    is_possible: Callable[[int, int], bool]
+
+
+def is_mul_possible(total: int, by: int) -> bool:
+    return total % by == 0
+
+
+reverse_add = ReverseOperation(operator.sub, lambda _a, _b: True)
+reverse_mul = ReverseOperation(operator.floordiv, is_mul_possible)
+
+
 def parse_line(string: str) -> Equation:
     total_str, numbers_str = string.split(": ")
     numbers = [int(x) for x in numbers_str.split(" ")]
@@ -24,19 +38,21 @@ def parse_input(string: str) -> list[Equation]:
 
 
 def is_possible(
-    total: int,
     current: int,
     numbers: list[int],
-    operations: list[Callable[[int, int], int]],
+    operations: list[ReverseOperation],
 ) -> bool:
     match numbers:
-        case []:
-            return total == current
-        case [first, *rest]:
+        case [first]:
+            return current == first
+        case [*rest, last]:
             return any(
-                is_possible(total, op(current, first), rest, operations)
+                is_possible(op.op(current, last), rest, operations)
                 for op in operations
+                if op.is_possible(current, last)
             )
+        case []:
+            raise ValueError("Empty numbers")
 
     assert False, "That was exhaustive, no?"
 
@@ -47,9 +63,8 @@ def calculate_answer1(equations: list[Equation]) -> int:
         for equation in equations
         if is_possible(
             equation.total,
-            equation.numbers[0],
-            equation.numbers[1:],
-            [operator.add, operator.mul],
+            equation.numbers,
+            [reverse_add, reverse_mul],
         )
     )
 
@@ -58,17 +73,29 @@ def concat(a: int, b: int) -> int:
     return int(f"{a}{b}")
 
 
+def remove_suffix(a: int, b: int) -> int:
+    return int(str(a).removesuffix(str(b)))
+
+
+def ends_with(a: int, b: int) -> bool:
+    return a > b and str(a).endswith(str(b))
+
+
+reverse_concat = ReverseOperation(remove_suffix, ends_with)
+
+
 def calculate_answer2(equations: list[Equation]) -> int:
     return sum(
         equation.total
-        for equation in tqdm(equations)
+        for equation in equations
         if is_possible(
             equation.total,
-            equation.numbers[0],
-            equation.numbers[1:],
-            [operator.add, operator.mul, concat],
+            equation.numbers,
+            [reverse_add, reverse_mul, reverse_concat],
         )
     )
+
+
 
 def main(path: str | Path | None):
     if path is None:
