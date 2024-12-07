@@ -43,6 +43,10 @@ fn main() {
             11 => year2023::day11::answer(),
             _ => todo!("day {} not implemented", args.day),
         },
+        2024 => match args.day {
+            6 => year2024::day6::answer(),
+            _ => todo!("day {} not implemented", args.day)
+        }
         _ => todo!("year {} not implemented", args.year)
     }
 }
