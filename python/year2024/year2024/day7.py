@@ -1,8 +1,7 @@
+import operator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
-import operator
-from tqdm import tqdm
 
 
 @dataclass
@@ -21,7 +20,7 @@ def is_mul_possible(total: int, by: int) -> bool:
     return total % by == 0
 
 
-reverse_add = ReverseOperation(operator.sub, lambda _a, _b: True)
+reverse_add = ReverseOperation(operator.sub, operator.gt)
 reverse_mul = ReverseOperation(operator.floordiv, is_mul_possible)
 
 
@@ -94,7 +93,6 @@ def calculate_answer2(equations: list[Equation]) -> int:
             [reverse_add, reverse_mul, reverse_concat],
         )
     )
-
 
 
 def main(path: str | Path | None):
