@@ -76,7 +76,7 @@ calcAnswer1 : Data -> Result U64 Str
 calcAnswer1 = \data ->
     state = { position: data.startPosition, direction: North }
 
-    when run data.map state (Set.empty {}) is
+    when run data.map state (Set.fromList [state]) is
         Looping -> Err "looped in answer1"
         Exited set -> Set.map set .position |> Set.len |> Ok
 
