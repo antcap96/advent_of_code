@@ -6,6 +6,7 @@ from year2024.day3 import main as main3
 from year2024.day4 import main as main4
 from year2024.day5 import main as main5
 from year2024.day6 import main as main6
+from year2024.day7 import main as main7
 import typer
 
 solutions: dict[int, Callable[[Path | None], None]] = {
@@ -15,6 +16,7 @@ solutions: dict[int, Callable[[Path | None], None]] = {
     4: main4,
     5: main5,
     6: main6,
+    7: main7,
 }
 
 
