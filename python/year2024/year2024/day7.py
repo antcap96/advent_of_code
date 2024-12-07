@@ -12,8 +12,8 @@ class Equation:
 
 @dataclass
 class ReverseOperation:
-    op: Callable[[int, int], int]
-    is_possible: Callable[[int, int], bool]
+    apply: Callable[[int, int], int]
+    valid: Callable[[int, int], bool]
 
 
 def is_mul_possible(total: int, by: int) -> bool:
@@ -46,9 +46,9 @@ def is_possible(
             return current == first
         case [*rest, last]:
             return any(
-                is_possible(op.op(current, last), rest, operations)
+                is_possible(op.apply(current, last), rest, operations)
                 for op in operations
-                if op.is_possible(current, last)
+                if op.valid(current, last)
             )
         case []:
             raise ValueError("Empty numbers")
