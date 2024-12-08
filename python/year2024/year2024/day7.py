@@ -1,7 +1,8 @@
 import operator
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Callable
+
+from year2024.utils.aoc import Solution
 
 
 @dataclass
@@ -95,20 +96,8 @@ def calculate_answer2(equations: list[Equation]) -> int:
     )
 
 
-def main(path: str | Path | None):
-    if path is None:
-        path = Path(__file__).resolve().parents[3] / "inputs/year2024/day7/input.txt"
-    with open(path) as f:
-        string = f.read()
-
-    data = parse_input(string)
-
-    answer1 = calculate_answer1(data)
-    print(f"{answer1 = }")
-
-    answer2 = calculate_answer2(data)
-    print(f"{answer2 = }")
+solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=7)
 
 
 if __name__ == "__main__":
-    main(None)
+    solution.solve(None)

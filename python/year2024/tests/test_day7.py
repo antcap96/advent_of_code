@@ -1,4 +1,4 @@
-from year2024.day7 import parse_input, calculate_answer1, calculate_answer2
+from year2024.day7 import solution
 
 test_input = """
 190: 10 19
@@ -13,8 +13,8 @@ test_input = """
 
 
 def test_answer1():
-    assert calculate_answer1(parse_input(test_input)) == 3749
+    assert solution.calculate_answer1(solution.parse_input(test_input)) == 3749
 
 
 def test_answer2():
-    assert calculate_answer2(parse_input(test_input)) == 11387
+    assert solution.calculate_answer2(solution.parse_input(test_input)) == 11387

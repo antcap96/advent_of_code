@@ -1,5 +1,6 @@
 import functools
-from pathlib import Path
+
+from year2024.utils.aoc import Solution
 
 
 def parse_input(string: str) -> str:
@@ -97,20 +98,8 @@ def calculate_answer2(string: str) -> int:
     return sum(a * b for a, b in pairs)
 
 
-def main(path: str | Path | None):
-    if path is None:
-        path = Path(__file__).resolve().parents[3] / "inputs/year2024/day3/input.txt"
-    with open(path) as f:
-        string = f.read()
-
-    data = parse_input(string)
-
-    answer1 = calculate_answer1(data)
-    print(f"{answer1 = }")
-
-    answer2 = calculate_answer2(data)
-    print(f"{answer2 = }")
+solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=3)
 
 
 if __name__ == "__main__":
-    main(None)
+    solution.solve(None)
