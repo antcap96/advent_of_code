@@ -1,6 +1,7 @@
+import functools
 import operator
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable
 
 from year2024.utils.aoc import Solution
 
@@ -53,18 +54,20 @@ def is_possible(
             )
         case []:
             raise ValueError("Empty numbers")
+        case _:
+            assert False, "That was exhaustive, no?"
 
-    assert False, "That was exhaustive, no?"
 
-
-def calculate_answer1(equations: list[Equation]) -> int:
+def sum_of_possible(
+    equations: list[Equation], operations: list[ReverseOperation]
+) -> int:
     return sum(
         equation.total
         for equation in equations
         if is_possible(
             equation.total,
             equation.numbers,
-            [reverse_add, reverse_mul],
+            operations,
         )
     )
 
@@ -84,19 +87,16 @@ def ends_with(a: int, b: int) -> bool:
 reverse_concat = ReverseOperation(remove_suffix, ends_with)
 
 
-def calculate_answer2(equations: list[Equation]) -> int:
-    return sum(
-        equation.total
-        for equation in equations
-        if is_possible(
-            equation.total,
-            equation.numbers,
-            [reverse_add, reverse_mul, reverse_concat],
-        )
-    )
-
-
-solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=7)
+solution = Solution(
+    parse_input,
+    calculate_answer1=functools.partial(
+        sum_of_possible, operations=[reverse_add, reverse_mul]
+    ),
+    calculate_answer2=functools.partial(
+        sum_of_possible, operations=[reverse_add, reverse_mul, reverse_concat]
+    ),
+    day=7,
+)
 
 
 if __name__ == "__main__":

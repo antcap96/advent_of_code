@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 import typer
 
@@ -12,7 +13,7 @@ from year2024.day7 import solution as solution7
 from year2024.day8 import solution as solution8
 from year2024.utils.aoc import Solution
 
-solutions: dict[int, Solution] = {
+solutions: dict[int, Solution[Any]] = {
     1: solution1,
     2: solution2,
     3: solution3,

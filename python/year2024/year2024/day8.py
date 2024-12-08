@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import functools
 import itertools
 from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Generator
 
@@ -13,19 +15,19 @@ class Vector:
     x: int
     y: int
 
-    def __add__(self, other: Vector) -> Vector:
+    def __add__(self, other: object) -> Vector:
         if isinstance(other, Vector):
             return Vector(self.x + other.x, self.y + other.y)
         else:
             return NotImplemented
 
-    def __sub__(self, other: Vector) -> Vector:
+    def __sub__(self, other: object) -> Vector:
         if isinstance(other, Vector):
             return Vector(self.x - other.x, self.y - other.y)
         else:
             return NotImplemented
 
-    def __mul__(self, factor: int) -> Vector:
+    def __mul__(self, factor: object) -> Vector:
         if isinstance(factor, int):
             return Vector(self.x * factor, self.y * factor)
         else:
@@ -59,7 +61,7 @@ def parse_input(string: str) -> Data:
     return Data(output, Vector(len(lines), len(lines[0])))
 
 
-def antinodes(antennas: list[Vector], size: Vector) -> Generator[Vector]:
+def antinodes1(antennas: list[Vector], size: Vector) -> Generator[Vector]:
     for a, b in itertools.product(antennas, antennas):
         if a == b:
             continue
@@ -68,11 +70,12 @@ def antinodes(antennas: list[Vector], size: Vector) -> Generator[Vector]:
             yield point
 
 
-def calculate_answer1(data: Data) -> int:
-    solutions = set()
+def count_antinodes(
+    data: Data, antinodes: Callable[[list[Vector], Vector], Generator[Vector]]
+):
+    solutions: set[Vector] = set()
 
-    for a, antennas in data.antennas.items():
-        print(a, (antennas))
+    for antennas in data.antennas.values():
         solutions.update(antinodes(antennas, data.size))
 
     return len(solutions)
@@ -89,17 +92,12 @@ def antinodes2(antennas: list[Vector], size: Vector) -> Generator[Vector]:
             yield point
 
 
-def calculate_answer2(data: Data) -> int:
-    solutions = set()
-
-    for a, antennas in data.antennas.items():
-        print(a, (antennas))
-        solutions.update(antinodes2(antennas, data.size))
-
-    return len(solutions)
-
-
-solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=8)
+solution = Solution(
+    parse_input,
+    calculate_answer1=functools.partial(count_antinodes, antinodes=antinodes1),
+    calculate_answer2=functools.partial(count_antinodes, antinodes=antinodes2),
+    day=8,
+)
 
 
 if __name__ == "__main__":
