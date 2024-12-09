@@ -114,36 +114,45 @@ def count(id_and_count: LinkedListItem[tuple[int | None, int]]) -> int:
 
 
 def calculate_answer2(numbers: list[int]) -> int:
-    thing = [(i // 2 if i % 2 == 0 else None, num) for i, num in enumerate(numbers)]
+    id_and_count = [
+        (i // 2 if i % 2 == 0 else None, num) for i, num in enumerate(numbers)
+    ]
 
-    (first, last) = LinkedListItem.from_iterable(thing)
+    (first, last) = LinkedListItem.from_iterable(id_and_count)
     assert last.value[0] is not None
-    at = last.value[0] + 1
-    while (
-        last != first
-        # last should never be None, but here to help typechecking
-        and last is not None
-    ):
-        if last.value[0] is None or last.value[0] >= at:
-            last = last.prev
-            continue
-        else:
-            at = last.value[0]
-            print(last.value[0])
 
-        iter = first
-        while iter != last:
+    min_idx: dict[int, None | LinkedListItem[tuple[int | None, int]]] = {
+        i: first for i in range(10)
+    }
+
+    current = last
+    while current is not None:
+        if current.value[0] is None:
+            current = current.prev
+            continue
+
+        for key in min_idx:
+            if min_idx[key] == current:
+                min_idx[key] = None
+
+        iter = min_idx[current.value[1]]
+        while iter is not None and iter != current:
             iter = iter.next
             assert iter is not None
 
-            if iter.value[0] is None and iter.value[1] >= last.value[1]:
+            if iter.value[0] is None and iter.value[1] >= current.value[1]:
                 break
 
-        if iter != last:
-            iter.replace((None, iter.value[1] - last.value[1]))
-            iter.insert_before(last.value)
-            last.replace((None, last.value[1]))
-        last = last.prev
+
+        if iter is not None and iter != current:
+            iter.replace((None, iter.value[1] - current.value[1]))
+            prev = iter.insert_before(current.value)
+            current.replace((None, current.value[1]))
+            min_idx[current.value[1]] = prev
+        else:
+            min_idx[current.value[1]] = None
+
+        current = current.prev
 
     return count(first)
 
