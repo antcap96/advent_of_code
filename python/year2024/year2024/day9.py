@@ -84,8 +84,27 @@ class LinkedListItem[T]:
         if self.prev is not None:
             self.prev.next = self.next
 
+    def __iter__(self) -> LinkedListIter[T]:
+        return LinkedListIter(self)
 
-def count(id_and_count: list[tuple[int | None, int]]) -> int:
+
+class LinkedListIter[T]:
+    def __init__(self, linked_list: LinkedListItem[T]) -> None:
+        self.linked_list = linked_list
+
+    def __iter__(self) -> LinkedListIter[T]:
+        return self
+
+    def __next__(self) -> T:
+        if self.linked_list is not None:
+            value = self.linked_list.value
+            self.linked_list = self.linked_list.next
+            return value
+        else:
+            raise StopIteration
+
+
+def count(id_and_count: LinkedListItem[tuple[int | None, int]]) -> int:
     def expand(x: tuple[int | None, int]) -> itertools.repeat[int | None]:
         return itertools.repeat(x[0], x[1])
 
@@ -95,34 +114,38 @@ def count(id_and_count: list[tuple[int | None, int]]) -> int:
 
 
 def calculate_answer2(numbers: list[int]) -> int:
-
     thing = [(i // 2 if i % 2 == 0 else None, num) for i, num in enumerate(numbers)]
 
-    j = len(numbers) - 1
-
-    while j >= 0:
-        print(j)
-        thing2 = thing[j]
-        if thing2[0] is None:
-            j -= 1
+    (first, last) = LinkedListItem.from_iterable(thing)
+    assert last.value[0] is not None
+    at = last.value[0] + 1
+    while (
+        last != first
+        # last should never be None, but here to help typechecking
+        and last is not None
+    ):
+        if last.value[0] is None or last.value[0] >= at:
+            last = last.prev
             continue
+        else:
+            at = last.value[0]
+            print(last.value[0])
 
-        i = 0
-        while i < j:
-            if thing[i][0] is None and thing[i][1] >= thing2[1]:
+        iter = first
+        while iter != last:
+            iter = iter.next
+            assert iter is not None
+
+            if iter.value[0] is None and iter.value[1] >= last.value[1]:
                 break
 
-            i += 1
+        if iter != last:
+            iter.replace((None, iter.value[1] - last.value[1]))
+            iter.insert_before(last.value)
+            last.replace((None, last.value[1]))
+        last = last.prev
 
-        if i < j:
-            thing[i] = (None, thing[i][1] - thing2[1])
-            thing[j] = (None, thing2[1])
-            thing.insert(i, thing2)
-            continue
-        j -= 1
-
-    print(thing)
-    return count(thing)
+    return count(first)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=9)
