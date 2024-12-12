@@ -33,9 +33,9 @@ solutions: dict[int, Solution[Any]] = {
 }
 
 
-def main(day: int, input_path: Path | None = None):
+def main(day: int, input_path: Path | None = None, timed: bool = False):
     solution = solutions[day]
-    solution.solve(input_path)
+    solution.solve(input_path, timed)
 
 
 if __name__ == "__main__":

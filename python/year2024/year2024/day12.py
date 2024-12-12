@@ -1,6 +1,7 @@
 from __future__ import annotations
-from collections.abc import Callable
+
 import itertools
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from year2024.utils.aoc import Solution
