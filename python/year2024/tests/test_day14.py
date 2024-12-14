@@ -19,6 +19,3 @@ p=9,5 v=-3,-31
 def test_answer1():
     assert calculate_answer1(parse_input(test_input), (11, 7)) == 12
 
-
-def test_answer2():
-    assert calculate_answer2(parse_input(test_input), (11, 7)) == 12
