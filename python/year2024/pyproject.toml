@@ -1,25 +1,18 @@
-[tool.poetry]
+[project]
 name = "year2024"
 version = "0.1.0"
-description = ""
-authors = ["António Capela <acapela96@hotmail.com>"]
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "tqdm>=4.67.1",
+    "typer>=0.15.1",
+]
 
-[tool.poetry.scripts]
-year2024 = 'year2024:main'
-
-[tool.poetry.dependencies]
-python = "^3.13"
-typer = "^0.14.0"
-tqdm = "^4.67.1"
-
-
-[tool.poetry.group.dev.dependencies]
-ruff = "^0.8.1"
-mypy = "^1.13.0"
-pytest = "^8.3.4"
-flameprof = "^0.4"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "flameprof>=0.4",
+    "mypy>=1.13.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.3",
+]
