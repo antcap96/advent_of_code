@@ -2,6 +2,7 @@ from collections import Counter
 from dataclasses import dataclass
 import functools
 import operator
+from typing import Iterator
 from year2024.utils.aoc import Solution
 
 
@@ -82,31 +83,44 @@ def print_image(positions: list[Point], shape: Point) -> None:
 
 
 def calculate_answer2(robots: list[Robot], shape: Point = (101, 103)) -> int:
-    x_max = (0, 0)
-    y_max = (0, 0)
+    x_start, y_start = recurring_pattern(robots, shape)
 
-    for i in range(max(shape)):
-        positions = step(robots, i, shape)
-        count_x = Counter(point[0] for point in positions)
-        x_ = sum(sorted(count_x.values(), reverse=True)[:10])
-        if x_ > x_max[0]:
-            x_max = (x_, i)
-        count_y = Counter(point[1] for point in positions)
-        y_ = sum(sorted(count_y.values(), reverse=True)[:10])
-        if y_ > y_max[0]:
-            y_max = (y_, i)
-
-    print(x_max, y_max)
-
+    i = None
     for i in range(shape[0] * shape[1]):
-        if (x_max[1] + shape[0] * i) % shape[1] == y_max[1]:
+        if (x_start + shape[0] * i) % shape[1] == y_start:
             break
-    at = x_max[1] + shape[0] * i
+    assert i is not None
+    at = x_start + shape[0] * i
 
     positions = step(robots, at, shape)
     print_image(positions, shape)
 
     return at
+
+
+def recurring_pattern(robots: list[Robot], shape: Point) -> tuple[int, int]:
+    steps = [step(robots, i, shape) for i in range(max(shape))]
+    x_max = most_clustered_index(
+        map(lambda x: x[0], points) for points in steps[:shape[0]]
+    )
+    y_max = most_clustered_index(
+        map(lambda x: x[1], points) for points in steps[:shape[1]]
+    )
+
+    return x_max, y_max
+
+
+def most_clustered_index(list_of_indexes: Iterator[Iterator[int]]) -> int:
+    max_index = 0
+    max_cluster_count = 0
+    for i, indexes in enumerate(list_of_indexes):
+        counter = Counter(point for point in indexes)
+        cluster_count = sum(sorted(counter.values(), reverse=True)[:10])
+        if cluster_count > max_cluster_count:
+            max_cluster_count = cluster_count
+            max_index = i
+
+    return max_index
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=14)
