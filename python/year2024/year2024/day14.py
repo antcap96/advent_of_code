@@ -1,10 +1,10 @@
-from collections import Counter
-from dataclasses import dataclass
 import functools
 import operator
+from collections import Counter
+from dataclasses import dataclass
 from typing import Iterator
-from year2024.utils.aoc import Solution
 
+from year2024.utils.aoc import Solution
 
 type Point = tuple[int, int]
 
@@ -101,10 +101,10 @@ def calculate_answer2(robots: list[Robot], shape: Point = (101, 103)) -> int:
 def recurring_pattern(robots: list[Robot], shape: Point) -> tuple[int, int]:
     steps = [step(robots, i, shape) for i in range(max(shape))]
     x_max = most_clustered_index(
-        map(lambda x: x[0], points) for points in steps[:shape[0]]
+        map(lambda x: x[0], points) for points in steps[: shape[0]]
     )
     y_max = most_clustered_index(
-        map(lambda x: x[1], points) for points in steps[:shape[1]]
+        map(lambda x: x[1], points) for points in steps[: shape[1]]
     )
 
     return x_max, y_max

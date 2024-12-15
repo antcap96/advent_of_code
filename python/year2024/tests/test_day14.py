@@ -1,4 +1,4 @@
-from year2024.day14 import calculate_answer1, calculate_answer2, parse_input
+from year2024.day14 import calculate_answer1, parse_input
 
 test_input = """
 p=0,4 v=3,-3
@@ -18,4 +18,3 @@ p=9,5 v=-3,-31
 
 def test_answer1():
     assert calculate_answer1(parse_input(test_input), (11, 7)) == 12
-

@@ -34,7 +34,7 @@ def test_answer1_extra():
                 "Button A: X+3, Y+3\nButton B: X+5, Y+5\nPrize: X=13, Y=13"
             )
         )
-        == 1*3+2*1
+        == 1 * 3 + 2 * 1
     )
     assert (
         solution.calculate_answer1(
@@ -42,7 +42,7 @@ def test_answer1_extra():
                 "Button A: X+10, Y+10\nButton B: X+3, Y+3\nPrize: X=106, Y=106"
             )
         )
-        == 10*3+2*1
+        == 10 * 3 + 2 * 1
     )
     assert (
         solution.calculate_answer1(
@@ -50,7 +50,7 @@ def test_answer1_extra():
                 "Button A: X+7, Y+7\nButton B: X+3, Y+3\nPrize: X=17, Y=17"
             )
         )
-        == 2*3+1*1
+        == 2 * 3 + 1 * 1
     )
     assert (
         solution.calculate_answer1(
@@ -68,4 +68,3 @@ def test_answer1_extra():
         )
         == 0
     )
-
