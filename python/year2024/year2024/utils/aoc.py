@@ -8,8 +8,8 @@ from pathlib import Path
 def print_time(prefix: str, start_time: float) -> None:
     duration_in_ms = (
         datetime.timedelta(seconds=time.perf_counter() - start_time)
-    ).microseconds // 1000
-    print(f"{prefix} {duration_in_ms}ms")
+    ).total_seconds() * 1000
+    print(f"{prefix} {duration_in_ms:.0f}ms")
 
 
 @dataclass

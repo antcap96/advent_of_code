@@ -18,6 +18,7 @@ from year2024.day12 import solution as solution12
 from year2024.day13 import solution as solution13
 from year2024.day14 import solution as solution14
 from year2024.day15 import solution as solution15
+from year2024.day16 import solution as solution16
 from year2024.utils.aoc import Solution
 
 solutions: dict[int, Solution[Any]] = {
@@ -36,6 +37,7 @@ solutions: dict[int, Solution[Any]] = {
     13: solution13,
     14: solution14,
     15: solution15,
+    16: solution16,
 }
 
 
