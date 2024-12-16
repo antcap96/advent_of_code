@@ -1,13 +1,17 @@
 from __future__ import annotations
 
+import functools
+import heapq
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
-import functools
-import heapq
+from typing import TYPE_CHECKING
 
 from year2024.utils.aoc import Solution
 from year2024.utils.matrix import Matrix
+
+if TYPE_CHECKING:
+    import _typeshed
 
 type Point = tuple[int, int]
 
@@ -62,6 +66,19 @@ class Data:
     reindeer: Point
     exit: Point
     maze: Matrix[Cell]
+
+
+class HeapQueue[T: _typeshed.SupportsDunderLT]:
+    """HeapQueue based on heapq"""
+
+    def __init__(self) -> None:
+        self.queue: list[T] = []
+
+    def pop(self) -> T:
+        return heapq.heappop(self.queue)
+
+    def push(self, value: T) -> None:
+        return heapq.heappush(self.queue, value)
 
 
 def north(point: Point) -> Point:
@@ -137,12 +154,12 @@ class QueueItem:
 
 
 def disjktra(maze: Matrix[Cell], start: Point, target: Point) -> int:
-    queue: list[QueueItem] = []
+    queue: HeapQueue[QueueItem] = HeapQueue()
     visited: set[tuple[Point, Direction]] = set()
-    heapq.heappush(queue, QueueItem(0, start, Direction.East))
+    queue.push(QueueItem(0, start, Direction.East))
 
     while True:
-        item = heapq.heappop(queue)
+        item = queue.pop()
 
         if (item.at, item.direction) in visited:
             continue
@@ -154,16 +171,12 @@ def disjktra(maze: Matrix[Cell], start: Point, target: Point) -> int:
 
         infront = next_position(item.at, item.direction)
         if maze.get(infront) == Cell.Floor:
-            heapq.heappush(queue, QueueItem(item.cost + 1, infront, item.direction))
-        heapq.heappush(
-            queue, QueueItem(item.cost + 1000, item.at, item.direction.left())
-        )
-        heapq.heappush(
-            queue, QueueItem(item.cost + 1000, item.at, item.direction.right())
-        )
+            queue.push(QueueItem(item.cost + 1, infront, item.direction))
+        queue.push(QueueItem(item.cost + 1000, item.at, item.direction.left()))
+        queue.push(QueueItem(item.cost + 1000, item.at, item.direction.right()))
 
 
-def exit_routine(
+def visited_points(
     visited_from: dict[tuple[Point, Direction], list[tuple[Point, Direction]]],
     last: tuple[Point, Direction],
 ) -> set[Point]:
@@ -187,23 +200,24 @@ class QueueItem2:
 
 
 def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
-    queue: list[QueueItem2] = []
+    queue: HeapQueue[QueueItem2] = HeapQueue()
     visited_from: defaultdict[
         tuple[Point, Direction], list[tuple[Point, Direction]]
     ] = defaultdict(list)
     cost_map: dict[tuple[Point, Direction], int] = {}
-    heapq.heappush(queue, QueueItem2(0, start, None, Direction.East))
+    queue.push(QueueItem2(0, start, None, Direction.East))
 
     target_cost = None
 
     while True:
-        item = heapq.heappop(queue)
+        item = queue.pop()
         print(item.cost)
         if target_cost is not None and item.cost > target_cost:
+            # Finished searching
             valid_tagets = [(target, direction) for direction in list(Direction)]
             return len(
                 functools.reduce(
-                    set.union, [exit_routine(visited_from, t) for t in valid_tagets]
+                    set.union, [visited_points(visited_from, t) for t in valid_tagets]
                 )
             )
 
@@ -219,35 +233,19 @@ def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
             target_cost = item.cost
             continue
 
-        infront = next_position(*at_pair)
-        if maze.get(infront) == Cell.Floor and (
-            (infront, item.direction) not in cost_map
-            or item.cost + 1 == cost_map[(infront, item.direction)]
-        ):
-            heapq.heappush(
-                queue,
-                QueueItem2(item.cost + 1, infront, at_pair, item.direction),
-            )
-        if (
-            item.at,
-            item.direction.left(),
-        ) not in cost_map or item.cost + 1000 == cost_map[
-            (item.at, item.direction.left())
-        ]:
-            heapq.heappush(
-                queue,
-                QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.left()),
-            )
-        if (
-            item.at,
-            item.direction.right(),
-        ) not in cost_map or item.cost + 1000 == cost_map[
-            (item.at, item.direction.right())
-        ]:
-            heapq.heappush(
-                queue,
-                QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.right()),
-            )
+        next_ = [
+            QueueItem2(item.cost + 1, next_position(*at_pair), at_pair, item.direction),
+            QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.left()),
+            QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.right()),
+        ]
+
+        for next_item in next_:
+            next_pair = (next_item.at, next_item.direction)
+            if maze.get(next_item.at) == Cell.Floor and (
+                next_pair not in cost_map or next_item.cost <= cost_map[next_pair]
+            ):
+                cost_map[next_pair] = next_item.cost
+                queue.push(next_item)
 
 
 def calculate_answer1(data: Data) -> int:

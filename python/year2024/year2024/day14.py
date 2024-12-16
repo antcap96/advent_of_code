@@ -1,8 +1,8 @@
 import functools
 import operator
 from collections import Counter
+from collections.abc import Iterator
 from dataclasses import dataclass
-from typing import Iterator
 
 from year2024.utils.aoc import Solution
 
