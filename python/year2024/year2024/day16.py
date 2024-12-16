@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
+import functools
 import heapq
 
 from year2024.utils.aoc import Solution
@@ -190,75 +191,62 @@ def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
     visited_from: defaultdict[
         tuple[Point, Direction], list[tuple[Point, Direction]]
     ] = defaultdict(list)
-    visited: dict[tuple[Point, Direction], int] = {}
+    cost_map: dict[tuple[Point, Direction], int] = {}
     heapq.heappush(queue, QueueItem2(0, start, None, Direction.East))
+
+    target_cost = None
 
     while True:
         item = heapq.heappop(queue)
         print(item.cost)
-        if (target, Direction.North) in visited or (
-            target,
-            Direction.East,
-        ) in visited:
-            if item.cost > min(
-                visited.get((target, Direction.North), 99999999),
-                visited.get((target, Direction.East), 99999999),
-            ):
-                return len(
-                    exit_routine(visited_from, (target, Direction.North)).union(
-                        exit_routine(visited_from, (target, Direction.East))
-                    )
+        if target_cost is not None and item.cost > target_cost:
+            valid_tagets = [(target, direction) for direction in list(Direction)]
+            return len(
+                functools.reduce(
+                    set.union, [exit_routine(visited_from, t) for t in valid_tagets]
                 )
+            )
 
-        if (item.at, item.direction) in visited and item.cost > visited[
-            (item.at, item.direction)
-        ]:
+        at_pair = (item.at, item.direction)
+        if at_pair in cost_map and item.cost > cost_map[at_pair]:
             continue
-        else:
-            visited[(item.at, item.direction)] = item.cost
-            if item.prev is not None:
-                visited_from[(item.at, item.direction)].append(item.prev)
 
-        infront = next_position(item.at, item.direction)
+        cost_map[at_pair] = item.cost
+        if item.prev is not None:
+            visited_from[at_pair].append(item.prev)
+
+        if item.at == target:
+            target_cost = item.cost
+            continue
+
+        infront = next_position(*at_pair)
         if maze.get(infront) == Cell.Floor and (
-            (infront, item.direction) not in visited
-            or item.cost + 1 == visited[(infront, item.direction)]
+            (infront, item.direction) not in cost_map
+            or item.cost + 1 == cost_map[(infront, item.direction)]
         ):
             heapq.heappush(
                 queue,
-                QueueItem2(
-                    item.cost + 1, infront, (item.at, item.direction), item.direction
-                ),
+                QueueItem2(item.cost + 1, infront, at_pair, item.direction),
             )
         if (
             item.at,
             item.direction.left(),
-        ) not in visited or item.cost + 1000 == visited[
+        ) not in cost_map or item.cost + 1000 == cost_map[
             (item.at, item.direction.left())
         ]:
             heapq.heappush(
                 queue,
-                QueueItem2(
-                    item.cost + 1000,
-                    item.at,
-                    (item.at, item.direction),
-                    item.direction.left(),
-                ),
+                QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.left()),
             )
         if (
             item.at,
             item.direction.right(),
-        ) not in visited or item.cost + 1000 == visited[
+        ) not in cost_map or item.cost + 1000 == cost_map[
             (item.at, item.direction.right())
         ]:
             heapq.heappush(
                 queue,
-                QueueItem2(
-                    item.cost + 1000,
-                    item.at,
-                    (item.at, item.direction),
-                    item.direction.right(),
-                ),
+                QueueItem2(item.cost + 1000, item.at, at_pair, item.direction.right()),
             )
 
 
