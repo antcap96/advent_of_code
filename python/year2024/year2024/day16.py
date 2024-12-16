@@ -3,9 +3,7 @@ from __future__ import annotations
 from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
-from functools import cache
 import heapq
-import itertools
 
 from year2024.utils.aoc import Solution
 from year2024.utils.matrix import Matrix
@@ -164,22 +162,19 @@ def disjktra(maze: Matrix[Cell], start: Point, target: Point) -> int:
         )
 
 
-__seen: set[tuple[Point, Direction]] = set()
-
-
 def exit_routine(
     visited_from: dict[tuple[Point, Direction], list[tuple[Point, Direction]]],
     last: tuple[Point, Direction],
 ) -> set[Point]:
-    if last in __seen:
-        return set()
-    else:
-        __seen.add(last)
-    before = visited_from[last]
-    print(f"{last=}    {before=}")
-    return set(
-        itertools.chain([last[0]], *[exit_routine(visited_from, b) for b in before])
-    )
+    seen: set[tuple[Point, Direction]] = {last}
+    queue = visited_from[last].copy()
+
+    while len(queue) > 0:
+        item = queue.pop()
+        seen.add(item)
+        queue.extend([x for x in visited_from[item] if x not in seen])
+
+    return set(x[0] for x in seen)
 
 
 @dataclass(order=True)
@@ -209,11 +204,6 @@ def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
                 visited.get((target, Direction.North), 99999999),
                 visited.get((target, Direction.East), 99999999),
             ):
-                # print(
-                #     exit_routine(visited_from, (target, Direction.North)).union(
-                #         exit_routine(visited_from, (target, Direction.East))
-                #     )
-                # )
                 return len(
                     exit_routine(visited_from, (target, Direction.North)).union(
                         exit_routine(visited_from, (target, Direction.East))
@@ -230,31 +220,46 @@ def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
                 visited_from[(item.at, item.direction)].append(item.prev)
 
         infront = next_position(item.at, item.direction)
-        if maze.get(infront) == Cell.Floor:
+        if maze.get(infront) == Cell.Floor and (
+            (infront, item.direction) not in visited
+            or item.cost + 1 == visited[(infront, item.direction)]
+        ):
             heapq.heappush(
                 queue,
                 QueueItem2(
                     item.cost + 1, infront, (item.at, item.direction), item.direction
                 ),
             )
-        heapq.heappush(
-            queue,
-            QueueItem2(
-                item.cost + 1000,
-                item.at,
-                (item.at, item.direction),
-                item.direction.left(),
-            ),
-        )
-        heapq.heappush(
-            queue,
-            QueueItem2(
-                item.cost + 1000,
-                item.at,
-                (item.at, item.direction),
-                item.direction.right(),
-            ),
-        )
+        if (
+            item.at,
+            item.direction.left(),
+        ) not in visited or item.cost + 1000 == visited[
+            (item.at, item.direction.left())
+        ]:
+            heapq.heappush(
+                queue,
+                QueueItem2(
+                    item.cost + 1000,
+                    item.at,
+                    (item.at, item.direction),
+                    item.direction.left(),
+                ),
+            )
+        if (
+            item.at,
+            item.direction.right(),
+        ) not in visited or item.cost + 1000 == visited[
+            (item.at, item.direction.right())
+        ]:
+            heapq.heappush(
+                queue,
+                QueueItem2(
+                    item.cost + 1000,
+                    item.at,
+                    (item.at, item.direction),
+                    item.direction.right(),
+                ),
+            )
 
 
 def calculate_answer1(data: Data) -> int:
