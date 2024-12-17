@@ -10,6 +10,7 @@ module [
     walkWithIndex,
     walkWithIndexUntil,
     replace,
+    findFirstIndex,
 ]
 
 Matrix a := { rows : U64, cols : U64, data : List a } implements [Eq, Inspect]
@@ -69,3 +70,11 @@ replace : Matrix a, U64, U64, a -> { matrix : Matrix a, value : a }
 replace = \@Matrix m, i, j, toReplace ->
     { list: data, value } = List.replace m.data (i * m.cols + j) toReplace
     { matrix: @Matrix { cols: m.cols, rows: m.rows, data }, value }
+
+findFirstIndex : Matrix a, (a -> Bool) -> Result (U64, U64) [NotFound]
+findFirstIndex = \m, isThis ->
+    walkWithIndexUntil m (Err NotFound) \_, value, i, j ->
+        if isThis value then
+            Break (Ok (i, j))
+        else
+            Continue (Err NotFound)
