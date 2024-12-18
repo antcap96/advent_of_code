@@ -37,6 +37,6 @@ def test_answer1():
 
 def test_answer2():
     assert (
-        calculate_answer2(solution.parse_input(test_input1), shape=(7, 7), bytes=12)
+        calculate_answer2(solution.parse_input(test_input1), shape=(7, 7))
         == "6,1"
     )

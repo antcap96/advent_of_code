@@ -30,32 +30,33 @@ def create_maze(blocks: list[Point], shape: Point) -> Matrix[Cell]:
     return maze
 
 
-def disjktra(maze: Matrix[Cell], start: Point, target: Point) -> int | None:
-    to_visit: set[Point] = set()
-    visited: set[Point] = set()
-    to_visit.add(start)
+def dfs(maze: Matrix[Cell], start: Point, target: Point) -> list[Point] | None:
+    return dfs_aux(maze, start, target, [], 0)
 
-    i = 0
-    while len(to_visit) > 0:
-        next_to_visit = set()
-        for p in to_visit:
-            visited.add(p)
 
-            if p == target:
-                return i
+def dfs_aux(
+    maze: Matrix[Cell], start: Point, target: Point, so_far: list[Point], step: int
+) -> list[Point] | None:
+    if start == target:
+        return so_far[:step]
 
-            neighboors = [
-                (p[0] - 1, p[1]),
-                (p[0], p[1] - 1),
-                (p[0] + 1, p[1]),
-                (p[0], p[1] + 1),
-            ]
-            for neighboor in neighboors:
-                if maze.get(neighboor) == Cell.Floor and neighboor not in visited:
-                    next_to_visit.add(neighboor)
+    if len(so_far) > step:
+        so_far[step] = start
+    else:
+        so_far.append(start)
 
-        to_visit = next_to_visit
-        i += 1
+    neighboors = [
+        (start[0] + 1, start[1]),
+        (start[0], start[1] + 1),
+        (start[0] - 1, start[1]),
+        (start[0], start[1] - 1),
+    ]
+
+    for neighboor in neighboors:
+        if maze.get(neighboor) == Cell.Floor and neighboor not in reversed(so_far):
+            result = dfs_aux(maze, neighboor, target, so_far, step + 1)
+            if result is not None:
+                return result
 
 
 def calculate_answer1(
@@ -63,20 +64,24 @@ def calculate_answer1(
 ) -> int:
     maze = create_maze(blocks[:bytes], shape)
 
-    result = disjktra(maze, (0, 0), (shape[0] - 1, shape[1] - 1))
+    result = dfs(maze, (0, 0), (shape[0] - 1, shape[1] - 1))
     assert result is not None
-    return result
+    return len(result)
 
 
-def calculate_answer2(
-    blocks: list[Point], shape: Point = (71, 71), bytes: int = 1024
-) -> str:
+def calculate_answer2(blocks: list[Point], shape: Point = (71, 71)) -> str:
     maze = Matrix([Cell.Floor] * shape[0] * shape[1], rows=shape[0], cols=shape[1])
-    for i, block in enumerate(blocks):
-        print(i)
+    path = dfs(maze, (0, 0), (shape[0] - 1, shape[1] - 1))
+    assert path is not None
+    path = set(path)
+    for block in blocks:
         maze[block] = Cell.Wall
-        if disjktra(maze, (0, 0), (shape[0] - 1, shape[1] - 1)) is None:
-            return ",".join(map(str, block))
+        if block in path:
+            path = dfs(maze, (0, 0), (shape[0] - 1, shape[1] - 1))
+            if path is None:
+                return ",".join(map(str, block))
+            else:
+                path = set(path)
     raise ValueError("Nerver blocked")
 
 
