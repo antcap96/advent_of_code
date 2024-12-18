@@ -1,192 +1,83 @@
 from __future__ import annotations
 import copy
-from dataclasses import dataclass
-from typing import Literal
 from year2024.utils.aoc import Solution
 
 
 class VM:
     def __init__(self, a: int, b: int, c: int, program: list[int]) -> None:
-        self.registers: dict[Literal["A", "B", "C", "IP"], int] = {
-            "A": a,
-            "B": b,
-            "C": c,
-            "IP": 0,
-        }
+        self.a = a
+        self.b = b
+        self.c = c
+        self.ip = 0
         self.program = program
-        self.out: list[int] = []
+        self.output: list[int] = []
 
     def run(self) -> None:
-        while self.registers["IP"] < (len(self.program) - 1):
-            instruction_class = instruction_of(self.program[self.registers["IP"]])
-            instruction = instruction_class.with_operand(
-                self.program[self.registers["IP"] + 1]
+        while self.ip < (len(self.program) - 1):
+            self.step(
+                self.program[self.ip],
+                self.program[self.ip + 1],
             )
-            # print(
-            #     self.registers,
-            #     self.program[self.registers["IP"] : (self.registers["IP"] + 2)],
-            #     instruction,
-            # )
-            instruction.apply(self)
+            self.ip += 2
 
-
-class ComboOperand:
-    def __init__(self, operand: int) -> None:
-        self.operand = operand
-
-    def get(self, vm: VM) -> int:
-        match self.operand:
+    def combo_operand(self, operand: int) -> int:
+        match operand:
             case 0 | 1 | 2 | 3:
-                return self.operand
+                return operand
             case 4:
-                return vm.registers["A"]
+                return self.a
             case 5:
-                return vm.registers["B"]
+                return self.b
             case 6:
-                return vm.registers["C"]
+                return self.c
             case _:
-                raise ValueError(f"Invalid operand {self.operand}")
+                raise ValueError(f"Invalid operand {operand}")
 
-    def __repr__(self) -> str:
-        match self.operand:
-            case 0 | 1 | 2 | 3:
-                return str(self.operand)
+    def adv(self, operand: int) -> None:
+        self.a >>= self.combo_operand(operand)
+
+    def bxl(self, operand: int) -> None:
+        self.b ^= operand
+
+    def bst(self, operand: int) -> None:
+        self.b = self.combo_operand(operand) & 0x7
+
+    def jnz(self, operand: int) -> None:
+        if self.a != 0:
+            self.ip = operand - 2
+
+    def bxc(self, operand: int) -> None:
+        self.b ^= self.c
+
+    def out(self, operand: int) -> None:
+        self.output.append(self.combo_operand(operand) & 0x7)
+
+    def bdv(self, operand: int) -> None:
+        self.b = self.a >> self.combo_operand(operand)
+
+    def cdv(self, operand: int) -> None:
+        self.c = self.a >> self.combo_operand(operand)
+
+    def step(self, instruction: int, operand: int) -> None:
+        match instruction:
+            case 0:
+                return self.adv(operand)
+            case 1:
+                return self.bxl(operand)
+            case 2:
+                return self.bst(operand)
+            case 3:
+                return self.jnz(operand)
             case 4:
-                return "rA"
+                return self.bxc(operand)
             case 5:
-                return "rB"
+                return self.out(operand)
             case 6:
-                return "rC"
+                return self.bdv(operand)
+            case 7:
+                return self.cdv(operand)
             case _:
-                raise ValueError(f"Invalid operand {self.operand}")
-
-
-@dataclass
-class Adv:
-    operand: ComboOperand
-
-    @staticmethod
-    def with_operand(operand: int) -> Adv:
-        return Adv(ComboOperand(operand))
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["A"] = vm.registers["A"] // (2 ** self.operand.get(vm))
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Bxl:
-    operand: int
-
-    @staticmethod
-    def with_operand(operand: int) -> Bxl:
-        return Bxl(operand)
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["B"] ^= self.operand
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Bst:
-    operand: ComboOperand
-
-    @staticmethod
-    def with_operand(operand: int) -> Bst:
-        return Bst(ComboOperand(operand))
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["B"] = self.operand.get(vm) & 0x7
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Jnz:
-    operand: int
-
-    @staticmethod
-    def with_operand(operand: int) -> Jnz:
-        return Jnz(operand)
-
-    def apply(self, vm: VM) -> None:
-        if vm.registers["A"] == 0:
-            vm.registers["IP"] += 2
-        else:
-            vm.registers["IP"] = self.operand
-
-
-@dataclass
-class Bxc:
-    operand: int
-
-    @staticmethod
-    def with_operand(operand: int) -> Bxc:
-        return Bxc(operand)
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["B"] ^= vm.registers["C"]
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Out:
-    operand: ComboOperand
-
-    @staticmethod
-    def with_operand(operand: int) -> Out:
-        return Out(ComboOperand(operand))
-
-    def apply(self, vm: VM) -> None:
-        vm.out.append(self.operand.get(vm) & 0x7)
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Bdv:
-    operand: ComboOperand
-
-    @staticmethod
-    def with_operand(operand: int) -> Bdv:
-        return Bdv(ComboOperand(operand))
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["B"] = vm.registers["A"] // (2 ** self.operand.get(vm))
-        vm.registers["IP"] += 2
-
-
-@dataclass
-class Cdv:
-    operand: ComboOperand
-
-    @staticmethod
-    def with_operand(operand: int) -> Cdv:
-        return Cdv(ComboOperand(operand))
-
-    def apply(self, vm: VM) -> None:
-        vm.registers["C"] = vm.registers["A"] // (2 ** self.operand.get(vm))
-        vm.registers["IP"] += 2
-
-
-def instruction_of(i: int):
-    match i:
-        case 0:
-            return Adv
-        case 1:
-            return Bxl
-        case 2:
-            return Bst
-        case 3:
-            return Jnz
-        case 4:
-            return Bxc
-        case 5:
-            return Out
-        case 6:
-            return Bdv
-        case 7:
-            return Cdv
-        case _:
-            raise ValueError(f"invalid instruction {i}")
+                raise ValueError(f"invalid instruction {instruction}")
 
 
 def parse_register(name: str, string: str) -> int:
@@ -211,35 +102,29 @@ def parse_input(string: str) -> VM:
 def calculate_answer1(vm: VM) -> int:
     vm = copy.deepcopy(vm)
     vm.run()
-    return int("".join(map(str, vm.out)))
+    return ",".join(map(str, vm.output))
 
 
-def sum_from_is(lst: list[int]) -> int:
-    return (8 ** (len(lst) - 1)) + sum(x * 8**i for i, x in enumerate(lst))
-
-
-def pattern(vm: VM, lst: list[int], i: int) -> list[int] | None:
-    for j in range(8):
-        lst_ = copy.copy(lst)
-        lst_[i] = j
-        num = sum_from_is(lst_)
+def pattern(vm: VM, num: int, i: int) -> int | None:
+    for _ in range(8):
         vm2 = copy.deepcopy(vm)
-        vm2.registers["A"] = num
+        vm2.a = num
         vm2.run()
 
-        if vm2.out[i] == vm2.program[i]:
+        if vm2.output[i] == vm2.program[i]:
             if i == 0:
-                return lst_
+                return num
             else:
-                a = pattern(vm, lst_, i - 1)
+                a = pattern(vm, num, i - 1)
                 if a is not None:
                     return a
+        num += 8**i
 
 
 def calculate_answer2(vm: VM) -> int:
-    result = pattern(vm, [0] * 16, 15)
-    assert result is not None
-    num = sum_from_is(result)
+    n = len(vm.program) - 1
+    num = pattern(vm, 8**n, n)
+    assert num is not None
     return num
 
 
