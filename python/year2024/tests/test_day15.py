@@ -48,9 +48,9 @@ test_input3 = """
 
 
 def test_answer1():
-    assert solution.calculate_answer1(solution.parse_input(test_input1)) == 2028
-    assert solution.calculate_answer1(solution.parse_input(test_input2)) == 10092
+    assert solution.calculate_answer1(solution.parse_input(test_input1)) == "2028"
+    assert solution.calculate_answer1(solution.parse_input(test_input2)) == "10092"
 
 
 def test_answer2():
-    assert solution.calculate_answer2(solution.parse_input(test_input2)) == 9021
+    assert solution.calculate_answer2(solution.parse_input(test_input2)) == "9021"

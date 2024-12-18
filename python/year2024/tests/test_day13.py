@@ -20,45 +20,38 @@ Prize: X=18641, Y=10279
 
 
 def test_answer1():
-    assert solution.calculate_answer1(solution.parse_input(test_input)) == 480
+    assert solution.calculate_answer1(solution.parse_input(test_input)) == "480"
 
 
 def test_answer2():
-    assert solution.calculate_answer2(solution.parse_input(test_input)) == 875318608908
+    assert (
+        solution.calculate_answer2(solution.parse_input(test_input)) == "875318608908"
+    )
 
 
 def test_answer1_extra():
-    assert (
-        solution.calculate_answer1(
-            solution.parse_input(
-                "Button A: X+3, Y+3\nButton B: X+5, Y+5\nPrize: X=13, Y=13"
-            )
+    assert solution.calculate_answer1(
+        solution.parse_input(
+            "Button A: X+3, Y+3\nButton B: X+5, Y+5\nPrize: X=13, Y=13"
         )
-        == 1 * 3 + 2 * 1
-    )
-    assert (
-        solution.calculate_answer1(
-            solution.parse_input(
-                "Button A: X+10, Y+10\nButton B: X+3, Y+3\nPrize: X=106, Y=106"
-            )
+    ) == str(1 * 3 + 2 * 1)
+    assert solution.calculate_answer1(
+        solution.parse_input(
+            "Button A: X+10, Y+10\nButton B: X+3, Y+3\nPrize: X=106, Y=106"
         )
-        == 10 * 3 + 2 * 1
-    )
-    assert (
-        solution.calculate_answer1(
-            solution.parse_input(
-                "Button A: X+7, Y+7\nButton B: X+3, Y+3\nPrize: X=17, Y=17"
-            )
+    ) == str(10 * 3 + 2 * 1)
+    assert solution.calculate_answer1(
+        solution.parse_input(
+            "Button A: X+7, Y+7\nButton B: X+3, Y+3\nPrize: X=17, Y=17"
         )
-        == 2 * 3 + 1 * 1
-    )
+    ) == str(2 * 3 + 1 * 1)
     assert (
         solution.calculate_answer1(
             solution.parse_input(
                 "Button A: X+7, Y+7\nButton B: X+3, Y+3\nPrize: X=10, Y=16"
             )
         )
-        == 0
+        == "0"
     )
     assert (
         solution.calculate_answer1(
@@ -66,5 +59,5 @@ def test_answer1_extra():
                 "Button A: X+1, Y+1\nButton B: X+2, Y+2\nPrize: X=10, Y=16"
             )
         )
-        == 0
+        == "0"
     )

@@ -152,16 +152,16 @@ def count_region_side_in_one_direction[T: _typeshed.SupportsRichComparison](
     return sides
 
 
-def calculate_answer1(gardens: Matrix[int]) -> int:
+def calculate_answer1(gardens: Matrix[int]) -> str:
     regions = get_regions(gardens)
+    result = sum(region_area(region) * region_perimiter(region) for region in regions)
+    return str(result)
 
-    return sum(region_area(region) * region_perimiter(region) for region in regions)
 
-
-def calculate_answer2(gardens: Matrix[int]) -> int:
+def calculate_answer2(gardens: Matrix[int]) -> str:
     regions = get_regions(gardens)
-
-    return sum(region_area(region) * region_sides(region) for region in regions)
+    result = sum(region_area(region) * region_sides(region) for region in regions)
+    return str(result)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=12)

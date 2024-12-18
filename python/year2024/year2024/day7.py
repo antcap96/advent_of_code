@@ -60,14 +60,16 @@ def is_possible(
 
 def sum_of_possible(
     equations: list[Equation], operations: list[ReverseOperation]
-) -> int:
-    return sum(
-        equation.total
-        for equation in equations
-        if is_possible(
-            equation.total,
-            equation.numbers,
-            operations,
+) -> str:
+    return str(
+        sum(
+            equation.total
+            for equation in equations
+            if is_possible(
+                equation.total,
+                equation.numbers,
+                operations,
+            )
         )
     )
 

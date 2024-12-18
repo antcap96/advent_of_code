@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 import copy
+
 from year2024.utils.aoc import Solution
 
 
@@ -99,7 +101,7 @@ def parse_input(string: str) -> VM:
     )
 
 
-def calculate_answer1(vm: VM) -> int:
+def calculate_answer1(vm: VM) -> str:
     vm = copy.deepcopy(vm)
     vm.run()
     return ",".join(map(str, vm.output))
@@ -121,11 +123,11 @@ def pattern(vm: VM, num: int, i: int) -> int | None:
         num += 8**i
 
 
-def calculate_answer2(vm: VM) -> int:
+def calculate_answer2(vm: VM) -> str:
     n = len(vm.program) - 1
     num = pattern(vm, 8**n, n)
     assert num is not None
-    return num
+    return str(num)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=17)

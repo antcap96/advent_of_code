@@ -61,9 +61,9 @@ def parse_string1(string: str) -> list[tuple[int, int]]:
     return output
 
 
-def calculate_answer1(string: str) -> int:
+def calculate_answer1(string: str) -> str:
     pairs = parse_string1(string)
-    return sum(a * b for a, b in pairs)
+    return str(sum(a * b for a, b in pairs))
 
 
 parse_do = functools.partial(parse_exact, pattern="do()")
@@ -93,9 +93,9 @@ def parse_string2(string: str) -> list[tuple[int, int]]:
     return output
 
 
-def calculate_answer2(string: str) -> int:
+def calculate_answer2(string: str) -> str:
     pairs = parse_string2(string)
-    return sum(a * b for a, b in pairs)
+    return str(sum(a * b for a, b in pairs))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=3)

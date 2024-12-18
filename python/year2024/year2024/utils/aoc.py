@@ -15,8 +15,8 @@ def print_time(prefix: str, start_time: float) -> None:
 @dataclass
 class Solution[T]:
     parse_input: Callable[[str], T]
-    calculate_answer1: Callable[[T], int]
-    calculate_answer2: Callable[[T], int]
+    calculate_answer1: Callable[[T], str]
+    calculate_answer2: Callable[[T], str]
     day: int
 
     def solve(self, path: str | Path | None, timed: bool = False):

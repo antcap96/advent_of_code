@@ -10,7 +10,7 @@ def parse_input(string: str) -> list[int]:
     return [int(c) for c in string.strip()]
 
 
-def calculate_answer1(numbers: list[int]) -> int:
+def calculate_answer1(numbers: list[int]) -> str:
     length = sum(numbers)
 
     nums: list[int | None] = [None for _ in range(length)]
@@ -32,7 +32,8 @@ def calculate_answer1(numbers: list[int]) -> int:
             continue
 
         nums[i], nums[j] = nums[j], nums[i]
-    return sum(i * x for i, x in enumerate(nums) if x is not None)
+    result = sum(i * x for i, x in enumerate(nums) if x is not None)
+    return str(result)
 
 
 def count(sections: list[Section]) -> int:
@@ -67,7 +68,7 @@ def expand_with_space(numbers: list[int]) -> list[Section]:
     return output
 
 
-def calculate_answer2(numbers: list[int]) -> int:
+def calculate_answer2(numbers: list[int]) -> str:
     nums = expand_with_space(numbers)
 
     min_idx: list[None | int] = [0] * 10
@@ -102,7 +103,7 @@ def calculate_answer2(numbers: list[int]) -> int:
 
         current -= 1
 
-    return count(nums)
+    return str(count(nums))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=9)

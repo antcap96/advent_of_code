@@ -170,13 +170,13 @@ def print_map(map: Map | ExpandedMap) -> None:
     print(s)
 
 
-def calculate_answer1(data: tuple[Map, list[Direction]]) -> int:
+def calculate_answer1(data: tuple[Map, list[Direction]]) -> str:
     map, directions = data
     map = copy.deepcopy(map)
     for direction in directions:
         map = step(map, direction)
 
-    return gps_score(map.map)
+    return str(gps_score(map.map))
 
 
 def expand_map(map: Map) -> ExpandedMap:
@@ -307,13 +307,13 @@ def gps_score2(map: Matrix[ExpandedCell]) -> int:
     return score
 
 
-def calculate_answer2(data: tuple[Map, list[Direction]]) -> int:
+def calculate_answer2(data: tuple[Map, list[Direction]]) -> str:
     map, directions = data
     map = expand_map(map)
     for direction in directions:
         map = step2(map, direction)
 
-    return gps_score2(map.map)
+    return str(gps_score2(map.map))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=15)

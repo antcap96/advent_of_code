@@ -1,5 +1,7 @@
 from __future__ import annotations
+
 from enum import Enum
+
 from year2024.utils.aoc import Solution
 from year2024.utils.matrix import Matrix
 
@@ -61,12 +63,12 @@ def dfs_aux(
 
 def calculate_answer1(
     blocks: list[Point], shape: Point = (71, 71), bytes: int = 1024
-) -> int:
+) -> str:
     maze = create_maze(blocks[:bytes], shape)
 
     result = dfs(maze, (0, 0), (shape[0] - 1, shape[1] - 1))
     assert result is not None
-    return len(result)
+    return str(len(result))
 
 
 def calculate_answer2(blocks: list[Point], shape: Point = (71, 71)) -> str:

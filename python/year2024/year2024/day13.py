@@ -101,11 +101,12 @@ def required_tokens(machine: Machine) -> int | None:
         return None
 
 
-def calculate_answer1(machines: list[Machine]) -> int:
-    return sum(required_tokens(machine) or 0 for machine in machines)
+def calculate_answer1(machines: list[Machine]) -> str:
+    result = sum(required_tokens(machine) or 0 for machine in machines)
+    return str(result)
 
 
-def calculate_answer2(machines: list[Machine]) -> int:
+def calculate_answer2(machines: list[Machine]) -> str:
     corrected_machines = [
         Machine(
             m.botton_a,

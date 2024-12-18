@@ -61,7 +61,7 @@ def is_sorted(rules: OrderingRules, row: list[int]) -> bool:
     return True
 
 
-def calculate_answer1(data: Data) -> int:
+def calculate_answer1(data: Data) -> str:
     total = 0
     for pages in filter(
         functools.partial(is_sorted, data.ordering_rules),
@@ -69,7 +69,7 @@ def calculate_answer1(data: Data) -> int:
     ):
         total += pages[len(pages) // 2]
 
-    return total
+    return str(total)
 
 
 def total_ordering_rules(rules: OrderingRules) -> dict[int, set[int]]:
@@ -109,7 +109,7 @@ def order_pages(rules: OrderingRules, pages: list[int]) -> list[int]:
     return sorted(pages, key=lambda x: len(relevant_ordering_rules[x]))
 
 
-def calculate_answer2(data: Data) -> int:
+def calculate_answer2(data: Data) -> str:
     total = 0
     for pages in filter(
         lambda x: not is_sorted(data.ordering_rules, x),
@@ -117,7 +117,7 @@ def calculate_answer2(data: Data) -> int:
     ):
         total += order_pages(data.ordering_rules, pages)[len(pages) // 2]
 
-    return total
+    return str(total)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=5)

@@ -78,7 +78,7 @@ def count_antinodes(
     for antennas in data.antennas.values():
         solutions.update(antinodes(antennas, data.size))
 
-    return len(solutions)
+    return str(len(solutions))
 
 
 def antinodes2(antennas: list[Vector], size: Vector) -> Generator[Vector]:

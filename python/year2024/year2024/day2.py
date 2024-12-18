@@ -39,11 +39,11 @@ def is_safe1(row: list[int]) -> bool:
     return True
 
 
-def calculate_answer1(data: Data) -> int:
+def calculate_answer1(data: Data) -> str:
     with ThreadPoolExecutor(num_cores) as pool:
         output = sum(pool.map(is_safe1, data))
 
-    return output
+    return str(output)
 
 
 def is_safe2(row: list[int]) -> bool:
@@ -78,11 +78,11 @@ def is_safe2_decreasing(row: list[int]) -> bool:
             return False
 
 
-def calculate_answer2(data: Data) -> int:
+def calculate_answer2(data: Data) -> str:
     with ThreadPoolExecutor(num_cores) as pool:
         output = sum(pool.map(is_safe2, data))
 
-    return output
+    return str(output)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=2)

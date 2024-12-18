@@ -64,7 +64,7 @@ def count_occurrences(haystack: str, needle: str) -> int:
     return len(re.findall(needle, haystack))
 
 
-def calculate_answer1(data: list[str]) -> int:
+def calculate_answer1(data: list[str]) -> str:
     iter_functions = [
         iterate_0,
         iterate_45,
@@ -77,7 +77,7 @@ def calculate_answer1(data: list[str]) -> int:
         count += sum(count_occurrences(line, "XMAS") for line in iter_func(data))
         count += sum(count_occurrences(line, "SAMX") for line in iter_func(data))
 
-    return count
+    return str(count)
 
 
 def contains_MAS(s1: str, s2: str, s3: str) -> bool:
@@ -85,7 +85,7 @@ def contains_MAS(s1: str, s2: str, s3: str) -> bool:
     return string == "MAS" or string == "SAM"
 
 
-def calculate_answer2(data: list[str]) -> int:
+def calculate_answer2(data: list[str]) -> str:
     rows = len(data)
     cols = len(data[0])
 
@@ -99,7 +99,7 @@ def calculate_answer2(data: list[str]) -> int:
             ):
                 count += 1
 
-    return count
+    return str(count)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=4)

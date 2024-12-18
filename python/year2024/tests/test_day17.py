@@ -79,7 +79,3 @@ Program: 4,0"""
     )
     vm.run()
     assert vm.b == 44354
-
-
-# def test_answer2():
-#     assert solution.calculate_answer2(solution.parse_input(test_input1)) == 45

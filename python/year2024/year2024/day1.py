@@ -22,14 +22,14 @@ def separate_list(data: Data) -> tuple[list[int], list[int]]:
     )
 
 
-def calculate_answer1(data: Data) -> int:
+def calculate_answer1(data: Data) -> str:
     list1, list2 = separate_list(data)
     list1.sort()
     list2.sort()
-    return sum(abs(el1 - el2) for el1, el2 in zip(list1, list2))
+    return str(sum(abs(el1 - el2) for el1, el2 in zip(list1, list2)))
 
 
-def calculate_answer2(data: Data) -> int:
+def calculate_answer2(data: Data) -> str:
     list1, list2 = separate_list(data)
 
     counter = Counter(list2)
@@ -39,7 +39,7 @@ def calculate_answer2(data: Data) -> int:
     for elem in list1:
         similarity_score += elem * counter.get(elem, 0)
 
-    return similarity_score
+    return str(similarity_score)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=1)

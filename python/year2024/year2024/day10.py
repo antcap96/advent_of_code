@@ -28,7 +28,7 @@ def count_nines(data: Matrix[int], start: tuple[int, int]) -> set[tuple[int, int
     return nines
 
 
-def calculate_answer1(data: Matrix[int]):
+def calculate_answer1(data: Matrix[int]) -> str:
     score = 0
     for i in range(data.rows):
         for j in range(data.cols):
@@ -37,7 +37,7 @@ def calculate_answer1(data: Matrix[int]):
 
             score += len(count_nines(data, (i, j)))
 
-    return score
+    return str(score)
 
 
 def count_ratings(data: Matrix[int], start: tuple[int, int]) -> int:
@@ -61,7 +61,7 @@ def count_ratings(data: Matrix[int], start: tuple[int, int]) -> int:
     return nines
 
 
-def calculate_answer2(data: Matrix[int]):
+def calculate_answer2(data: Matrix[int]) -> str:
     score = 0
     for i in range(data.rows):
         for j in range(data.cols):
@@ -70,7 +70,7 @@ def calculate_answer2(data: Matrix[int]):
 
             score += count_ratings(data, (i, j))
 
-    return score
+    return str(score)
 
 
 solution = Solution(

@@ -83,7 +83,7 @@ def step(map: Matrix[Cell], state: State) -> State | None:
             return state.rotate()
 
 
-def calculate_answer1(data: Data) -> int:
+def calculate_answer1(data: Data) -> str:
     visited: set[tuple[int, int]] = set()
 
     state = State(data.starting_position, Direction.North)
@@ -91,7 +91,7 @@ def calculate_answer1(data: Data) -> int:
         visited.add(state.position)
         state = step(data.map, state)
 
-    return len(visited)
+    return str(len(visited))
 
 
 def is_loop_with_obstacle(
@@ -112,7 +112,7 @@ def is_loop_with_obstacle(
     return state is not None
 
 
-def calculate_answer2(data: Data) -> int:
+def calculate_answer2(data: Data) -> str:
     visited_positions: set[tuple[int, int]] = set()
     visited_states: set[State] = set()
 
@@ -132,7 +132,7 @@ def calculate_answer2(data: Data) -> int:
         visited_states.add(state)
         state = step(data.map, state)
 
-    return count
+    return str(count)
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=6)

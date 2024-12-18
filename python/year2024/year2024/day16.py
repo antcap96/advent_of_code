@@ -248,12 +248,12 @@ def disjktra2(maze: Matrix[Cell], start: Point, target: Point) -> int:
                 queue.push(next_item)
 
 
-def calculate_answer1(data: Data) -> int:
-    return disjktra(data.maze, data.reindeer, data.exit)
+def calculate_answer1(data: Data) -> str:
+    return str(disjktra(data.maze, data.reindeer, data.exit))
 
 
-def calculate_answer2(data: Data) -> int:
-    return disjktra2(data.maze, data.reindeer, data.exit)
+def calculate_answer2(data: Data) -> str:
+    return str(disjktra2(data.maze, data.reindeer, data.exit))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=16)

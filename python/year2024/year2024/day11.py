@@ -27,12 +27,12 @@ def step(stones: Mapping[int, int]) -> defaultdict[int, int]:
     return new_stones
 
 
-def count_stones(stones: list[int], n: int):
+def count_stones(stones: list[int], n: int) -> str:
     count_stones = Counter(stones)
     for _ in range(n):
         count_stones = step(count_stones)
 
-    return sum(count_stones.values())
+    return str(sum(count_stones.values()))
 
 
 solution = Solution(

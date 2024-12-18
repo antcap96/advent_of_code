@@ -1,5 +1,4 @@
 import functools
-import operator
 from collections import Counter
 from collections.abc import Iterator
 from dataclasses import dataclass
@@ -66,12 +65,13 @@ def count_quadrants(positions: list[Point], shape: Point) -> tuple[int, int, int
     return (q1, q2, q3, q4)
 
 
-def calculate_answer1(robots: list[Robot], shape: Point = (101, 103)) -> int:
+def calculate_answer1(robots: list[Robot], shape: Point = (101, 103)) -> str:
     positions = step(robots, 100, shape)
 
     quadrants = count_quadrants(positions, shape)
 
-    return functools.reduce(operator.mul, quadrants)
+    result = functools.reduce(lambda x, y: x * y, quadrants)
+    return str(result)
 
 
 def print_image(positions: list[Point], shape: Point) -> None:
@@ -82,7 +82,7 @@ def print_image(positions: list[Point], shape: Point) -> None:
     print("\n".join("".join(row) for row in img))
 
 
-def calculate_answer2(robots: list[Robot], shape: Point = (101, 103)) -> int:
+def calculate_answer2(robots: list[Robot], shape: Point = (101, 103)) -> str:
     x_start, y_start = recurring_pattern(robots, shape)
 
     i = None
@@ -95,7 +95,7 @@ def calculate_answer2(robots: list[Robot], shape: Point = (101, 103)) -> int:
     positions = step(robots, at, shape)
     print_image(positions, shape)
 
-    return at
+    return str(at)
 
 
 def recurring_pattern(robots: list[Robot], shape: Point) -> tuple[int, int]:
