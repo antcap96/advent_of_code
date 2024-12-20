@@ -66,12 +66,6 @@ def parse_input(string: str) -> Data:
     return Data(Matrix.from_list_of_list(maze), start, end)
 
 
-# @dataclass(unsafe_hash=True, frozen=True)
-# class State:
-#     at: Point
-#     cheat: int
-
-
 @dataclass
 class Path:
     score: int
@@ -79,10 +73,10 @@ class Path:
 
 
 def bfs(maze: Matrix[bool], start: Point) -> Matrix[int | None]:
-    # Typing is sad
-    x: list[None | int] = [None]
     distances: Matrix[int | None] = Matrix(
-        x * maze.cols * maze.rows, maze.rows, maze.cols
+        list[None | int]([None]) * maze.cols * maze.rows,
+        maze.rows,
+        maze.cols,
     )
     distances[start] = 0
 
@@ -91,12 +85,7 @@ def bfs(maze: Matrix[bool], start: Point) -> Matrix[int | None]:
     while len(to_visit) > 0:
         next_to_visit = []
         for at in to_visit:
-            neighboors = [
-                east(at),
-                west(at),
-                north(at),
-                south(at),
-            ]
+            neighboors = [east(at), west(at), north(at), south(at)]
 
             for neighboor in neighboors:
                 if maze.get(neighboor) is False and distances[neighboor] is None:
@@ -109,7 +98,7 @@ def bfs(maze: Matrix[bool], start: Point) -> Matrix[int | None]:
     return distances
 
 
-def ashortcuts(
+def calculate_shortcut_distances(
     distances: Matrix[int | None],
     start: Point,
     max_distance: int,
@@ -144,8 +133,10 @@ def within(point: Point, distance: int) -> Generator[tuple[Point, int]]:
 
 
 def count_shorcuts(data: Data, shortcut_distance: int, min_score: int) -> str:
-    distances = bfs(data.maze, start=data.end)
-    shortcuts = ashortcuts(distances, data.start, shortcut_distance, min_score)
+    distances_to_end = bfs(data.maze, start=data.end)
+    shortcuts = calculate_shortcut_distances(
+        distances_to_end, data.start, shortcut_distance, min_score
+    )
 
     return str(len(list(shortcuts)))
 
