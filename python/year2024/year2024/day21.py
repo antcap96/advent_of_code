@@ -1,7 +1,7 @@
-from collections.abc import Callable, Generator, Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from enum import Enum
-from functools import cache, cached_property
+from functools import cache
 import itertools
 from year2024.utils.aoc import Solution
 
@@ -32,27 +32,23 @@ class Direction(Enum):
 
 @dataclass
 class KeyPad[T]:
-    map: dict[Point, T]
+    map: dict[T, Point]
     inside: Callable[[Point], bool]
-
-    @cached_property
-    def revesed(self) -> dict[T, Point]:
-        return {v: k for k, v in self.map.items()}
 
 
 numeric_pad = KeyPad(
     {
-        (0, 0): Numeric.N7,
-        (0, 1): Numeric.N8,
-        (0, 2): Numeric.N9,
-        (1, 0): Numeric.N4,
-        (1, 1): Numeric.N5,
-        (1, 2): Numeric.N6,
-        (2, 0): Numeric.N1,
-        (2, 1): Numeric.N2,
-        (2, 2): Numeric.N3,
-        (3, 1): Numeric.N0,
-        (3, 2): Numeric.A,
+        Numeric.N7: (0, 0),
+        Numeric.N8: (0, 1),
+        Numeric.N9: (0, 2),
+        Numeric.N4: (1, 0),
+        Numeric.N5: (1, 1),
+        Numeric.N6: (1, 2),
+        Numeric.N1: (2, 0),
+        Numeric.N2: (2, 1),
+        Numeric.N3: (2, 2),
+        Numeric.N0: (3, 1),
+        Numeric.A: (3, 2),
     },
     lambda x: x != (3, 0),
 )
@@ -60,11 +56,11 @@ numeric_pad = KeyPad(
 
 directional_pad = KeyPad(
     {
-        (0, 1): Direction.Up,
-        (0, 2): Direction.A,
-        (1, 0): Direction.Left,
-        (1, 1): Direction.Down,
-        (1, 2): Direction.Right,
+        Direction.Up: (0, 1),
+        Direction.A: (0, 2),
+        Direction.Left: (1, 0),
+        Direction.Down: (1, 1),
+        Direction.Right: (1, 2),
     },
     lambda x: x != (0, 0),
 )
@@ -126,8 +122,8 @@ def paths_aux(
 
 
 def directions[T](keypad: KeyPad[T], start: T, end: T) -> list[list[Direction]]:
-    start_point = keypad.revesed[start]
-    end_point = keypad.revesed[end]
+    start_point = keypad.map[start]
+    end_point = keypad.map[end]
 
     paths = paths_aux(start_point, end_point, inside=keypad.inside)
     for path in paths:
