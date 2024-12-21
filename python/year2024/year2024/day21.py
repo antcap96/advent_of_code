@@ -125,6 +125,29 @@ def directional_string2(directions: str) -> list[str]:
     return outputs
 
 
+@cache
+def directional_to_directional_aux_cost(
+    direction1: str, direction2: str, level: int
+) -> int:
+    paths = directional_to_directional_aux(direction1, direction2)
+    if level == 0:
+        return min(len(path) for path in paths)
+
+    min_cost = None
+    for path in paths:
+        cost = 0
+        for direction1, direction2 in zip(itertools.chain(["A"], path), path):
+            cost += directional_to_directional_aux_cost(
+                direction1, direction2, level - 1
+            )
+        if min_cost is None or cost < min_cost:
+            min_cost = cost
+
+    assert min_cost is not None
+
+    return min_cost
+
+
 def directional_string(path: list[str]) -> list[list[str]]:
     outputs: list[list[str]] = [[]]
     for direction1, direction2 in zip(itertools.chain(["A"], path), path):
@@ -157,17 +180,20 @@ def trim2(iterator: Iterable[str]) -> Iterable[str]:
     return filter(lambda x: len(x) == min_len, all_)
 
 
-def chunk2(digit1: str, digit2: str) -> str:
+def chunk2(digit1: str, digit2: str) -> int:
     part1 = numeric_to_directional_aux(digit1, digit2)
-    part1 = list(map(lambda x: "".join(x), part1))
-    for i in range(25):
-        print(i)
-        part1 = trim2(part1)
-        part1 = list(part1)
-        print(len(part1))
-        print(part1)
-        part1 = itertools.chain(*[directional_string2(path) for path in part1])
-    return min(part1, key=len)
+
+    min_cost = None
+    for path in part1:
+        cost = 0
+        for direction1, direction2 in zip(itertools.chain(["A"], path), path):
+            cost += directional_to_directional_aux_cost(direction1, direction2, 24)
+        if min_cost is None or cost < min_cost:
+            min_cost = cost
+
+    assert min_cost is not None
+
+    return min_cost
 
 
 def do_thing(digits: str) -> list[str]:
@@ -178,8 +204,8 @@ def do_thing(digits: str) -> list[str]:
     return output
 
 
-def do_thing2(digits: str) -> str:
-    output: str = ""
+def do_thing2(digits: str) -> int:
+    output = 0
     for digit1, digit2 in zip(itertools.chain(["A"], digits), digits):
         output += chunk2(digit1, digit2)
 
@@ -190,8 +216,16 @@ def complexity(string: str) -> int:
     return int(string.replace("A", "")) * len(do_thing(string))
 
 
+def complexity2(string: str) -> int:
+    return int(string.replace("A", "")) * do_thing2(string)
+
+
 def calculate_answer1(codes: list[str]) -> str:
     return str(sum(complexity(code) for code in codes))
 
 
-solution = Solution(parse_input, calculate_answer1, calculate_answer1, day=21)
+def calculate_answer2(codes: list[str]) -> str:
+    return str(sum(complexity2(code) for code in codes))
+
+
+solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=21)
