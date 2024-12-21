@@ -1,6 +1,7 @@
-from collections.abc import Generator
+from collections.abc import Callable, Generator, Iterator
+from dataclasses import dataclass
 from enum import Enum
-from functools import cache
+from functools import cache, cached_property
 import itertools
 from year2024.utils.aoc import Solution
 
@@ -29,30 +30,44 @@ class Direction(Enum):
     Down = "v"
 
 
-numeric_pad: dict[Point, Numeric] = {
-    (0, 0): Numeric.N7,
-    (0, 1): Numeric.N8,
-    (0, 2): Numeric.N9,
-    (1, 0): Numeric.N4,
-    (1, 1): Numeric.N5,
-    (1, 2): Numeric.N6,
-    (2, 0): Numeric.N1,
-    (2, 1): Numeric.N2,
-    (2, 2): Numeric.N3,
-    (3, 1): Numeric.N0,
-    (3, 2): Numeric.A,
-}
+@dataclass
+class KeyPad[T]:
+    map: dict[Point, T]
+    inside: Callable[[Point], bool]
 
-reverse_numeric_pad = {v: k for k, v in numeric_pad.items()}
+    @cached_property
+    def revesed(self) -> dict[T, Point]:
+        return {v: k for k, v in self.map.items()}
 
-directional_pad: dict[Point, Direction] = {
-    (0, 1): Direction.Up,
-    (0, 2): Direction.A,
-    (1, 0): Direction.Left,
-    (1, 1): Direction.Down,
-    (1, 2): Direction.Right,
-}
-reverse_directional_pad = {v: k for k, v in directional_pad.items()}
+
+numeric_pad = KeyPad(
+    {
+        (0, 0): Numeric.N7,
+        (0, 1): Numeric.N8,
+        (0, 2): Numeric.N9,
+        (1, 0): Numeric.N4,
+        (1, 1): Numeric.N5,
+        (1, 2): Numeric.N6,
+        (2, 0): Numeric.N1,
+        (2, 1): Numeric.N2,
+        (2, 2): Numeric.N3,
+        (3, 1): Numeric.N0,
+        (3, 2): Numeric.A,
+    },
+    lambda x: x != (3, 0),
+)
+
+
+directional_pad = KeyPad(
+    {
+        (0, 1): Direction.Up,
+        (0, 2): Direction.A,
+        (1, 0): Direction.Left,
+        (1, 1): Direction.Down,
+        (1, 2): Direction.Right,
+    },
+    lambda x: x != (0, 0),
+)
 
 
 def parse_numeric(string: str) -> Numeric:
@@ -84,78 +99,69 @@ def west(point: Point) -> Point:
     return (i, j - 1)
 
 
-def paths_aux(start: Point, end: Point, deny: list[Point]) -> list[list[Direction]]:
+def paths_aux(
+    start: Point, end: Point, inside: Callable[[Point], bool]
+) -> list[list[Direction]]:
     output: list[list[Direction]] = []
     if start == end:
         return [[]]
+
+    def extend(next: Point, direction: Direction) -> None:
+        if inside(next):
+            paths = paths_aux(start, next, inside)
+            for path in paths:
+                path.append(direction)
+            output.extend(paths)
+
     if end[0] > start[0]:
-        if north(end) not in deny:
-            paths = paths_aux(start, north(end), deny)
-            for path in paths:
-                path.append(Direction.Down)
-            output.extend(paths)
+        extend(north(end), Direction.Down)
     elif end[0] < start[0]:
-        if south(end) not in deny:
-            paths = paths_aux(start, south(end), deny)
-            for path in paths:
-                path.append(Direction.Up)
-            output.extend(paths)
+        extend(south(end), Direction.Up)
     if end[1] > start[1]:
-        if west(end) not in deny:
-            paths = paths_aux(start, west(end), deny)
-            for path in paths:
-                path.append(Direction.Right)
-            output.extend(paths)
+        extend(west(end), Direction.Right)
     elif end[1] < start[1]:
-        if east(end) not in deny:
-            paths = paths_aux(start, east(end), deny)
-            for path in paths:
-                path.append(Direction.Left)
-            output.extend(paths)
+        extend(east(end), Direction.Left)
 
     return output
 
 
-def add_a(x: list[Direction]):
-    x.append(Direction.A)
-    return x
+def directions[T](keypad: KeyPad[T], start: T, end: T) -> list[list[Direction]]:
+    start_point = keypad.revesed[start]
+    end_point = keypad.revesed[end]
+
+    paths = paths_aux(start_point, end_point, inside=keypad.inside)
+    for path in paths:
+        path.append(Direction.A)
+
+    return paths
 
 
-def numeric_to_directional_aux(
-    digit1: Numeric,
-    digit2: Numeric,
-) -> Generator[list[Direction]]:
-    start = reverse_numeric_pad[digit1]
-    end = reverse_numeric_pad[digit2]
-
-    yield from map(add_a, paths_aux(start, end, deny=[(3, 0)]))
+def numeric_iterate_pair(numeric: list[Numeric]) -> Iterator[tuple[Numeric, Numeric]]:
+    return zip(itertools.chain([Numeric.A], numeric), numeric)
 
 
-def directional_to_directional_aux(
-    direction1: Direction,
-    direction2: Direction,
-) -> Generator[list[Direction]]:
-    start = reverse_directional_pad[direction1]
-    end = reverse_directional_pad[direction2]
-
-    yield from map(add_a, paths_aux(start, end, deny=[(0, 0)]))
+def directional_iterate_pairs(
+    directions: list[Direction],
+) -> Iterator[tuple[Direction, Direction]]:
+    return zip(itertools.chain([Direction.A], directions), directions)
 
 
 @cache
-def directional_to_directional_aux_cost(
-    direction1: Direction, direction2: Direction, level: int
-) -> int:
-    paths = directional_to_directional_aux(direction1, direction2)
-    if level == 0:
+def cost_pair[T: Direction | Numeric](t1: T, t2: T, depth: int) -> int:
+    if isinstance(t1, Direction) and isinstance(t2, Direction):
+        paths = directions(directional_pad, t1, t2)
+    elif isinstance(t1, Numeric) and isinstance(t2, Numeric):
+        paths = directions(numeric_pad, t1, t2)
+    else:
+        raise ValueError("t1 and t2 must be of the same type")
+    if depth == 0:
         return min(len(path) for path in paths)
 
     min_cost = None
     for path in paths:
         cost = 0
-        for direction1, direction2 in zip(itertools.chain([Direction.A], path), path):
-            cost += directional_to_directional_aux_cost(
-                direction1, direction2, level - 1
-            )
+        for direction1, direction2 in directional_iterate_pairs(path):
+            cost += cost_pair(direction1, direction2, depth - 1)
         if min_cost is None or cost < min_cost:
             min_cost = cost
 
@@ -164,28 +170,10 @@ def directional_to_directional_aux_cost(
     return min_cost
 
 
-def chunk2(digit1: Numeric, digit2: Numeric, depth: int) -> int:
-    part1 = numeric_to_directional_aux(digit1, digit2)
-
-    min_cost = None
-    for path in part1:
-        cost = 0
-        for direction1, direction2 in zip(itertools.chain([Direction.A], path), path):
-            cost += directional_to_directional_aux_cost(
-                direction1, direction2, depth - 1
-            )
-        if min_cost is None or cost < min_cost:
-            min_cost = cost
-
-    assert min_cost is not None
-
-    return min_cost
-
-
-def do_thing2(digits: list[Numeric], depth: int) -> int:
+def total_cost(digits: list[Numeric], depth: int) -> int:
     output = 0
-    for digit1, digit2 in zip(itertools.chain([Numeric.A], digits), digits):
-        output += chunk2(digit1, digit2, depth)
+    for digit1, digit2 in numeric_iterate_pair(digits):
+        output += cost_pair(digit1, digit2, depth)
 
     return output
 
@@ -195,16 +183,16 @@ def numeric_of_code(code: list[Numeric]) -> int:
     return int(num_str)
 
 
-def complexity2(code: list[Numeric], depth: int) -> int:
-    return numeric_of_code(code) * do_thing2(code, depth)
+def complexity(code: list[Numeric], depth: int) -> int:
+    return numeric_of_code(code) * total_cost(code, depth)
 
 
 def calculate_answer1(codes: list[list[Numeric]]) -> str:
-    return str(sum(complexity2(code, depth=2) for code in codes))
+    return str(sum(complexity(code, depth=2) for code in codes))
 
 
 def calculate_answer2(codes: list[list[Numeric]]) -> str:
-    return str(sum(complexity2(code, depth=25) for code in codes))
+    return str(sum(complexity(code, depth=25) for code in codes))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=21)
