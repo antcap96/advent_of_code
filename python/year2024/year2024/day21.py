@@ -1,4 +1,4 @@
-from collections.abc import Generator, Iterable, Iterator
+from collections.abc import Generator
 from functools import cache
 import itertools
 from year2024.utils.aoc import Solution
@@ -33,10 +33,6 @@ reverse_directional_pad = {v: k for k, v in directional_pad.items()}
 
 def parse_input(string: str) -> list[str]:
     return string.strip().splitlines()
-
-
-# def paths(start: Point, end: Point, deny: list[Point]) -> list[str]:
-#     return ["".join(path) for path in paths_aux(start, end, deny)]
 
 
 def north(point: Point) -> Point:
@@ -112,20 +108,6 @@ def directional_to_directional_aux(
 
 
 @cache
-def directional_string2(directions: str) -> list[str]:
-    outputs: list[str] = [""]
-    for direction1, direction2 in zip(itertools.chain(["A"], directions), directions):
-        new_outputs = []
-        for path in directional_to_directional_aux(direction1, direction2):
-            for so_far in outputs:
-                new_outputs.append(so_far + "".join(path))
-
-        outputs = new_outputs
-
-    return outputs
-
-
-@cache
 def directional_to_directional_aux_cost(
     direction1: str, direction2: str, level: int
 ) -> int:
@@ -148,46 +130,16 @@ def directional_to_directional_aux_cost(
     return min_cost
 
 
-def directional_string(path: list[str]) -> list[list[str]]:
-    outputs: list[list[str]] = [[]]
-    for direction1, direction2 in zip(itertools.chain(["A"], path), path):
-        new_outputs = []
-        for path in directional_to_directional_aux(direction1, direction2):
-            for so_far in outputs:
-                new_outputs.append(so_far + path)
-
-        outputs = new_outputs
-
-    return outputs
-
-
-def chunk(digit1: str, digit2: str) -> list[str]:
-    part1 = numeric_to_directional_aux(digit1, digit2)
-    part2 = itertools.chain(*(directional_string(path) for path in part1))
-    part3 = itertools.chain(*(directional_string(path) for path in part2))
-    return min(part3, key=len)
-
-
-def trim(iterator: Iterable[list[str]]) -> Iterable[list[str]]:
-    all_ = list(iterator)
-    min_len = min(len(path) for path in all_)
-    return filter(lambda x: len(x) == min_len, all_)
-
-
-def trim2(iterator: Iterable[str]) -> Iterable[str]:
-    all_ = list(iterator)
-    min_len = min(len(path) for path in all_)
-    return filter(lambda x: len(x) == min_len, all_)
-
-
-def chunk2(digit1: str, digit2: str) -> int:
+def chunk2(digit1: str, digit2: str, depth: int) -> int:
     part1 = numeric_to_directional_aux(digit1, digit2)
 
     min_cost = None
     for path in part1:
         cost = 0
         for direction1, direction2 in zip(itertools.chain(["A"], path), path):
-            cost += directional_to_directional_aux_cost(direction1, direction2, 24)
+            cost += directional_to_directional_aux_cost(
+                direction1, direction2, depth - 1
+            )
         if min_cost is None or cost < min_cost:
             min_cost = cost
 
@@ -196,36 +148,24 @@ def chunk2(digit1: str, digit2: str) -> int:
     return min_cost
 
 
-def do_thing(digits: str) -> list[str]:
-    output: list[str] = []
-    for digit1, digit2 in zip(itertools.chain(["A"], digits), digits):
-        output.extend(chunk(digit1, digit2))
-
-    return output
-
-
-def do_thing2(digits: str) -> int:
+def do_thing2(digits: str, depth: int) -> int:
     output = 0
     for digit1, digit2 in zip(itertools.chain(["A"], digits), digits):
-        output += chunk2(digit1, digit2)
+        output += chunk2(digit1, digit2, depth)
 
     return output
 
 
-def complexity(string: str) -> int:
-    return int(string.replace("A", "")) * len(do_thing(string))
-
-
-def complexity2(string: str) -> int:
-    return int(string.replace("A", "")) * do_thing2(string)
+def complexity2(string: str, depth: int) -> int:
+    return int(string.replace("A", "")) * do_thing2(string, depth)
 
 
 def calculate_answer1(codes: list[str]) -> str:
-    return str(sum(complexity(code) for code in codes))
+    return str(sum(complexity2(code, depth=2) for code in codes))
 
 
 def calculate_answer2(codes: list[str]) -> str:
-    return str(sum(complexity2(code) for code in codes))
+    return str(sum(complexity2(code, depth=25) for code in codes))
 
 
 solution = Solution(parse_input, calculate_answer1, calculate_answer2, day=21)
