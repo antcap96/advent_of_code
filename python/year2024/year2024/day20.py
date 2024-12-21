@@ -74,7 +74,7 @@ class Path:
 
 def bfs(maze: Matrix[bool], start: Point) -> Matrix[int | None]:
     distances: Matrix[int | None] = Matrix(
-        list[None | int]([None]) * maze.cols * maze.rows,
+        [None] * (maze.cols * maze.rows),
         maze.rows,
         maze.cols,
     )
