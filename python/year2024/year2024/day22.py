@@ -1,6 +1,8 @@
-import itertools
+import functools
+from concurrent.futures import ThreadPoolExecutor
 
 import tqdm
+
 from year2024.utils.aoc import Solution
 
 
@@ -17,9 +19,9 @@ def mix(number: int, secret: int) -> int:
 
 
 def next_secret(secret: int) -> int:
-    secret = prune(mix(secret * 64, secret))
-    secret = prune(mix(secret // 32, secret))
-    secret = prune(mix(secret * 2048, secret))
+    secret = prune(mix(secret << 6, secret))
+    secret = prune(mix(secret >> 5, secret))
+    secret = prune(mix(secret << 11, secret))
 
     return secret
 
@@ -32,11 +34,13 @@ def nth_secret(secret: int, n: int) -> int:
 
 
 def calculate_answer1(secrets: list[int]) -> str:
-    return str(sum(nth_secret(secret, 2000) for secret in secrets))
+    with ThreadPoolExecutor() as pool:
+        secrets2000 = pool.map(functools.partial(nth_secret, n=2000), secrets)
+    return str(sum(secrets2000))
 
 
 def mapping(secret: int) -> dict[tuple[int, int, int, int], int]:
-    bananas = []
+    bananas: list[int] = []
 
     for _ in range(2000):
         secret = next_secret(secret)
@@ -51,27 +55,30 @@ def mapping(secret: int) -> dict[tuple[int, int, int, int], int]:
 
     for prev_banana, banana in zip(bananas[4:], bananas[5:]):
         l4, l3, l2, l1 = l3, l2, l1, banana - prev_banana
-        if (l4, l3, l2, l1) not in output:
-            output[(l4, l3, l2, l1)] = banana
+        tpl = (l4, l3, l2, l1)
+        if tpl not in output:
+            output[tpl] = banana
 
     return output
 
 
-def score(mappings: list[dict[tuple[int, int, int, int], int]]) -> int:
-    best = 0
-    for i in tqdm.tqdm(
-        itertools.product(range(-9, 10), range(-9, 10), range(-9, 10), range(-9, 10)),
-        total=19 ** 4,
-    ):
-        this = sum(mapping.get(i, 0) for mapping in mappings)
-        if this > best:
-            best = this
+def score_aux(
+    mappings: list[dict[tuple[int, int, int, int], int]], key: tuple[int, int, int, int]
+) -> int:
+    return sum(mapping.get(key, 0) for mapping in mappings)
 
-    return best
+
+def score(mappings: list[dict[tuple[int, int, int, int], int]]) -> int:
+    keys = functools.reduce(set.union, [set(mapping.keys()) for mapping in mappings])
+
+    with ThreadPoolExecutor() as pool:
+        func = functools.partial(score_aux, mappings)
+        return max(tqdm.tqdm(pool.map(func, keys), total=len(keys)))
 
 
 def calculate_answer2(secrets: list[int]) -> str:
-    mappings = [mapping(secret) for secret in tqdm.tqdm(secrets)]
+    with ThreadPoolExecutor() as pool:
+        mappings = list(tqdm.tqdm(pool.map(mapping, secrets), total=len(secrets)))
     return str(score(mappings))
 
 
