@@ -1,7 +1,8 @@
+import functools
 from collections import deque
 from collections.abc import Generator
 from dataclasses import dataclass
-import functools
+
 from year2024.utils.aoc import Solution
 from year2024.utils.matrix import Matrix
 

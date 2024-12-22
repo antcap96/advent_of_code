@@ -1,4 +1,4 @@
-from year2024.day22 import solution, next_secret
+from year2024.day22 import next_secret, solution
 
 test_input1 = """
 1

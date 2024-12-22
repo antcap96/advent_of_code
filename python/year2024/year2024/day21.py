@@ -1,8 +1,9 @@
+import itertools
 from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from enum import Enum
 from functools import cache
-import itertools
+
 from year2024.utils.aoc import Solution
 
 type Point = tuple[int, int]

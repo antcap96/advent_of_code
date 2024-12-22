@@ -1,4 +1,4 @@
-from year2024.day20 import solution, count_shorcuts
+from year2024.day20 import count_shorcuts, solution
 
 test_input1 = """
 ###############
