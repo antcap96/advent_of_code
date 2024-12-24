@@ -1,6 +1,5 @@
 import functools
 
-import tqdm
 from year2024.utils.aoc import Solution
 import networkx as nx
 
