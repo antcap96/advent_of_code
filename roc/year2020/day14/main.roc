@@ -1,10 +1,12 @@
-app [main] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
     parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.9.0/w8YKp2YAgQt5REYk912HfKAHBjcXsrnvtjI0CBzoAT4.tar.br",
+    adventOfCode: "../../package/main.roc",
 }
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 import parser.Parser
 import parser.String
@@ -14,140 +16,148 @@ Mem : { idx : U64, value : U64 }
 Data : List [Mask Mask, Mem Mem]
 
 # mask = XX001001X10X110X0001111001110X110101
-maskParser : Parser.Parser _ Mask
-maskParser =
-    Parser.const \x -> x
-    |> Parser.skip (String.string "mask = ")
-    |> Parser.keep String.anyString
-    |> Parser.map \str ->
-        Str.toUtf8 str
-        |> List.mapTry parseBit
+mask_parser : Parser.Parser _ Mask
+mask_parser =
+    Parser.const(|x| x)
+    |> Parser.skip (String.string ("mask = "))
+    |> Parser.keep(String.anyString)
+    |> Parser.map(
+        |str|
+            Str.to_utf8(str)
+            |> List.map_try(parse_bit),
+    )
     |> Parser.flatten
 
-parseBit : U8 -> Result [One, Zero, X] Str
-parseBit = \elem ->
+parse_bit : U8 -> Result [One, Zero, X] Str
+parse_bit = |elem|
     when elem is
-        '1' -> Ok One
-        '0' -> Ok Zero
-        'X' -> Ok X
-        _ -> Err "invalid char in mask $(Inspect.toStr (Str.fromUtf8 [elem]))"
+        '1' -> Ok(One)
+        '0' -> Ok(Zero)
+        'X' -> Ok(X)
+        _ -> Err("invalid char in mask ${Inspect.to_str(Str.from_utf8([elem]))}")
 
 # mem[3250] = 4436
-memParser : Parser.Parser _ Mem
-memParser =
-    Parser.const (\idx -> \value -> { idx, value })
-    |> Parser.skip (String.string "mem")
-    |> Parser.keep (Parser.between String.digits (String.codeunit '[') (String.codeunit ']'))
-    |> Parser.skip (String.string " = ")
-    |> Parser.keep String.digits
+mem_parser : Parser.Parser _ Mem
+mem_parser =
+    Parser.const(|idx| |value| { idx, value })
+    |> Parser.skip(String.string("mem"))
+    |> Parser.keep(Parser.between(String.digits, String.codeunit('['), String.codeunit(']')))
+    |> Parser.skip (String.string (" = "))
+    |> Parser.keep(String.digits)
 
-parseRow = \row ->
-    rowParser : Parser.Parser _ [Mask Mask, Mem Mem]
-    rowParser = Parser.alt (Parser.map memParser Mem) (Parser.map maskParser Mask)
-    Result.mapErr (String.parseStr rowParser row) Inspect.toStr
+parse_row = |row|
+    row_parser : Parser.Parser _ [Mask Mask, Mem Mem]
+    row_parser = Parser.alt(Parser.map(mem_parser, Mem), Parser.map(mask_parser, Mask))
+    String.parseStr(row_parser, row)
 
-parseInput : Str -> Result Data Str
-parseInput = \str ->
-    Str.trimEnd str
-    |> Str.splitOn "\n"
-    |> List.mapTry parseRow
+parse_input : Str -> Result Data _
+parse_input = |str|
+    Str.trim_end(str)
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
 
-andIntMask = \mask ->
+and_int_mask = |mask|
     mask
     |> List.reverse
-    |> List.walkWithIndex 0 \state, elem, idx ->
-        if elem == Zero then
-            state + Num.powInt 2 idx
-        else
-            state
-    |> Num.bitwiseNot
+    |> List.walk_with_index(
+        0,
+        |state, elem, idx|
+            if elem == Zero then
+                state + Num.pow_int(2, idx)
+            else
+                state,
+    )
+    |> Num.bitwise_not
 
-orIntMask = \mask ->
+or_int_mask = |mask|
     mask
     |> List.reverse
-    |> List.walkWithIndex 0 \state, elem, idx ->
-        if elem == One then
-            state + Num.powInt 2 idx
-        else
-            state
+    |> List.walk_with_index(
+        0,
+        |state, elem, idx|
+            if elem == One then
+                state + Num.pow_int(2, idx)
+            else
+                state,
+    )
 
-applyMask = \num, mask ->
+apply_mask = |num, mask|
     num
-    |> Num.bitwiseAnd (andIntMask mask)
-    |> Num.bitwiseOr (orIntMask mask)
+    |> Num.bitwise_and(and_int_mask(mask))
+    |> Num.bitwise_or(or_int_mask(mask))
 
-calcAnswer1 : Data -> U64
-calcAnswer1 = \lst ->
-    List.walk lst { mem: Dict.empty {}, mask: [] } \{ mem, mask }, elem ->
-        when elem is
-            Mask newMask -> { mem, mask: newMask }
-            Mem { idx, value } ->
-                maskedValue = applyMask value mask
-                { mem: Dict.insert mem idx maskedValue, mask }
+calc_answer1 : Data -> U64
+calc_answer1 = |lst|
+    List.walk(
+        lst,
+        { mem: Dict.empty({}), mask: [] },
+        |{ mem, mask }, elem|
+            when elem is
+                Mask(new_mask) -> { mem, mask: new_mask }
+                Mem({ idx, value }) ->
+                    masked_value = apply_mask(value, mask)
+                    { mem: Dict.insert(mem, idx, masked_value), mask },
+    )
     |> .mem
     |> Dict.values
     |> List.sum
 
 # expandMask : Mask -> List Mask
-expandMask = \mask ->
-    when List.findFirstIndex mask \elem -> elem == X is
-        Err NotFound -> [mask]
-        Ok idx ->
-            List.concat
-                (expandMask (List.replace mask idx Zero).list)
-                (expandMask (List.replace mask idx One).list)
+expand_mask = |mask|
+    when List.find_first_index(mask, |elem| elem == X) is
+        Err(NotFound) -> [mask]
+        Ok(idx) ->
+            List.concat(
+                expand_mask((List.replace(mask, idx, Zero)).list),
+                expand_mask((List.replace(mask, idx, One)).list),
+            )
 
-replaceZeroWithKeep : Mask -> List [Zero, One, X, Keep]
-replaceZeroWithKeep = \lst ->
-    List.map lst \elem ->
-        when elem is
-            Zero -> Keep
-            One -> One
-            X -> X
+replace_zero_with_keep : Mask -> List [Zero, One, X, Keep]
+replace_zero_with_keep = |lst|
+    List.map(
+        lst,
+        |elem|
+            when elem is
+                Zero -> Keep
+                One -> One
+                X -> X,
+    )
 
-calcAnswer2 : Data -> U64
-calcAnswer2 = \lst ->
-    List.walk lst { mem: Dict.empty {}, mask: [] } \{ mem, mask }, elem ->
-        when elem is
-            Mask newMask -> { mem, mask: replaceZeroWithKeep newMask }
-            Mem { idx, value } ->
-                masks = expandMask mask
-                newMem = List.walk masks mem \state, usedMask ->
-                    adress = applyMask idx usedMask
-                    Dict.insert state adress value
-                { mem: newMem, mask }
+calc_answer2 : Data -> U64
+calc_answer2 = |lst|
+    List.walk(
+        lst,
+        { mem: Dict.empty({}), mask: [] },
+        |{ mem, mask }, elem|
+            when elem is
+                Mask(new_mask) -> { mem, mask: replace_zero_with_keep(new_mask) }
+                Mem({ idx, value }) ->
+                    masks = expand_mask(mask)
+                    new_mem = List.walk(
+                        masks,
+                        mem,
+                        |state, used_mask|
+                            adress = apply_mask(idx, used_mask)
+                            Dict.insert(state, adress, value),
+                    )
+                    { mem: new_mem, mask },
+    )
     |> .mem
     |> Dict.values
     |> List.sum
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day14.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day14.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    answer2 = Result.map parsed calcAnswer2
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput1 =
+test_input1 =
     """
     mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X
     mem[8] = 11
@@ -157,13 +167,13 @@ testInput1 =
 
 expect
     value =
-        testInput1
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input1
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok (165)
+    value == Ok(165)
 
-testInput2 =
+test_input2 =
     """
     mask = 000000000000000000000000000000X1001X
     mem[42] = 100
@@ -173,8 +183,8 @@ testInput2 =
 
 expect
     value =
-        testInput2
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input2
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (208)
+    value == Ok(208)

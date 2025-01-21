@@ -1,10 +1,11 @@
-app [main] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
     parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/0.9.0/w8YKp2YAgQt5REYk912HfKAHBjcXsrnvtjI0CBzoAT4.tar.br",
 }
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 import parser.Parser
 import parser.String
@@ -12,148 +13,142 @@ import parser.String
 Contains : List { name : Str, amount : U64 }
 BagData : Dict Str Contains
 
-bagNameParser : Parser.Parser _ Str
-bagNameParser =
-    bagSuffixParser = Parser.alt
-        (String.string " bags")
-        (String.string " bag")
+bag_name_parser : Parser.Parser _ Str
+bag_name_parser =
+    bag_suffix_parser = Parser.alt(
+        String.string(" bags"),
+        String.string(" bag"),
+    )
 
-    Parser.const (\first -> \second -> "$(String.strFromUtf8 first) $(String.strFromUtf8 second)")
-    |> Parser.keep (Parser.chompUntil ' ')
-    |> Parser.skip (String.codeunit ' ')
-    |> Parser.keep (Parser.chompUntil ' ')
-    |> Parser.skip bagSuffixParser
+    Parser.const(|first| |second| "${String.strFromUtf8(first)} ${String.strFromUtf8(second)}")
+    |> Parser.keep(Parser.chompUntil(' '))
+    |> Parser.skip(String.codeunit(' '))
+    |> Parser.keep(Parser.chompUntil(' '))
+    |> Parser.skip(bag_suffix_parser)
 
-beginingParser : Parser.Parser _ Str
-beginingParser =
-    Parser.const (\x -> x)
-    |> Parser.keep bagNameParser
-    |> Parser.skip (String.string " contain ")
+begining_parser : Parser.Parser _ Str
+begining_parser =
+    Parser.const(|x| x)
+    |> Parser.keep(bag_name_parser)
+    |> Parser.skip(String.string(" contain "))
 
-containsParser : Parser.Parser _ Contains
-containsParser =
-    noBagsParser = Parser.const (\_ -> []) |> Parser.keep (String.string "no other bags")
+contains_parser : Parser.Parser _ Contains
+contains_parser =
+    no_bags_parser = Parser.const(|_| []) |> Parser.keep(String.string("no other bags"))
 
-    withBagsParser =
-        elementParser
-        |> Parser.sepBy1 (String.string ", ")
+    with_bags_parser =
+        element_parser
+        |> Parser.sepBy1(String.string(", "))
 
-    elementParser =
-        Parser.const (\amount -> \name -> { amount, name })
-        |> Parser.keep String.digits
-        |> Parser.skip (String.codeunit ' ')
-        |> Parser.keep bagNameParser
+    element_parser =
+        Parser.const(|amount| |name| { amount, name })
+        |> Parser.keep(String.digits)
+        |> Parser.skip(String.codeunit(' '))
+        |> Parser.keep(bag_name_parser)
 
-    Parser.alt noBagsParser withBagsParser
-    |> Parser.skip (String.codeunit '.')
+    Parser.alt(no_bags_parser, with_bags_parser)
+    |> Parser.skip(String.codeunit('.'))
 
-rowParser : Parser.Parser _ (Str, Contains)
-rowParser =
-    Parser.const (\name -> \contains -> (name, contains))
-    |> Parser.keep beginingParser
-    |> Parser.keep containsParser
+row_parser : Parser.Parser _ (Str, Contains)
+row_parser =
+    Parser.const(|name| |contains| (name, contains))
+    |> Parser.keep(begining_parser)
+    |> Parser.keep(contains_parser)
 
-parseRow : Str -> Result (Str, Contains) Str
-parseRow = \row ->
-    Result.mapErr (String.parseStr rowParser row) Inspect.toStr
+parse_row : Str -> Result (Str, Contains) Str
+parse_row = |row|
+    Result.map_err(String.parseStr(row_parser, row), Inspect.to_str)
 
-parseInput : Str -> Result BagData Str
-parseInput = \str ->
+parse_input : Str -> Result BagData Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry parseRow
-    |> Result.map Dict.fromList
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
+    |> Result.map_ok(Dict.from_list)
 
 Cache : Dict Str Bool
-canContainShinyGold : Cache, BagData, Contains -> (Cache, Bool)
-canContainShinyGold = \originalCache, bags, contains ->
-    List.walk contains (originalCache, Bool.false) \(cache, ans), { name, amount: _ } ->
-        (updatedCache, newAns) = canContainShinyGoldAuxCache cache bags name
-        (updatedCache, newAns || ans)
+can_contain_shiny_gold : Cache, BagData, Contains -> (Cache, Bool)
+can_contain_shiny_gold = |original_cache, bags, contains|
+    List.walk(
+        contains,
+        (original_cache, Bool.false),
+        |(cache, ans), { name, amount: _ }|
+            (updated_cache, new_ans) = can_contain_shiny_gold_aux_cache(cache, bags, name)
+            (updated_cache, new_ans or ans),
+    )
 
-canContainShinyGoldAuxCache : Cache, BagData, Str -> (Cache, Bool)
-canContainShinyGoldAuxCache = \cache, bags, name ->
+can_contain_shiny_gold_aux_cache : Cache, BagData, Str -> (Cache, Bool)
+can_contain_shiny_gold_aux_cache = |cache, bags, name|
     if name == "shiny gold" then
         (cache, Bool.true)
     else
-        when Dict.get cache name is
-            Ok found -> (cache, found)
-            Err KeyNotFound ->
-                failOnRepeated = cache |> Dict.insert name Bool.false
-                (newcache, ans) = canContainShinyGoldAux failOnRepeated bags name
-                (newcache |> Dict.insert name ans, ans)
+        when Dict.get(cache, name) is
+            Ok(found) -> (cache, found)
+            Err(KeyNotFound) ->
+                fail_on_repeated = cache |> Dict.insert(name, Bool.false)
+                (newcache, ans) = can_contain_shiny_gold_aux(fail_on_repeated, bags, name)
+                (newcache |> Dict.insert(name, ans), ans)
 
-canContainShinyGoldAux : Cache, BagData, Str -> (Cache, Bool)
-canContainShinyGoldAux = \originalCache, data, name ->
-    when Dict.get data name is
-        Ok contains ->
-            List.walk
-                contains
-                (originalCache, Bool.false)
-                \(cache, ans), { name: innerName, amount: _ } ->
-                    (updatedCache, newAns) =
-                        canContainShinyGoldAuxCache cache data innerName
-                    (updatedCache, newAns || ans)
+can_contain_shiny_gold_aux : Cache, BagData, Str -> (Cache, Bool)
+can_contain_shiny_gold_aux = |original_cache, data, name|
+    when Dict.get(data, name) is
+        Ok(contains) ->
+            List.walk(
+                contains,
+                (original_cache, Bool.false),
+                |(cache, ans), { name: inner_name, amount: _ }|
+                    (updated_cache, new_ans) =
+                        can_contain_shiny_gold_aux_cache(cache, data, inner_name)
+                    (updated_cache, new_ans or ans),
+            )
 
-        Err KeyNotFound -> crash "unexpected bag name '$(name)'"
+        Err(KeyNotFound) -> crash("unexpected bag name '${name}'")
 
-calcAnswer1 : BagData -> U64
-calcAnswer1 = \data ->
-    (_finalCache, count) = Dict.walk
-        data
-        (Dict.empty {}, 0)
-        \(cache, amount), _name, contains ->
-            (newCache, itContains) = canContainShinyGold cache data contains
-            (newCache, if itContains then amount + 1 else amount)
+calc_answer1 : BagData -> U64
+calc_answer1 = |data|
+    (_finalCache, count) = Dict.walk(
+        data,
+        (Dict.empty({}), 0),
+        |(cache, amount), _name, contains|
+            (new_cache, it_contains) = can_contain_shiny_gold(cache, data, contains)
+            (new_cache, if it_contains then amount + 1 else amount),
+    )
     count
 
-bagsInBag : BagData, Str -> U64
-bagsInBag = \data, name ->
-    when Dict.get data name is
-        Ok contains ->
+bags_in_bag : BagData, Str -> U64
+bags_in_bag = |data, name|
+    when Dict.get(data, name) is
+        Ok(contains) ->
             1
             + (
-                List.map contains \{ name: childName, amount } ->
-                    amount * (bagsInBag data childName)
+                List.map(
+                    contains,
+                    |{ name: child_name, amount }|
+                        amount * (bags_in_bag(data, child_name)),
+                )
                 |> List.sum
             )
 
-        Err KeyNotFound -> crash "unexpected bag '$(name)"
+        Err(KeyNotFound) -> crash("unexpected bag '${name}")
 
-calcAnswer2 : BagData -> U64
-calcAnswer2 = \data ->
+calc_answer2 : BagData -> U64
+calc_answer2 = |data|
     # -1 to remove the shiny gold bag from the total count
-    (bagsInBag data "shiny gold") - 1
+    (bags_in_bag(data, "shiny gold")) - 1
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day7.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day7.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     light red bags contain 1 bright white bag, 2 muted yellow bags.
     dark orange bags contain 3 bright white bags, 4 muted yellow bags.
@@ -166,7 +161,7 @@ testInput =
     dotted black bags contain no other bags.
     """
 
-testInput2 =
+test_input2 =
     """
     shiny gold bags contain 2 dark red bags.
     dark red bags contain 2 dark orange bags.
@@ -178,11 +173,11 @@ testInput2 =
     """
 
 expect
-    value = parseInput testInput
+    value = parse_input(test_input)
     value
-    == Ok
-        (
-            Dict.fromList [
+    == Ok(
+        Dict.from_list(
+            [
                 ("light red", [{ amount: 1, name: "bright white" }, { amount: 2, name: "muted yellow" }]),
                 ("dark orange", [{ amount: 3, name: "bright white" }, { amount: 4, name: "muted yellow" }]),
                 ("bright white", [{ amount: 1, name: "shiny gold" }]),
@@ -192,29 +187,30 @@ expect
                 ("vibrant plum", [{ amount: 5, name: "faded blue" }, { amount: 6, name: "dotted black" }]),
                 ("faded blue", []),
                 ("dotted black", []),
-            ]
-        )
+            ],
+        ),
+    )
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok 4
-
-expect
-    value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
-
-    value == Ok 32
+    value == Ok(4)
 
 expect
     value =
-        testInput2
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok 126
+    value == Ok(32)
+
+expect
+    value =
+        test_input2
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
+
+    value == Ok(126)

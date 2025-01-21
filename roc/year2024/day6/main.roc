@@ -1,142 +1,156 @@
-app [main] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
     adventOfCode: "../../package/main.roc",
 }
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 import adventOfCode.Matrix exposing [Matrix]
 
 Cell : [Floor, Obstruction]
 Direction : [North, East, South, West]
 State : { position : (U64, U64), direction : Direction }
-Data : { map : Matrix Cell, startPosition : (U64, U64) }
+Data : { map : Matrix Cell, start_position : (U64, U64) }
 
-initialPosition : Matrix U8 -> Result (U64, U64) Str
-initialPosition = \matrix ->
-    Matrix.walkWithIndexUntil matrix (Err NotFound) \_, elem, i, j ->
-        if elem == '^' then
-            Break (Ok (i, j))
-        else
-            Continue (Err NotFound)
-    |> Result.mapErr \_ -> "Could not find inital position"
+initial_position : Matrix U8 -> Result (U64, U64) Str
+initial_position = |matrix|
+    Matrix.walk_with_index_until(
+        matrix,
+        Err(NotFound),
+        |_, elem, i, j|
+            if elem == '^' then
+                Break(Ok((i, j)))
+            else
+                Continue(Err(NotFound)),
+    )
+    |> Result.map_err(|_| "Could not find inital position")
 
-parseInput : Str -> Result Data Str
-parseInput = \str ->
+parse_input : Str -> Result Data Str
+parse_input = |str|
     matrix =
-        Str.trimEnd str
-        |> Str.splitOn "\n"
-        |> List.map Str.toUtf8
-        |> Matrix.fromListOfList
-        |> try Result.mapErr \_ -> "Inconsistent row size"
+        Str.trim_end(str)
+        |> Str.split_on("\n")
+        |> List.map(Str.to_utf8)
+        |> Matrix.from_list_of_list
+        |> Result.map_err? |_| "Inconsistent row size"
 
-    map = matrix |> Matrix.map \c -> if c == '#' then Obstruction else Floor
+    map = matrix |> Matrix.map(|c| if c == '#' then Obstruction else Floor)
 
-    startPosition = try initialPosition matrix
+    start_position = initial_position(matrix)?
 
-    Ok { map, startPosition }
+    Ok({ map, start_position })
 
 rotate : Direction -> Direction
-rotate = \dir ->
+rotate = |dir|
     when dir is
         North -> East
         East -> South
         South -> West
         West -> North
 
-nextPosition : State -> (U64, U64)
-nextPosition = \{ position: (i, j), direction } ->
+next_position : State -> (U64, U64)
+next_position = |{ position: (i, j), direction }|
     when direction is
-        North -> (Num.subWrap i 1, j)
-        East -> (i, Num.addWrap j 1)
-        South -> (Num.addWrap i 1, j)
-        West -> (i, Num.subWrap j 1)
+        North -> (Num.sub_wrap(i, 1), j)
+        East -> (i, Num.add_wrap(j, 1))
+        South -> (Num.add_wrap(i, 1), j)
+        West -> (i, Num.sub_wrap(j, 1))
 
 step : Matrix Cell, State -> [Next State, Exited]
-step = \map, state ->
-    (i, j) = nextPosition state
+step = |map, state|
+    (i, j) = next_position(state)
 
-    when Matrix.get map i j is
-        Err OutOfBounds -> Exited
-        Ok Floor -> Next { state & position: (i, j) }
-        Ok Obstruction -> Next { state & direction: rotate state.direction }
+    when Matrix.get(map, i, j) is
+        Err(OutOfBounds) -> Exited
+        Ok(Floor) -> Next({ state & position: (i, j) })
+        Ok(Obstruction) -> Next({ state & direction: rotate(state.direction) })
 
 run : Matrix Cell, State, Set State -> [Exited (Set State), Looping]
-run = \map, state, visited ->
-    when step map state is
-        Exited -> Exited visited
-        Next newState ->
-            if Set.contains visited newState then
+run = |map, state, visited|
+    when step(map, state) is
+        Exited -> Exited(visited)
+        Next(new_state) ->
+            if Set.contains(visited, new_state) then
                 Looping
             else
-                run map newState (Set.insert visited newState)
+                run(map, new_state, Set.insert(visited, new_state))
 
-calcAnswer1 : Data -> Result U64 Str
-calcAnswer1 = \data ->
-    state = { position: data.startPosition, direction: North }
+calc_answer1 : Data -> Result U64 Str
+calc_answer1 = |data|
+    state = { position: data.start_position, direction: North }
 
-    when run data.map state (Set.fromList [state]) is
-        Looping -> Err "looped in answer1"
-        Exited set -> Set.map set .position |> Set.len |> Ok
+    when run(data.map, state, Set.from_list([state])) is
+        Looping -> Err("looped in answer1")
+        Exited(set) -> Set.map(set, .position) |> Set.len |> Ok
 
-isLoopWithObstacle : Matrix Cell, State, Set State -> Bool
-isLoopWithObstacle = \matrix, state, visited ->
-    (i, j) = nextPosition state
-    { matrix: newMatrix } = Matrix.replace matrix i j Obstruction
+is_loop_with_obstacle : Matrix Cell, State, Set State -> Bool
+is_loop_with_obstacle = |matrix, state, visited|
+    (i, j) = next_position(state)
+    { matrix: new_matrix } = Matrix.replace(matrix, i, j, Obstruction)
 
-    when run newMatrix state visited is
+    when run(new_matrix, state, visited) is
         Looping -> Bool.true
         _ -> Bool.false
 
-run2 : Matrix Cell, State, Set State, Set (U64, U64), U64 -> U64
-run2 = \matrix, state, visited, visitedPosition, count ->
-    when step matrix state is
-        Exited -> count
-        Next nextState ->
-            nextVisited = Set.insert visited nextState
-            nextVisitedPosition = Set.insert visitedPosition nextState.position
-            # No short-circuit in roc apparently
-            if Set.contains visitedPosition nextState.position then
-                run2 matrix nextState nextVisited nextVisitedPosition count
-            else if isLoopWithObstacle matrix state visited then
-                run2 matrix nextState nextVisited nextVisitedPosition (count + 1)
+run2 :
+    {
+        matrix : Matrix Cell,
+        state : State,
+        visited : Set State,
+        visited_position : Set (U64, U64),
+        count : U64,
+    }
+    -> U64
+run2 = |{ matrix, state: current_state, visited: current_visited, visited_position: current_visited_position, count: current_count }|
+    when step(matrix, current_state) is
+        Exited -> current_count
+        Next(state) ->
+            visited = Set.insert(current_visited, state)
+            visited_position = Set.insert(current_visited_position, state.position)
+            count = if
+                Set.contains(current_visited_position, state.position)
+                or !is_loop_with_obstacle(matrix, current_state, current_visited)
+            then
+                current_count
             else
-                run2 matrix nextState nextVisited nextVisitedPosition count
+                current_count + 1
+            run2(
+                {
+                    matrix,
+                    state,
+                    visited,
+                    visited_position,
+                    count,
+                },
+            )
 
-calcAnswer2 : Data -> U64
-calcAnswer2 = \data ->
-    state = { position: data.startPosition, direction: North }
-    run2 data.map state (Set.empty {}) (Set.empty {}) 0
+calc_answer2 : Data -> U64
+calc_answer2 = |data|
+    state = { position: data.start_position, direction: North }
+    run2(
+        {
+            matrix: data.map,
+            state,
+            visited: Set.empty({}),
+            visited_position: Set.empty({}),
+            count: 0,
+        },
+    )
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2024/day6/input.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2024/day6/input.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.try parsed calcAnswer1
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
+    answer1 = Result.try(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    answer2 = Result.map parsed calcAnswer2
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     ....#.....
     .........#
@@ -152,16 +166,17 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.try calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.try(calc_answer1)
 
-    value == Ok (41)
+    value == Ok(41)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (6)
+    value == Ok(6)
+

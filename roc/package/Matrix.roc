@@ -1,80 +1,88 @@
 module [
     Matrix,
-    nRows,
-    nCols,
+    n_rows,
+    n_cols,
     get,
-    fromListOfList,
+    from_list_of_list,
     map,
-    mapWithIndex,
+    map_with_index,
     walk,
-    walkWithIndex,
-    walkWithIndexUntil,
+    walk_with_index,
+    walk_with_index_until,
     replace,
-    findFirstIndex,
+    find_first_index,
 ]
 
 Matrix a := { rows : U64, cols : U64, data : List a } implements [Eq, Inspect]
 
-nRows : Matrix a -> U64
-nRows = \@Matrix m -> m.rows
+n_rows : Matrix a -> U64
+n_rows = |@Matrix(m)| m.rows
 
-nCols : Matrix a -> U64
-nCols = \@Matrix m -> m.cols
+n_cols : Matrix a -> U64
+n_cols = |@Matrix(m)| m.cols
 
 get : Matrix a, U64, U64 -> Result a [OutOfBounds]
-get = \@Matrix m, i, j ->
-    if i < m.rows && j < m.cols then
-        List.get m.data (i * m.cols + j)
+get = |@Matrix(m), i, j|
+    if i < m.rows and j < m.cols then
+        List.get(m.data, (i * m.cols + j))
     else
-        Err OutOfBounds
+        Err(OutOfBounds)
 
-fromListOfList : List (List a) -> Result (Matrix a) [InconsistentColumns]
-fromListOfList = \lst ->
-    rows = List.len lst
-    colsTest = List.walk lst Empty \state, elem ->
-        cols = List.len elem
-        when state is
-            Empty -> All cols
-            All soFar -> if soFar == cols then All soFar else Inconsistent
-            Inconsistent -> Inconsistent
+from_list_of_list : List (List a) -> Result (Matrix a) [InconsistentColumns]
+from_list_of_list = |lst|
+    rows = List.len(lst)
+    cols_test = List.walk(
+        lst,
+        Empty,
+        |state, elem|
+            cols = List.len(elem)
+            when state is
+                Empty -> All(cols)
+                All(so_far) -> if so_far == cols then All(so_far) else Inconsistent
+                Inconsistent -> Inconsistent,
+    )
 
-    data = List.walk lst [] List.concat
-    when colsTest is
-        Empty -> Ok (@Matrix { rows, cols: 0, data })
-        All cols -> Ok (@Matrix { rows, cols, data })
-        Inconsistent -> Err InconsistentColumns
+    data = List.walk(lst, [], List.concat)
+    when cols_test is
+        Empty -> Ok(@Matrix({ rows, cols: 0, data }))
+        All(cols) -> Ok(@Matrix({ rows, cols, data }))
+        Inconsistent -> Err(InconsistentColumns)
 
 map : Matrix a, (a -> b) -> Matrix b
-map = \@Matrix m, func ->
-    newData = List.map m.data func
-    @Matrix { cols: m.cols, rows: m.rows, data: newData }
+map = |@Matrix(m), func|
+    new_data = List.map(m.data, func)
+    @Matrix({ cols: m.cols, rows: m.rows, data: new_data })
 
-mapWithIndex : Matrix a, (a, U64, U64 -> b) -> Matrix b
-mapWithIndex = \@Matrix m, func ->
-    newData = List.mapWithIndex m.data \elem, i -> func elem (i // m.cols) (i % m.cols)
-    @Matrix { cols: m.cols, rows: m.rows, data: newData }
+map_with_index : Matrix a, (a, U64, U64 -> b) -> Matrix b
+map_with_index = |@Matrix(m), func|
+    new_data = List.map_with_index(m.data, |elem, i| func(elem, (i // m.cols), (i % m.cols)))
+    @Matrix({ cols: m.cols, rows: m.rows, data: new_data })
 
 walk : Matrix a, state, (state, a -> state) -> state
-walk = \@Matrix m, state, func ->
-    List.walk m.data state func
+walk = |@Matrix(m), state, func|
+    List.walk(m.data, state, func)
 
-walkWithIndex : Matrix a, state, (state, a, U64, U64 -> state) -> state
-walkWithIndex = \@Matrix m, state, func ->
-    List.walkWithIndex m.data state \state2, elem, i -> func state2 elem (i // m.cols) (i % m.cols)
+walk_with_index : Matrix a, state, (state, a, U64, U64 -> state) -> state
+walk_with_index = |@Matrix(m), state, func|
+    List.walk_with_index(m.data, state, |state2, elem, i| func(state2, elem, (i // m.cols), (i % m.cols)))
 
-walkWithIndexUntil : Matrix a, state, (state, a, U64, U64 -> [Continue state, Break state]) -> state
-walkWithIndexUntil = \@Matrix m, state, func ->
-    List.walkWithIndexUntil m.data state \state2, elem, i -> func state2 elem (i // m.cols) (i % m.cols)
+walk_with_index_until : Matrix a, state, (state, a, U64, U64 -> [Continue state, Break state]) -> state
+walk_with_index_until = |@Matrix(m), state, func|
+    List.walk_with_index_until(m.data, state, |state2, elem, i| func(state2, elem, (i // m.cols), (i % m.cols)))
 
 replace : Matrix a, U64, U64, a -> { matrix : Matrix a, value : a }
-replace = \@Matrix m, i, j, toReplace ->
-    { list: data, value } = List.replace m.data (i * m.cols + j) toReplace
-    { matrix: @Matrix { cols: m.cols, rows: m.rows, data }, value }
+replace = |@Matrix(m), i, j, to_replace|
+    { list: data, value } = List.replace(m.data, (i * m.cols + j), to_replace)
+    { matrix: @Matrix({ cols: m.cols, rows: m.rows, data }), value }
 
-findFirstIndex : Matrix a, (a -> Bool) -> Result (U64, U64) [NotFound]
-findFirstIndex = \m, isThis ->
-    walkWithIndexUntil m (Err NotFound) \_, value, i, j ->
-        if isThis value then
-            Break (Ok (i, j))
-        else
-            Continue (Err NotFound)
+find_first_index : Matrix a, (a -> Bool) -> Result (U64, U64) [NotFound]
+find_first_index = |m, is_this|
+    walk_with_index_until(
+        m,
+        Err(NotFound),
+        |_, value, i, j|
+            if is_this(value) then
+                Break(Ok((i, j)))
+            else
+                Continue(Err(NotFound)),
+    )

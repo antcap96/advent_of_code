@@ -1,7 +1,10 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 MaybeField : [With Str, Missing]
 
@@ -16,136 +19,121 @@ Passport : {
     cid : MaybeField,
 }
 
-maybeFieldFromResult = \res ->
+maybe_field_from_result = |res|
     when res is
-        Ok ok -> With ok
-        Err _ -> Missing
+        Ok(ok) -> With(ok)
+        Err(_) -> Missing
 
-passportFromDict : Dict Str Str -> Result Passport Str
-passportFromDict = \dct ->
+passport_from_dict : Dict Str Str -> Result Passport Str
+passport_from_dict = |dct|
     # TODO: Handle extra fields as error?
-    Ok {
-        byr: maybeFieldFromResult (Dict.get dct "byr"),
-        iyr: maybeFieldFromResult (Dict.get dct "iyr"),
-        eyr: maybeFieldFromResult (Dict.get dct "eyr"),
-        hgt: maybeFieldFromResult (Dict.get dct "hgt"),
-        hcl: maybeFieldFromResult (Dict.get dct "hcl"),
-        ecl: maybeFieldFromResult (Dict.get dct "ecl"),
-        pid: maybeFieldFromResult (Dict.get dct "pid"),
-        cid: maybeFieldFromResult (Dict.get dct "cid"),
-    }
+    Ok(
+        {
+            byr: maybe_field_from_result(Dict.get(dct, "byr")),
+            iyr: maybe_field_from_result(Dict.get(dct, "iyr")),
+            eyr: maybe_field_from_result(Dict.get(dct, "eyr")),
+            hgt: maybe_field_from_result(Dict.get(dct, "hgt")),
+            hcl: maybe_field_from_result(Dict.get(dct, "hcl")),
+            ecl: maybe_field_from_result(Dict.get(dct, "ecl")),
+            pid: maybe_field_from_result(Dict.get(dct, "pid")),
+            cid: maybe_field_from_result(Dict.get(dct, "cid")),
+        },
+    )
 
-parsePassport : Str -> Result Passport Str
-parsePassport = \str ->
+parse_passport : Str -> Result Passport Str
+parse_passport = |str|
     str
-        |> Str.replaceEach "\n" " "
-        |> Str.splitOn " "
-        |> List.mapTry? \field ->
-            when Str.splitFirst field ":" is
-                Ok { before, after } -> Ok (before, after)
-                Err NotFound -> Err "field '$(field)' is missing ':'"
-        |> Dict.fromList
-        |> passportFromDict
+    |> Str.replace_each("\n", " ")
+    |> Str.split_on (" ")
+    |> List.map_try?(
+        |field|
+            when Str.split_first(field, ":") is
+                Ok({ before, after }) -> Ok((before, after))
+                Err(NotFound) -> Err("field '${field}' is missing ':'"),
+    )
+    |> Dict.from_list
+    |> passport_from_dict
 
-parseInput : Str -> Result (List Passport) Str
-parseInput = \str ->
-    str |> Str.trimEnd |> Str.splitOn "\n\n" |> List.mapTry parsePassport
+parse_input : Str -> Result (List Passport) Str
+parse_input = |str|
+    str |> Str.trim_end |> Str.split_on("\n\n") |> List.map_try(parse_passport)
 
-calcAnswer1 : List Passport -> U64
-calcAnswer1 = \lst ->
+calc_answer1 : List Passport -> U64
+calc_answer1 = |lst|
     lst
-    |> List.countIf \passport ->
-        when passport is
-            { byr: With _, iyr: With _, eyr: With _, hgt: With _, hcl: With _, ecl: With _, pid: With _, cid: _ } -> Bool.true
-            _ -> Bool.false
+    |> List.count_if(
+        |passport|
+            when passport is
+                { byr: With(_), iyr: With(_), eyr: With(_), hgt: With(_), hcl: With(_), ecl: With(_), pid: With(_), cid: _ } -> Bool.true
+                _ -> Bool.false,
+    )
 
-numBetween = \str, low, high ->
-    when Str.toU16 str is
-        Ok num -> num >= low && num <= high
+num_between = |str, low, high|
+    when Str.to_u16(str) is
+        Ok(num) -> num >= low and num <= high
         _ -> Bool.false
 
-heightCheck = \str ->
-    if Str.endsWith str "cm" then
-        numBetween (Str.dropSuffix str "cm") 150 193
-    else if Str.endsWith str "in" then
-        numBetween (Str.dropSuffix str "in") 59 76
+height_check = |str|
+    if Str.ends_with(str, "cm") then
+        num_between(Str.drop_suffix(str, "cm"), 150, 193)
+    else if Str.ends_with(str, "in") then
+        num_between(Str.drop_suffix(str, "in"), 59, 76)
     else
         Bool.false
 
-hexColorCheck = \str ->
-    Str.startsWith str "#"
-    &&
-    List.len (Str.toUtf8 str)
-    == 7
-    &&
-    Str.toUtf8 (Str.dropPrefix str "#")
-    |> List.all \elem -> (elem >= '0' && elem <= '9') || (elem >= 'a' && elem <= 'f')
+hex_color_check = |str|
+    Str.starts_with(str, "#")
+    and (List.len(Str.to_utf8(str)) == 7)
+    and Str.to_utf8(Str.drop_prefix(str, "#"))
+    |> List.all(|elem| (elem >= '0' and elem <= '9') or (elem >= 'a' and elem <= 'f'))
 
-eyeColorCheck = \str ->
+eye_color_check = |str|
     when str is
         "amb" | "blu" | "brn" | "gry" | "grn" | "hzl" | "oth" -> Bool.true
         _ -> Bool.false
 
-idCheck = \str ->
-    List.len (Str.toUtf8 str)
-    == 9
-    &&
-    Str.toUtf8 str
-    |> List.all \elem -> (elem >= '0' && elem <= '9')
+id_check = |str|
+    (List.len(Str.to_utf8(str)) == 9)
+    and Str.to_utf8(str)
+    |> List.all(|elem| (elem >= '0' and elem <= '9'))
 
-isValid2Elements : Passport -> List Bool
-isValid2Elements = \passport ->
+is_valid2_elements : Passport -> List Bool
+is_valid2_elements = |passport|
     when passport is
-        { byr: With byr, iyr: With iyr, eyr: With eyr, hgt: With hgt, hcl: With hcl, ecl: With ecl, pid: With pid, cid: _ } ->
+        { byr: With(byr), iyr: With(iyr), eyr: With(eyr), hgt: With(hgt), hcl: With(hcl), ecl: With(ecl), pid: With(pid), cid: _ } ->
             [
-                numBetween byr 1920 2002,
-                numBetween iyr 2010 2020,
-                numBetween eyr 2020 2030,
-                heightCheck hgt,
-                hexColorCheck hcl,
-                eyeColorCheck ecl,
-                idCheck pid,
+                num_between(byr, 1920, 2002),
+                num_between(iyr, 2010, 2020),
+                num_between(eyr, 2020, 2030),
+                height_check(hgt),
+                hex_color_check(hcl),
+                eye_color_check(ecl),
+                id_check(pid),
             ]
 
         _ -> [Bool.false]
 
-isValid2 : Passport -> Bool
-isValid2 = \passport ->
-    List.all (isValid2Elements passport) \x -> x
+is_valid2 : Passport -> Bool
+is_valid2 = |passport|
+    List.all(is_valid2_elements(passport), |x| x)
 
-calcAnswer2 : List Passport -> U64
-calcAnswer2 = \lst ->
+calc_answer2 : List Passport -> U64
+calc_answer2 = |lst|
     lst
-    |> List.countIf isValid2
+    |> List.count_if(is_valid2)
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day4.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day4.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     ecl:gry pid:860033327 eyr:2020 hcl:#fffffd
     byr:1937 iyr:2017 cid:147 hgt:183cm
@@ -164,10 +152,10 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
-    value == Ok 2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
+    value == Ok(2)
 
 expect
     value =
@@ -186,9 +174,9 @@ expect
         eyr:2038 hcl:74454a iyr:2023
         pid:3556412378 byr:2007
         """
-        |> parseInput
-        |> Result.map (\lst -> List.map lst isValid2)
-    value == Ok (List.repeat Bool.false 4)
+        |> parse_input
+        |> Result.map_ok(|lst| List.map(lst, is_valid2))
+    value == Ok(List.repeat(Bool.false, 4))
 
 expect
     value =
@@ -206,6 +194,6 @@ expect
 
         iyr:2010 hgt:158cm hcl:#b6652a ecl:blu byr:1944 eyr:2021 pid:093154719
         """
-        |> parseInput
-        |> Result.map (\lst -> List.map lst isValid2Elements)
-    value == Ok (List.repeat (List.repeat Bool.true 7) 4)
+        |> parse_input
+        |> Result.map_ok(|lst| List.map(lst, is_valid2_elements))
+    value == Ok(List.repeat(List.repeat(Bool.true, 7), 4))

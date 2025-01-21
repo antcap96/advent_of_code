@@ -1,112 +1,107 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
-
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 BoardingPass : { row : U64, col : U64 }
 
-parseRow : List U8 -> Result U64 Str
-parseRow = \lst ->
-    List.reverse lst
-    |> List.mapWithIndex \elem, index -> (elem, index)
-    |> List.walkTry 0 \state, (elem, index) ->
-        when elem is
-            'B' -> Ok (state + (Num.powInt 2 index))
-            'F' -> Ok state
-            _ -> Err "invalid character in row '$(Num.toStr elem)'"
+parse_row : List U8 -> Result U64 Str
+parse_row = |lst|
+    List.reverse(lst)
+    |> List.map_with_index(|elem, index| (elem, index))
+    |> List.walk_try(
+        0,
+        |state, (elem, index)|
+            when elem is
+                'B' -> Ok((state + (Num.pow_int(2, index))))
+                'F' -> Ok(state)
+                _ -> Err("invalid character in row '${Num.to_str(elem)}'"),
+    )
 
-parseCol : List U8 -> Result U64 Str
-parseCol = \lst ->
-    List.reverse lst
-    |> List.mapWithIndex \elem, index -> (elem, index)
-    |> List.walkTry 0 \state, (elem, index) ->
-        when elem is
-            'R' -> Ok (state + (Num.powInt 2 index))
-            'L' -> Ok state
-            _ -> Err "invalid character in row '$(Num.toStr elem)'"
+parse_col : List U8 -> Result U64 Str
+parse_col = |lst|
+    List.reverse(lst)
+    |> List.map_with_index(|elem, index| (elem, index))
+    |> List.walk_try(
+        0,
+        |state, (elem, index)|
+            when elem is
+                'R' -> Ok((state + (Num.pow_int(2, index))))
+                'L' -> Ok(state)
+                _ -> Err("invalid character in row '${Num.to_str(elem)}'"),
+    )
 
-parseBoardingPass : Str -> Result BoardingPass Str
-parseBoardingPass = \str ->
-    Str.toUtf8 str
-        |> List.splitAt 7
-        |> \{ before, others } ->
-            row = parseRow? before
-            col = parseCol? others
-            Ok { row, col }
+parse_boarding_pass : Str -> Result BoardingPass Str
+parse_boarding_pass = |str|
+    Str.to_utf8(str)
+    |> List.split_at(7)
+    |> |{ before, others }|
+        row = parse_row(before)?
+        col = parse_col(others)?
+        Ok({ row, col })
 
-parseInput : Str -> Result (List BoardingPass) Str
-parseInput = \str ->
+parse_input : Str -> Result (List BoardingPass) Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry parseBoardingPass
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_boarding_pass)
 
-boardingPassId : BoardingPass -> U64
-boardingPassId = \pass -> pass.row * 8 + pass.col
+boarding_pass_id : BoardingPass -> U64
+boarding_pass_id = |pass| pass.row * 8 + pass.col
 
-calcAnswer1 : List BoardingPass -> Result U64 Str
-calcAnswer1 = \lst ->
+calc_answer1 : List BoardingPass -> Result U64 Str
+calc_answer1 = |lst|
     lst
-    |> List.map boardingPassId
+    |> List.map(boarding_pass_id)
     |> List.max
-    |> Result.mapErr \_ -> "List was empty"
+    |> Result.map_err(|_| "List was empty")
 
-calcAnswer2 : List BoardingPass -> Result U64 Str
-calcAnswer2 = \lst ->
+calc_answer2 : List BoardingPass -> Result U64 Str
+calc_answer2 = |lst|
     solutions =
         lst
-        |> List.map boardingPassId
-        |> List.walk (Dict.empty {}) addNewSeen
-        |> Dict.keepIf \(_, state) -> state == TwoNeighboors
-        |> Dict.toList
+        |> List.map(boarding_pass_id)
+        |> List.walk(Dict.empty({}), add_new_seen)
+        |> Dict.keep_if(|(_, state)| state == TwoNeighboors)
+        |> Dict.to_list
 
     when solutions is
-        [(solution, _)] -> Ok solution
-        _ -> Err "Invalid number of solutions $(Inspect.toStr solutions)"
+        [(solution, _)] -> Ok(solution)
+        _ -> Err("Invalid number of solutions ${Inspect.to_str(solutions)}")
 
 ## Keep track of how many neighboors each boardingId has, or if the seat has been seen
 ## already
 PossibleBoardingIds : Dict U64 [OneNeighboor, TwoNeighboors, Seen]
-addNewSeen : PossibleBoardingIds, U64 -> PossibleBoardingIds
-addNewSeen = \dict, boardId ->
-    neighboors = [boardId + 1, boardId - 1]
+add_new_seen : PossibleBoardingIds, U64 -> PossibleBoardingIds
+add_new_seen = |dict, board_id|
+    neighboors = [board_id + 1, board_id - 1]
 
     neighboors
-    |> List.walk dict \state, neighboor ->
-        when Dict.get state neighboor is
-            Err KeyNotFound -> state |> Dict.insert neighboor OneNeighboor
-            Ok OneNeighboor -> state |> Dict.insert neighboor TwoNeighboors
-            Ok TwoNeighboors -> crash "3 neighboors?"
-            Ok Seen -> state
-    |> Dict.insert boardId Seen
+    |> List.walk(
+        dict,
+        |state, neighboor|
+            when Dict.get(state, neighboor) is
+                Err(KeyNotFound) -> state |> Dict.insert(neighboor, OneNeighboor)
+                Ok(OneNeighboor) -> state |> Dict.insert(neighboor, TwoNeighboors)
+                Ok(TwoNeighboors) -> crash("3 neighboors?")
+                Ok(Seen) -> state,
+    )
+    |> Dict.insert(board_id, Seen)
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day5.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day5.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.try parsed calcAnswer1
-    answer2 = Result.try parsed calcAnswer2
+    answer1 = Result.try(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.try(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-expect "BFFFBBFRRR" |> parseBoardingPass == Ok { row: 70, col: 7 }
-expect "FFFBBBFRRR" |> parseBoardingPass == Ok { row: 14, col: 7 }
-expect "BBFFBBFRLL" |> parseBoardingPass == Ok { row: 102, col: 4 }
+expect "BFFFBBFRRR" |> parse_boarding_pass == Ok({ row: 70, col: 7 })
+expect "FFFBBBFRRR" |> parse_boarding_pass == Ok({ row: 14, col: 7 })
+expect "BBFFBBFRLL" |> parse_boarding_pass == Ok({ row: 102, col: 4 })

@@ -1,80 +1,69 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
-
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
-parseInput : Str -> Result (List U64) Str
-parseInput = \str ->
+parse_input : Str -> Result (List U64) Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry parseRow
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
 
-parseRow = \str ->
-    Str.toU64 str |> Result.mapErr \_ -> "invalid number '$(str)'"
+parse_row = |str|
+    Str.to_u64(str) |> Result.map_err(|_| "invalid number '${str}'")
 
-calcAnswer1 = \lst ->
-    { one: oneCount, three: threeCount } =
-        List.sortAsc lst
-        |> List.walk { one: 0, three: 0, prev: 0 } \{ one, three, prev }, elem ->
-            if elem - prev == 1 then
-                { one: one + 1, three, prev: elem }
-            else if elem - prev == 3 then
-                { one, three: three + 1, prev: elem }
-            else
-                { one, three, prev: elem }
+calc_answer1 = |lst|
+    { one: one_count, three: three_count } =
+        List.sort_asc(lst)
+        |> List.walk(
+            { one: 0, three: 0, prev: 0 },
+            |{ one, three, prev }, elem|
+                if elem - prev == 1 then
+                    { one: one + 1, three, prev: elem }
+                else if elem - prev == 3 then
+                    { one, three: three + 1, prev: elem }
+                else
+                    { one, three, prev: elem },
+        )
 
-    oneCount * (threeCount + 1)
+    one_count * (three_count + 1)
 
-calcAnswer2 : List U64 -> Result U64 Str
-calcAnswer2 = \lst ->
-    max = List.max lst |> Result.mapErr? \_ -> "empty list"
-    (_, ans) = calcAnswer2Cache (Set.fromList lst |> Set.insert 0) (Dict.empty {}) 0 (max + 3)
-    Ok ans
+calc_answer2 : List U64 -> Result U64 Str
+calc_answer2 = |lst|
+    max = List.max(lst) |> Result.map_err?(|_| "empty list")
+    (_, ans) = calc_answer2_cache((Set.from_list(lst) |> Set.insert(0)), Dict.empty({}), 0, (max + 3))
+    Ok(ans)
 
-calcAnswer2Cache = \set, cache, elem, stop ->
+calc_answer2_cache = |set, cache, elem, stop|
     if elem == stop then
         (cache, 1)
-    else if !(Set.contains set elem) then
+    else if !(Set.contains(set, elem)) then
         (cache, 0)
     else
-        when Dict.get cache elem is
-            Ok count -> (cache, count)
-            Err KeyNotFound ->
-                (cache1, possibilities1) = calcAnswer2Cache set cache (elem + 1) stop
-                (cache2, possibilities2) = calcAnswer2Cache set cache1 (elem + 2) stop
-                (cache3, possibilities3) = calcAnswer2Cache set cache2 (elem + 3) stop
+        when Dict.get(cache, elem) is
+            Ok(count) -> (cache, count)
+            Err(KeyNotFound) ->
+                (cache1, possibilities1) = calc_answer2_cache(set, cache, (elem + 1), stop)
+                (cache2, possibilities2) = calc_answer2_cache(set, cache1, (elem + 2), stop)
+                (cache3, possibilities3) = calc_answer2_cache(set, cache2, (elem + 3), stop)
                 possibilities = possibilities1 + possibilities2 + possibilities3
-                (cache3 |> Dict.insert elem possibilities, possibilities)
+                (cache3 |> Dict.insert(elem, possibilities), possibilities)
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day10.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day10.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.try parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.try(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     16
     10
@@ -89,7 +78,7 @@ testInput =
     4
     """
 
-testInput2 =
+test_input2 =
     """
     28
     33
@@ -126,32 +115,32 @@ testInput2 =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok (7 * 5)
-
-expect
-    value =
-        testInput2
-        |> parseInput
-        |> Result.map calcAnswer1
-
-    value == Ok (22 * 10)
+    value == Ok((7 * 5))
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.try calcAnswer2
+        test_input2
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok 8
+    value == Ok((22 * 10))
 
 expect
     value =
-        testInput2
-        |> parseInput
-        |> Result.try calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.try(calc_answer2)
 
-    value == Ok 19208
+    value == Ok(8)
+
+expect
+    value =
+        test_input2
+        |> parse_input
+        |> Result.try(calc_answer2)
+
+    value == Ok(19208)

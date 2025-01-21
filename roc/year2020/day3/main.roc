@@ -1,82 +1,83 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
-
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 Map : List (List [Tree, Open])
 
-u8ToAscii : U8 -> Str
-u8ToAscii = \bit ->
-    when Str.fromUtf8 [bit] is
-        Ok str -> str
-        Err _ -> "\\x$(Num.toStr bit)"
+u8_to_ascii : U8 -> Str
+u8_to_ascii = |bit|
+    when Str.from_utf8([bit]) is
+        Ok(str) -> str
+        Err(_) -> "\\x${Num.to_str(bit)}"
 
-parseInput : Str -> Result Map Str
-parseInput = \str ->
+parse_input : Str -> Result Map Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry \row ->
-        Str.toUtf8 row
-        |> List.mapTry \elem ->
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
+
+parse_row = |row|
+    Str.to_utf8(row)
+    |> List.map_try(
+        |elem|
             when elem is
-                '.' -> Ok Open
-                '#' -> Ok Tree
-                _ -> Err "invalid char '$(u8ToAscii elem)'"
+                '.' -> Ok(Open)
+                '#' -> Ok(Tree)
+                _ -> Err("invalid char '${u8_to_ascii(elem)}'"),
+    )
 
-rowGet : List [Tree, Open], U64 -> [Tree, Open]
-rowGet = \row, index ->
-    when List.get row (index % (List.len row)) is 
-        Ok result -> result
-        Err _ -> crash "impossible"
+row_get : List [Tree, Open], U64 -> [Tree, Open]
+row_get = |row, index|
+    when List.get(row, (index % (List.len(row)))) is
+        Ok(result) -> result
+        Err(_) -> crash("impossible")
 
-countTrees = \map, right, down ->
-    List.walkWithIndex map 0 \state, row, index ->
-        if (index % down == 0) && rowGet row (index * right // down) == Tree then
-            state + 1
-        else
-            state
+count_trees = |map, right, down|
+    List.walk_with_index(
+        map,
+        0,
+        |state, row, index|
+            if (index % down == 0) and row_get(row, (index * right // down)) == Tree then
+                state + 1
+            else
+                state,
+    )
 
-calcAnswer1 = \map -> 
-    countTrees map 3 1
+calc_answer1 = |map|
+    count_trees(map, 3, 1)
 
-
-calcAnswer2 = \map ->
+calc_answer2 = |map|
     slopes = [
-        (1, 1), (3, 1), (5, 1), (7, 1), (1, 2)]
-    
-    List.map slopes \(right, down) ->
-        countTrees map right down
-    |> List.walk 1 \state, x -> state * x
+        (1, 1),
+        (3, 1),
+        (5, 1),
+        (7, 1),
+        (1, 2),
+    ]
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day3.txt")
+    List.map(
+        slopes,
+        |(right, down)|
+            count_trees(map, right, down),
+    )
+    |> List.walk(1, |state, x| state * x)
 
-    parsed = parseInput input
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day3.txt"))?
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    parsed = parse_input(input)
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     ..##.......
     #...#...#..
@@ -93,14 +94,14 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
-    value == Ok 7
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
+    value == Ok(7)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
-    value == Ok 336
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
+    value == Ok(336)

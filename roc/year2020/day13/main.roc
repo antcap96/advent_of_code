@@ -1,129 +1,125 @@
-app [main] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+    adventOfCode: "../../package/main.roc",
 }
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 Data : { timestamp : U64, buses : List [X, Id U64] }
 
-parseInput : Str -> Result Data Str
-parseInput = \str ->
+parse_input : Str -> Result Data Str
+parse_input = |str|
     lines =
         str
-        |> Str.trimEnd
-        |> Str.splitOn "\n"
+        |> Str.trim_end
+        |> Str.split_on("\n")
 
     when lines is
-        [timestampStr, busesStr] ->
+        [timestamp_str, buses_str] ->
             timestamp =
-                Str.toU64 timestampStr
-                    |> Result.mapErr? \_ -> "Failed to parse as number $(timestampStr)"
+                Str.to_u64(timestamp_str)
+                |> Result.map_err?(|_| "Failed to parse as number ${timestamp_str}")
 
             buses =
-                List.mapTry?
-                    (Str.splitOn busesStr ",")
-                    parseBusId
+                List.map_try(
+                    Str.split_on(buses_str, ","),
+                    parse_bus_id,
+                )?
 
-            Ok { timestamp, buses }
+            Ok({ timestamp, buses })
 
-        _ -> Err "Expected 2 lines, got $(Num.toStr (List.len lines))"
+        _ -> Err("Expected 2 lines, got ${Num.to_str(List.len(lines))}")
 
-parseBusId : Str -> Result [X, Id U64] Str
-parseBusId = \elem ->
+parse_bus_id : Str -> Result [X, Id U64] Str
+parse_bus_id = |elem|
     when elem is
-        "x" -> Ok X
+        "x" -> Ok(X)
         _ ->
-            Str.toU64 elem
-            |> Result.map Id
-            |> Result.mapErr \_ -> "Failed to parse as number $(elem)"
+            Str.to_u64(elem)
+            |> Result.map_ok(Id)
+            |> Result.map_err(|_| "Failed to parse as number ${elem}")
 
-minutesUntilNextBus = \timestamp, id ->
+minutes_until_next_bus = |timestamp, id|
     if (timestamp % id) == 0 then
         0
     else
         id - (timestamp % id)
 
-calcAnswer1 : Data -> U64
-calcAnswer1 = \data ->
-    result = List.walk data.buses { id: 0, minutes: Num.maxU64 } \state, elem ->
-        when elem is
-            X -> state
-            Id id ->
-                minutes = minutesUntilNextBus data.timestamp id
-                if minutes <= state.minutes then
-                    { id, minutes }
-                else
-                    state
+calc_answer1 : Data -> U64
+calc_answer1 = |data|
+    result = List.walk(
+        data.buses,
+        { id: 0, minutes: Num.max_u64 },
+        |state, elem|
+            when elem is
+                X -> state
+                Id(id) ->
+                    minutes = minutes_until_next_bus(data.timestamp, id)
+                    if minutes <= state.minutes then
+                        { id, minutes }
+                    else
+                        state,
+    )
 
-    result |> \{ id, minutes } -> id * minutes
+    result |> |{ id, minutes }| id * minutes
 
-gcd = \a, b ->
+gcd = |a, b|
     if b != 0 then
-        gcd b (a % b)
+        gcd(b, (a % b))
     else
         a
 
-newMinNumber = \{ minNumber, id, repeatingRate, idx } ->
-    if minutesUntilNextBus minNumber id == (idx % id) then
-        minNumber
+new_min_number = |{ min_number, id, repeating_rate, idx }|
+    if minutes_until_next_bus(min_number, id) == (idx % id) then
+        min_number
     else
-        newMinNumber {
-            minNumber: (minNumber + repeatingRate),
-            id,
-            repeatingRate,
-            idx,
-        }
+        new_min_number(
+            {
+                min_number: (min_number + repeating_rate),
+                id,
+                repeating_rate,
+                idx,
+            },
+        )
 
-calcAnswer2 : Data -> U64
-calcAnswer2 = \{ buses } ->
-    List.walkWithIndex
-        buses
-        { minNumber: 0, repeatingRate: 1 }
-        \state, elem, idx ->
+calc_answer2 : Data -> U64
+calc_answer2 = |{ buses }|
+    List.walk_with_index(
+        buses,
+        { min_number: 0, repeating_rate: 1 },
+        |state, elem, idx|
             when elem is
                 X -> state
-                Id id ->
-                    delta = gcd id state.repeatingRate
-                    repeatingRate = state.repeatingRate * (id // delta)
-                    
-                    minNumber = newMinNumber {
-                        minNumber: state.minNumber,
-                        id,
-                        repeatingRate: state.repeatingRate,
-                        idx,
-                    }
-                    { minNumber, repeatingRate }
-    |> .minNumber
+                Id(id) ->
+                    delta = gcd(id, state.repeating_rate)
+                    repeating_rate = state.repeating_rate * (id // delta)
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day13.txt")
+                    min_number = new_min_number(
+                        {
+                            min_number: state.min_number,
+                            id,
+                            repeating_rate: state.repeating_rate,
+                            idx,
+                        },
+                    )
+                    { min_number, repeating_rate },
+    )
+    |> .min_number
 
-    parsed = parseInput input
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day13.txt"))?
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    parsed = parse_input(input)
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     939
     7,13,x,x,59,x,31,19
@@ -131,61 +127,61 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok (295)
+    value == Ok(295)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (1068781)
+    value == Ok(1068781)
 
 expect
     value =
         "17,x,13,19"
-        |> Str.withPrefix "1\n" # this gets ignored
-        |> parseInput
-        |> Result.map calcAnswer2
+        |> Str.with_prefix("1\n") # this gets ignored
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (3417)
+    value == Ok(3417)
 
 expect
     value =
         "67,7,59,61"
-        |> Str.withPrefix "1\n" # this gets ignored
-        |> parseInput
-        |> Result.map calcAnswer2
+        |> Str.with_prefix("1\n") # this gets ignored
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (754018)
+    value == Ok(754018)
 
 expect
     value =
         "67,x,7,59,61"
-        |> Str.withPrefix "1\n" # this gets ignored
-        |> parseInput
-        |> Result.map calcAnswer2
+        |> Str.with_prefix("1\n") # this gets ignored
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (779210)
+    value == Ok(779210)
 
 expect
     value =
         "67,7,x,59,61"
-        |> Str.withPrefix "1\n" # this gets ignored
-        |> parseInput
-        |> Result.map calcAnswer2
+        |> Str.with_prefix("1\n") # this gets ignored
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (1261476)
+    value == Ok(1261476)
 
 expect
     value =
         "1789,37,47,1889"
-        |> Str.withPrefix "1\n" # this gets ignored
-        |> parseInput
-        |> Result.map calcAnswer2
+        |> Str.with_prefix("1\n") # this gets ignored
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (1202161486)
+    value == Ok(1202161486)

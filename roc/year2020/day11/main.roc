@@ -1,164 +1,172 @@
-app [main] {
-    pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br",
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
     adventOfCode: "../../package/main.roc",
 }
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 import adventOfCode.Matrix exposing [Matrix]
 
 Seat : [Floor, Empty, Occupied]
 
-parseInput : Str -> Result (Matrix Seat) Str
-parseInput = \str ->
+parse_input : Str -> Result (Matrix Seat) Str
+parse_input = |str|
     str
-        |> Str.trimEnd
-        |> Str.splitOn "\n"
-        |> List.mapTry? parseRow
-        |> Matrix.fromListOfList
-        |> Result.mapErr \_ -> "Input isn't a square"
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try?(parse_row)
+    |> Matrix.from_list_of_list
+    |> Result.map_err(|_| "Input isn't a square")
 
-parseRow = \str ->
-    List.mapTry (Str.toUtf8 str) \elem ->
-        when elem is
-            '.' -> Ok Floor
-            'L' -> Ok Empty
-            '#' -> Ok Occupied
-            _ -> Err "Invalid char '$(Inspect.toStr (Str.fromUtf8 [elem]))'"
+parse_row = |str|
+    List.map_try(
+        Str.to_utf8(str),
+        |elem|
+            when elem is
+                '.' -> Ok(Floor)
+                'L' -> Ok(Empty)
+                '#' -> Ok(Occupied)
+                _ -> Err("Invalid char '${Inspect.to_str(Str.from_utf8([elem]))}'"),
+    )
 
-countOcuppiedAround1 : Matrix Seat, U64, U64 -> U64
-countOcuppiedAround1 = \matrix, row, col ->
+count_ocuppied_around1 : Matrix Seat, U64, U64 -> U64
+count_ocuppied_around1 = |matrix, row, col|
     around = [
-        (Num.addWrap row 1, Num.addWrap col 1),
-        (Num.addWrap row 1, col),
-        (Num.addWrap row 1, Num.subWrap col 1),
-        (row, Num.addWrap col 1),
-        (row, Num.subWrap col 1),
-        (Num.subWrap row 1, Num.addWrap col 1),
-        (Num.subWrap row 1, col),
-        (Num.subWrap row 1, Num.subWrap col 1),
+        (Num.add_wrap(row, 1), Num.add_wrap(col, 1)),
+        (Num.add_wrap(row, 1), col),
+        (Num.add_wrap(row, 1), Num.sub_wrap(col, 1)),
+        (row, Num.add_wrap(col, 1)),
+        (row, Num.sub_wrap(col, 1)),
+        (Num.sub_wrap(row, 1), Num.add_wrap(col, 1)),
+        (Num.sub_wrap(row, 1), col),
+        (Num.sub_wrap(row, 1), Num.sub_wrap(col, 1)),
     ]
-    List.map around \(i, j) ->
-        when Matrix.get matrix i j is
-            Ok Occupied -> 1
-            _ -> 0
+    List.map(
+        around,
+        |(i, j)|
+            when Matrix.get(matrix, i, j) is
+                Ok(Occupied) -> 1
+                _ -> 0,
+    )
     |> List.sum
 
-seatRules1 = \state, adjacentOcuppied ->
+seat_rules1 = |state, adjacent_ocuppied|
     when state is
         Floor -> Floor
-        Empty if adjacentOcuppied == 0 -> Occupied
+        Empty if adjacent_ocuppied == 0 -> Occupied
         Empty -> Empty
-        Occupied if adjacentOcuppied >= 4 -> Empty
+        Occupied if adjacent_ocuppied >= 4 -> Empty
         Occupied -> Occupied
 
 step1 : Matrix Seat -> Matrix Seat
-step1 = \matrix ->
-    Matrix.mapWithIndex matrix \elem, i, j ->
-        adjacent = countOcuppiedAround1 matrix i j
-        seatRules1 elem adjacent
+step1 = |matrix|
+    Matrix.map_with_index(
+        matrix,
+        |elem, i, j|
+            adjacent = count_ocuppied_around1(matrix, i, j)
+            seat_rules1(elem, adjacent),
+    )
 
 run1 : Matrix Seat -> Matrix Seat
-run1 = \matrix ->
-    newMatrix = step1 matrix
+run1 = |matrix|
+    new_matrix = step1(matrix)
 
-    if matrix == newMatrix then
+    if matrix == new_matrix then
         matrix
     else
-        run1 newMatrix
+        run1(new_matrix)
 
-calcAnswer1 : Matrix Seat -> U64
-calcAnswer1 = \matrix ->
-    finalMatrix = run1 matrix
-    Matrix.walk finalMatrix 0 \state, elem ->
-        if elem == Occupied then
-            state + 1
-        else
-            state
+calc_answer1 : Matrix Seat -> U64
+calc_answer1 = |matrix|
+    final_matrix = run1(matrix)
+    Matrix.walk(
+        final_matrix,
+        0,
+        |state, elem|
+            if elem == Occupied then
+                state + 1
+            else
+                state,
+    )
 
-isOcupiedInDirection2 : Matrix Seat, (U64, U64), (U64, U64) -> Bool
-isOcupiedInDirection2 = \matrix, (atI, atJ), (dirI, dirJ) ->
-    nextI = Num.addWrap atI dirI
-    nextJ = Num.addWrap atJ dirJ
-    when Matrix.get matrix nextI nextJ is
-        Ok Occupied -> Bool.true
-        Ok Floor -> isOcupiedInDirection2 matrix (nextI, nextJ) (dirI, dirJ)
+is_ocupied_in_direction2 : Matrix Seat, (U64, U64), (U64, U64) -> Bool
+is_ocupied_in_direction2 = |matrix, (at_i, at_j), (dir_i, dir_j)|
+    next_i = Num.add_wrap(at_i, dir_i)
+    next_j = Num.add_wrap(at_j, dir_j)
+    when Matrix.get(matrix, next_i, next_j) is
+        Ok(Occupied) -> Bool.true
+        Ok(Floor) -> is_ocupied_in_direction2(matrix, (next_i, next_j), (dir_i, dir_j))
         _ -> Bool.false
 
-countOcuppiedAround2 : Matrix Seat, U64, U64 -> U64
-countOcuppiedAround2 = \matrix, row, col ->
+count_ocuppied_around2 : Matrix Seat, U64, U64 -> U64
+count_ocuppied_around2 = |matrix, row, col|
     around = [
         (1, 1),
         (1, 0),
-        (1, Num.maxU64),
+        (1, Num.max_u64),
         (0, 1),
-        (0, Num.maxU64),
-        (Num.maxU64, 1),
-        (Num.maxU64, 0),
-        (Num.maxU64, Num.maxU64),
+        (0, Num.max_u64),
+        (Num.max_u64, 1),
+        (Num.max_u64, 0),
+        (Num.max_u64, Num.max_u64),
     ]
-    List.countIf around \dir ->
-        isOcupiedInDirection2 matrix (row, col) dir
+    List.count_if(
+        around,
+        |dir|
+            is_ocupied_in_direction2(matrix, (row, col), dir),
+    )
 
-seatRules2 = \state, adjacentOcuppied ->
+seat_rules2 = |state, adjacent_ocuppied|
     when state is
         Floor -> Floor
-        Empty if adjacentOcuppied == 0 -> Occupied
+        Empty if adjacent_ocuppied == 0 -> Occupied
         Empty -> Empty
-        Occupied if adjacentOcuppied >= 5 -> Empty
+        Occupied if adjacent_ocuppied >= 5 -> Empty
         Occupied -> Occupied
 
 step2 : Matrix Seat -> Matrix Seat
-step2 = \matrix ->
-    Matrix.mapWithIndex matrix \elem, i, j ->
-        adjacent = countOcuppiedAround2 matrix i j
-        seatRules2 elem adjacent
+step2 = |matrix|
+    Matrix.map_with_index(
+        matrix,
+        |elem, i, j|
+            adjacent = count_ocuppied_around2(matrix, i, j)
+            seat_rules2(elem, adjacent),
+    )
 
 run2 : Matrix Seat -> Matrix Seat
-run2 = \matrix ->
-    newMatrix = step2 matrix
+run2 = |matrix|
+    new_matrix = step2(matrix)
 
-    if matrix == newMatrix then
+    if matrix == new_matrix then
         matrix
     else
-        run2 newMatrix
+        run2(new_matrix)
 
-calcAnswer2 : Matrix Seat -> U64
-calcAnswer2 = \matrix ->
-    finalMatrix = run2 matrix
-    Matrix.walk finalMatrix 0 \state, elem ->
-        if elem == Occupied then
-            state + 1
-        else
-            state
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day11.txt")
+calc_answer2 : Matrix Seat -> U64
+calc_answer2 = |matrix|
+    final_matrix = run2(matrix)
+    Matrix.walk(
+        final_matrix,
+        0,
+        |state, elem|
+            if elem == Occupied then
+                state + 1
+            else
+                state,
+    )
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day11.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     L.LL.LL.LL
     LLLLLLL.LL
@@ -174,16 +182,16 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok (37)
+    value == Ok(37)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok (26)
+    value == Ok(26)

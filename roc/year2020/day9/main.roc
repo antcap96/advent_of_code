@@ -1,98 +1,93 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
-
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
-parseInput : Str -> Result (List U64) Str
-parseInput = \str ->
+parse_input : Str -> Result (List U64) Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry parseRow
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
 
-parseRow = \str ->
-    Str.toU64 str |> Result.mapErr \_ -> "invalid number '$(str)'"
+parse_row = |str|
+    Str.to_u64(str) |> Result.map_err(|_| "invalid number '${str}'")
 
-calcAnswer1 = \lst ->
-    calcAnswer1Aux lst 25
+calc_answer1 = |lst|
+    calc_answer1_aux(lst, 25)
 
-calcAnswer1Aux = \lst, n ->
-    List.sublist lst { start: n, len: (List.len lst) - n }
-    |> List.walkWithIndexUntil 0 \_, elem, idx ->
-        preamble = List.sublist lst { start: idx, len: n } |> Set.fromList
+calc_answer1_aux = |lst, n|
+    List.sublist(lst, { start: n, len: (List.len(lst)) - n })
+    |> List.walk_with_index_until(
+        0,
+        |_, elem, idx|
+            preamble = List.sublist(lst, { start: idx, len: n }) |> Set.from_list
 
-        when preambleContains preamble elem is
-            Found -> Continue 0
-            NotFound -> Break elem
+            when preamble_contains(preamble, elem) is
+                Found -> Continue(0)
+                NotFound -> Break(elem),
+    )
 
-preambleContains = \preamble, next ->
-    Set.walkUntil preamble NotFound \_, elem ->
-        if Set.contains preamble (Num.subWrap next elem) then
-            Break Found
-        else
-            Continue NotFound
-
-calcAnswer2 = \lst ->
-    calcAnswer2Aux lst 25
-
-calcAnswer2Aux : List U64, U64 -> Result U64 Str
-calcAnswer2Aux = \lst, n ->
-    invalidNumber = calcAnswer1Aux lst n
-    ans = List.walkUntil
-        (List.range { start: At 0, end: Before (List.len lst) })
-        NoSolution
-        \_, start ->
-            sublist = List.sublist lst { start, len: (List.len lst) - start }
-            (sum, min, max) = rangeSum sublist invalidNumber
-            if sum == invalidNumber then
-                Break (Solution (min, max))
+preamble_contains = |preamble, next|
+    Set.walk_until(
+        preamble,
+        NotFound,
+        |_, elem|
+            if Set.contains(preamble, Num.sub_wrap(next, elem)) then
+                Break(Found)
             else
-                Continue NoSolution
+                Continue(NotFound),
+    )
+
+calc_answer2 = |lst|
+    calc_answer2_aux(lst, 25)
+
+calc_answer2_aux : List U64, U64 -> Result U64 Str
+calc_answer2_aux = |lst, n|
+    invalid_number = calc_answer1_aux(lst, n)
+    ans = List.walk_until(
+        List.range({ start: At(0), end: Before(List.len(lst)) }),
+        NoSolution,
+        |_, start|
+            sublist = List.sublist(lst, { start, len: (List.len(lst)) - start })
+            (sum, min, max) = range_sum(sublist, invalid_number)
+            if sum == invalid_number then
+                Break(Solution((min, max)))
+            else
+                Continue(NoSolution),
+    )
     when ans is
-        Solution (finalMin, finalMax) -> Ok (finalMin + finalMax)
-        NoSolution -> Err "failed to find solution"
+        Solution((final_min, final_max)) -> Ok((final_min + final_max))
+        NoSolution -> Err("failed to find solution")
 
-rangeSum = \lst, maximum ->
-    List.walkUntil
-        lst
-        (0, Num.maxU64, 0)
-        \(total, min, max), elem ->
-            newMin = Num.min min elem
-            newMax = Num.max max elem
-            nextTotal = total + elem
+range_sum = |lst, maximum|
+    List.walk_until(
+        lst,
+        (0, Num.max_u64, 0),
+        |(total, min, max), elem|
+            new_min = Num.min(min, elem)
+            new_max = Num.max(max, elem)
+            next_total = total + elem
             if total + elem >= maximum then
-                Break (nextTotal, newMin, newMax)
+                Break((next_total, new_min, new_max))
             else
-                Continue (nextTotal, newMin, newMax)
+                Continue((next_total, new_min, new_max)),
+    )
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day9.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day9.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.try parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.try(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     35
     20
@@ -118,16 +113,16 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map \lst -> calcAnswer1Aux lst 5
+        test_input
+        |> parse_input
+        |> Result.map_ok(|lst| calc_answer1_aux(lst, 5))
 
-    value == Ok 127
+    value == Ok(127)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.try \lst -> calcAnswer2Aux lst 5
+        test_input
+        |> parse_input
+        |> Result.try(|lst| calc_answer2_aux(lst, 5))
 
-    value == Ok 62
+    value == Ok(62)

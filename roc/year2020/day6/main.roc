@@ -1,77 +1,69 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
-
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
-parseGroup : Str -> List (Set U8)
-parseGroup = \str ->
+parse_group : Str -> List (Set U8)
+parse_group = |str|
     str
-    |> Str.splitOn "\n"
-    |> List.map \row -> Str.toUtf8 row |> Set.fromList
+    |> Str.split_on("\n")
+    |> List.map(|row| Str.to_utf8(row) |> Set.from_list)
 
-parseInput : Str -> List (List (Set U8))
-parseInput = \str ->
-    str |> Str.trimEnd |> Str.splitOn "\n\n" |> List.map parseGroup
+parse_input : Str -> List (List (Set U8))
+parse_input = |str|
+    str |> Str.trim_end |> Str.split_on("\n\n") |> List.map(parse_group)
 
-setUnionCardinality : List (Set U8) -> U64
-setUnionCardinality = \group ->
+set_union_cardinality : List (Set U8) -> U64
+set_union_cardinality = |group|
     group
-    |> List.walk (Set.empty {}) \state, elem ->
-        Set.union state elem
+    |> List.walk(
+        Set.empty({}),
+        |state, elem|
+            Set.union(state, elem),
+    )
     |> Set.len
 
-calcAnswer1 : List (List (Set U8)) -> U64
-calcAnswer1 = \groups ->
+calc_answer1 : List (List (Set U8)) -> U64
+calc_answer1 = |groups|
     groups
-    |> List.map setUnionCardinality
+    |> List.map(set_union_cardinality)
     |> List.sum
 
-setIntersectionCardinality : List (Set U8) -> U64
-setIntersectionCardinality = \group ->
+set_intersection_cardinality : List (Set U8) -> U64
+set_intersection_cardinality = |group|
     group
-    |> List.walk None \state, elem ->
-        when state is
-            None -> Some elem
-            Some inAll -> Some (Set.intersection inAll elem)
-    |> \result ->
+    |> List.walk(
+        None,
+        |state, elem|
+            when state is
+                None -> Some(elem)
+                Some(in_all) -> Some(Set.intersection(in_all, elem)),
+    )
+    |> |result|
         when result is
             None -> 0
-            Some set -> Set.len set
+            Some(set) -> Set.len(set)
 
-calcAnswer2 : List (List (Set U8)) -> U64
-calcAnswer2 = \groups ->
+calc_answer2 : List (List (Set U8)) -> U64
+calc_answer2 = |groups|
     groups
-    |> List.map setIntersectionCardinality
+    |> List.map(set_intersection_cardinality)
     |> List.sum
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day6.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day6.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = calcAnswer1 parsed
-    answer2 = calcAnswer2 parsed
+    answer1 = calc_answer1(parsed)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = calc_answer2(parsed)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     abc
 
@@ -91,11 +83,11 @@ testInput =
     """
 
 expect
-    value = parseInput testInput |> calcAnswer1
+    value = parse_input(test_input) |> calc_answer1
 
     value == 11
 
 expect
-    value = parseInput testInput |> calcAnswer2
+    value = parse_input(test_input) |> calc_answer2
 
     value == 6

@@ -1,7 +1,10 @@
-app [main] { pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.15.0/SlwdbJ-3GR7uBWQo6zlmYWNYOxnvo8r6YABXD-45UOw.tar.br" }
+app [main!] {
+    # pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.18.0/0APbwVN1_p1mJ96tXjaoiUCr8NBGamr8G8Ac_DrXR-o.tar.br",
+    pf: platform "/home/antonio-pc/Antonio/roc/basic-cli/platform/main.roc",
+}
 
 import pf.Stdout
-import pf.Path exposing [Path]
+import pf.Path
 
 Instruction : [
     Acc I64,
@@ -10,112 +13,100 @@ Instruction : [
 ]
 
 State : { acc : I64, ip : U64 }
-startingState : State
-startingState = { acc: 0, ip: 0 }
+starting_state : State
+starting_state = { acc: 0, ip: 0 }
 
-parseInput : Str -> Result (List Instruction) Str
-parseInput = \str ->
+parse_input : Str -> Result (List Instruction) Str
+parse_input = |str|
     str
-    |> Str.trimEnd
-    |> Str.splitOn "\n"
-    |> List.mapTry parseRow
+    |> Str.trim_end
+    |> Str.split_on("\n")
+    |> List.map_try(parse_row)
 
-parseRow = \str ->
-    when Str.splitOn str " " is
-        [op, amountStr] ->
-            amount = Str.toI64 amountStr |> Result.mapErr? \_ -> "Invalid number '$(amountStr)'"
+parse_row = |str|
+    when Str.split_on(str, " ") is
+        [op, amount_str] ->
+            amount = Str.to_i64(amount_str) |> Result.map_err?(|_| "Invalid number '${amount_str}'")
             when op is
-                "acc" -> Ok (Acc amount)
-                "jmp" -> Ok (Jmp amount)
-                "nop" -> Ok (Nop amount)
-                _ -> Err "Invalid op '$(op)'"
+                "acc" -> Ok(Acc(amount))
+                "jmp" -> Ok(Jmp(amount))
+                "nop" -> Ok(Nop(amount))
+                _ -> Err("Invalid op '${op}'")
 
-        _ -> Err "Invalid row '$(str)"
+        _ -> Err("Invalid row '${str}")
 
-calcAnswer1 = \instructions ->
-    finalState = run instructions startingState (Set.empty {})
-    finalState.acc
+calc_answer1 = |instructions|
+    final_state = run(instructions, starting_state, Set.empty({}))
+    final_state.acc
 
 run : List Instruction, State, Set U64 -> State
-run = \instructions, state, seen ->
-    newState = step instructions state
-    newSeen = Set.insert seen state.ip
+run = |instructions, state, seen|
+    new_state = step(instructions, state)
+    new_seen = Set.insert(seen, state.ip)
     if
-        Set.contains seen newState.ip
-        || newState.ip
-        == List.len instructions
+        Set.contains(seen, new_state.ip)
+        or new_state.ip
+        == List.len(instructions)
     then
-        newState
+        new_state
     else
-        run instructions newState newSeen
+        run(instructions, new_state, new_seen)
 
 step : List Instruction, State -> State
-step = \instructions, state ->
-    when List.get instructions state.ip is
-        Err OutOfBounds -> crash "invalid index $(Num.toStr state.ip)"
-        Ok instruction ->
+step = |instructions, state|
+    when List.get(instructions, state.ip) is
+        Err(OutOfBounds) -> crash("invalid index ${Num.to_str(state.ip)}")
+        Ok(instruction) ->
             when instruction is
-                Acc amount ->
+                Acc(amount) ->
                     {
                         ip: state.ip + 1,
                         acc: state.acc + amount,
                     }
 
-                Jmp amount ->
+                Jmp(amount) ->
                     {
-                        ip: Num.addWrap state.ip (Num.toU64 amount),
+                        ip: Num.add_wrap(state.ip, Num.to_u64(amount)),
                         acc: state.acc,
                     }
 
-                Nop _ ->
+                Nop(_) ->
                     {
                         ip: state.ip + 1,
                         acc: state.acc,
                     }
 
-calcAnswer2 = \instructions ->
-    List.walkWithIndexUntil instructions 0 \_, toChange, index ->
-        { list: newInstructions } = List.replace instructions index (swapInstruction toChange)
-        finalState = run newInstructions startingState (Set.empty {})
-        if finalState.ip == List.len instructions then
-            Break finalState.acc
-        else
-            Continue 0
+calc_answer2 = |instructions|
+    List.walk_with_index_until(
+        instructions,
+        0,
+        |_, to_change, index|
+            { list: new_instructions } = List.replace(instructions, index, swap_instruction(to_change))
+            final_state = run(new_instructions, starting_state, Set.empty({}))
+            if final_state.ip == List.len(instructions) then
+                Break(final_state.acc)
+            else
+                Continue(0),
+    )
 
-swapInstruction = \instruction ->
+swap_instruction = |instruction|
     when instruction is
-        Nop amount -> Jmp amount
-        Jmp amount -> Nop amount
+        Nop(amount) -> Jmp(amount)
+        Jmp(amount) -> Nop(amount)
         op -> op
 
-main =
-    input = readFileToStr! (Path.fromStr "../../../inputs/year2020/day8.txt")
+main! = |_args|
+    input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day8.txt"))?
 
-    parsed = parseInput input
+    parsed = parse_input(input)
 
-    answer1 = Result.map parsed calcAnswer1
-    answer2 = Result.map parsed calcAnswer2
+    answer1 = Result.map_ok(parsed, calc_answer1)
+    Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    Stdout.line! "Answer1: $(Inspect.toStr answer1)"
-    Stdout.line! "Answer2: $(Inspect.toStr answer2)"
+    answer2 = Result.map_ok(parsed, calc_answer2)
+    Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
-readFileToStr : Path -> Task Str [ReadFileErr Str]
-readFileToStr = \path ->
-    path
-    |> Path.readUtf8
-    |> Task.mapErr # Make a nice error message
-        \fileReadErr ->
-            pathStr = Path.display path
-
-            when fileReadErr is
-                FileReadErr _ readErr ->
-                    readErrStr = Inspect.toStr readErr
-                    ReadFileErr "Failed to read file:\n\t$(pathStr)\nWith error:\n\t$(readErrStr)"
-
-                FileReadUtf8Err _ _ ->
-                    ReadFileErr "I could not read the file:\n\t$(pathStr)\nIt contains characters that are not valid UTF-8."
-
-testInput =
+test_input =
     """
     nop +0
     acc +1
@@ -130,16 +121,16 @@ testInput =
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer1
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer1)
 
-    value == Ok 5
+    value == Ok(5)
 
 expect
     value =
-        testInput
-        |> parseInput
-        |> Result.map calcAnswer2
+        test_input
+        |> parse_input
+        |> Result.map_ok(calc_answer2)
 
-    value == Ok 8
+    value == Ok(8)
