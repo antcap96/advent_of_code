@@ -11,6 +11,8 @@ module [
     walk_with_index_until,
     replace,
     find_first_index,
+    walk_rows,
+    walk_cols,
 ]
 
 Matrix a := { rows : U64, cols : U64, data : List a } implements [Eq, Inspect]
@@ -85,4 +87,36 @@ find_first_index = |m, is_this|
                 Break(Ok((i, j)))
             else
                 Continue(Err(NotFound)),
+    )
+
+walk_rows : Matrix a, state, (state, a -> state) -> List state
+walk_rows = |m, initial_element, f|
+    unsafe_get = |lst, i|
+        when List.get(lst, i) is
+            Ok ok -> ok
+            Err _ -> crash "ups"
+    initial = List.repeat(initial_element, n_rows(m))
+    walk_with_index(
+        m,
+        initial,
+        |state, elem, i, _|
+            next_elem = f(unsafe_get(state, i), elem)
+            { list } = List.replace(state, i, next_elem)
+            list,
+    )
+
+walk_cols : Matrix a, state, (state, a -> state) -> List state
+walk_cols = |m, initial_element, f|
+    unsafe_get = |lst, i|
+        when List.get(lst, i) is
+            Ok(ok) -> ok
+            Err(_) -> crash "ups"
+    initial = List.repeat(initial_element, n_cols(m))
+    walk_with_index(
+        m,
+        initial,
+        |state, elem, _, i|
+            next_elem = f(unsafe_get(state, i), elem)
+            { list } = List.replace(state, i, next_elem)
+            list,
     )
