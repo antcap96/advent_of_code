@@ -5,7 +5,7 @@ app [main!] {
 
 import pf.Stdout
 import pf.Path
-import adventOfCode.Matrix exposing [Matrix]
+import adventOfCode.Matrix
 
 Ticket : List U64
 Range : List { start : U64, end : U64 }
@@ -104,7 +104,6 @@ calc_answer2 = |{ fields, my_ticket, tickets }|
     matrix = Matrix.from_list_of_list(
         tickets |> List.keep_if(|ticket| is_ok(fields, ticket)),
     )?
-    dbg matrix
     possible_names = Matrix.walk_cols(
         matrix,
         names,
@@ -117,19 +116,25 @@ calc_answer2 = |{ fields, my_ticket, tickets }|
                     |> Result.with_default(Bool.false),
             ),
     )
-    dbg possible_names
-    dbg (possible_names |> List.len)
-    a = simplify(possible_names)
+    ordered_names = simplify(possible_names)?
 
-    # dbg a
-    Ok(1)
+    List.map2(ordered_names, my_ticket, |field, value| (field, value))
+    |> List.walk(
+        1,
+        |state, (field, value)|
+            if Str.starts_with(field, "departure") then
+                state * value
+            else
+                state,
+    )
+    |> Ok
 
-simplify : List List Str -> List Str
+simplify : List (List Str) -> Result (List Str) _
 simplify = |possible_names|
     start = List.map(possible_names, CanBe)
     simplify2(start)
 
-simplify2 : List [CanBe (List Str), MustBe Str] -> List Str
+simplify2 : List [CanBe (List Str), MustBe Str] -> Result (List Str) _
 simplify2 = |options|
     single_option = List.keep_oks(
         options,
@@ -139,7 +144,7 @@ simplify2 = |options|
                 _ -> Err({}),
     )
     if List.len(single_option) == 0 then
-        crash "no more progress"
+        return Err(UnableToSimplify)
     else
         {}
 
@@ -151,14 +156,15 @@ simplify2 = |options|
                 CanBe(elems) -> CanBe(elems |> List.drop_if(|elem| List.contains(single_option, elem)))
                 MustBe(elem) -> MustBe(elem),
     )
-    next
-    |> List.walk_until(
-        [],
-        |state, elem|
-            when elem is
-                MustBe(name) -> Continue(List.append(state, name))
-                CanBe(_) -> Break(simplify2(next)),
-    )
+    finish_or_simplify(next, 0, [])
+
+finish_or_simplify : List [CanBe (List Str), MustBe Str], U64, List Str -> Result (List Str) _
+finish_or_simplify = |next, i, output|
+    when List.get(next, i) is
+        Ok(CanBe([one])) -> finish_or_simplify(next, i + 1, List.append(output, one))
+        Ok(MustBe(one)) -> finish_or_simplify(next, i + 1, List.append(output, one))
+        Err(OutOfBounds) -> Ok(output)
+        Ok(CanBe(_)) -> simplify2(next)
 
 main! = |_args|
     input = Path.read_utf8!(Path.from_str("../../../inputs/year2020/day16.txt"))?
@@ -168,7 +174,7 @@ main! = |_args|
     answer1 = Result.map_ok(parsed, calc_answer1)
     Stdout.line!("Answer1: ${Inspect.to_str(answer1)}")?
 
-    answer2 = Result.map_ok(parsed, calc_answer2)
+    answer2 = Result.try(parsed, calc_answer2)
     Stdout.line!("Answer2: ${Inspect.to_str(answer2)}")
 
 expect
