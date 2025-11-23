@@ -102,13 +102,13 @@ fn calibration_value(mut iter: impl Iterator<Item = i32>) -> i32 {
     first * 10 + last
 }
 
-pub fn answer() {
-    let input = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let ans1 = answer1(input);
+    let ans1 = answer1(&input);
     println!("answer1: {}", ans1);
 
-    let ans2 = answer2(input);
+    let ans2 = answer2(&input);
     println!("answer2: {}", ans2);
 }
 

@@ -168,10 +168,10 @@ fn answer2(data: &mut Data) -> usize {
     count
 }
 
-pub fn answer() {
-    let input = include_str!("../../../../inputs/year2024/day6/input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let mut data = parse_input(input);
+    let mut data = parse_input(&input);
 
     let ans1 = answer1(&data);
     println!("answer1: {}", ans1);

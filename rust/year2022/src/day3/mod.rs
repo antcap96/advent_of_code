@@ -1,9 +1,9 @@
 use std::collections::HashSet;
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let data = parse_data(data);
+    let data = parse_data(&input);
 
     let cost = get_rucksacks_error_cost(&data);
 

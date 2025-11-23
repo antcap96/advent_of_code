@@ -1,7 +1,7 @@
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let tree_heights = parse_data(data);
+    let tree_heights = parse_data(&input);
 
     let count = answer1(&tree_heights);
     println!("Answer 1: {}", count);

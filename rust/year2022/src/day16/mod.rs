@@ -98,10 +98,10 @@ impl<const N: usize> SearchState<N> {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let system = parse_data(data);
+    let system = parse_data(&input);
 
     let simplified_system = SimplifiedSystem::new(system);
 
@@ -110,16 +110,14 @@ pub fn answer() {
         30,
         SearchState::<1>::new(&simplified_system),
     );
-
-    println!("Answer 1 {}", answer1);
+    println!("Answer 1: {}", answer1);
 
     let answer2 = find_most_pressure_released(
         &simplified_system,
         26,
         SearchState::<2>::new(&simplified_system),
     );
-
-    println!("Answer 2 {}", answer2);
+    println!("Answer 2: {}", answer2);
 }
 
 fn find_most_pressure_released<const N: usize>(

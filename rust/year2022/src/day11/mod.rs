@@ -78,10 +78,10 @@ struct Monkey2 {
     false_condition_id: usize,
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let (monkeys, monkeys2) = parse_data(data);
+    let (monkeys, monkeys2) = parse_data(&input);
 
     let monkey_business = answer1(monkeys);
     println!("{:?}", monkey_business);

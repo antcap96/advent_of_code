@@ -54,10 +54,10 @@ fn parse_i32_from_iter(chars: &mut impl Iterator<Item = char>) -> i32 {
     buffer.parse::<i32>().unwrap()
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let sensors = parse_data(data);
+    let sensors = parse_data(&input);
 
     let answer1 = count_impossible(&sensors, 2000000);
 

@@ -113,10 +113,10 @@ fn step(state: SimulationState, blueprint: &Blueprint, i: u32) -> i32 {
     maximum
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let blueprints = parse_blueprint_wrapper(data);
+    let blueprints = parse_blueprint_wrapper(&input);
 
     for blueprint in &blueprints {
         let max_geodes = max_geodes(blueprint);

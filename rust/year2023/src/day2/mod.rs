@@ -114,10 +114,10 @@ fn answer2(input: &[Game]) -> i32 {
     input.iter().map(|game| min_counts(game).power()).sum()
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let data = std::fs::read_to_string(path).unwrap();
 
-    let input = parse_data(data);
+    let input = parse_data(&data);
 
     let ans1 = answer1(&input);
     println!("answer1: {}", ans1);

@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let answer1 = find_first_n_distinct(data, 4);
+    let answer1 = find_first_n_distinct(&input, 4);
     println!("Answer 1: {:?}", answer1);
 
-    let answer2 = find_first_n_distinct(data, 14);
+    let answer2 = find_first_n_distinct(&input, 14);
     println!("Answer 2: {:?}", answer2);
 }
 

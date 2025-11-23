@@ -230,10 +230,10 @@ fn find_pattern(mut chamber: Chamber, pieces: &[Piece], jet_stream: &[Direction]
     Answer::new(heights)
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let jet_stream = parse_data(data);
+    let jet_stream = parse_data(&input);
     let pieces = build_pieces();
     let chamber = Chamber {
         stopped_rocks: HashSet::new(),

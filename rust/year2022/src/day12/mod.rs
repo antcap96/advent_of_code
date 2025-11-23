@@ -55,10 +55,10 @@ impl Map {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let map = parse_data(data);
+    let map = parse_data(&input);
 
     let distance = distance_start_end(&map);
     println!("Answer 1: {}", distance);

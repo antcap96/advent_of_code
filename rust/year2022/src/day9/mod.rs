@@ -82,10 +82,10 @@ impl<const N: usize> Rope<N> {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let movements = parse_data(data);
+    let movements = parse_data(&input);
 
     let mut rope1 = Rope {
         // using map because array constructor requires Copy trait

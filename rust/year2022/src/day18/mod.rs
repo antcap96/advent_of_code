@@ -161,10 +161,10 @@ impl SearchArea {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let cubes = parse_data(data);
+    let cubes = parse_data(&input);
 
     let faces = find_faces_count(&cubes);
     let unpaired_faces = faces.iter().filter(|(_, &count)| count == 1);

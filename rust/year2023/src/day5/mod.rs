@@ -69,10 +69,10 @@ fn parse_data(data: &str) -> GameData {
     GameData { seeds, maps }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let data = std::fs::read_to_string(path).unwrap();
 
-    let input = parse_data(data);
+    let input = parse_data(&data);
 
     let ans1 = answer1(&input);
     let ans2 = answer2(&input);

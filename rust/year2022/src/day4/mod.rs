@@ -40,10 +40,10 @@ impl FromStr for Range {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let ranges = parse_data(data);
+    let ranges = parse_data(&input);
 
     let contained = number_of_contained(&ranges);
 
@@ -51,7 +51,7 @@ pub fn answer() {
 
     let overlapped = number_of_overlapped(&ranges);
 
-    println!("Number of overlaps: {}", overlapped);
+    println!("Number of overlapped: {}", overlapped);
 }
 
 fn number_of_contained(ranges: &[(Range, Range)]) -> i32 {

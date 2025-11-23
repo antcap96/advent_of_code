@@ -93,10 +93,10 @@ fn recursion(dir: &Directory, necessary_space: u64, mut best_so_far: u64) -> u64
     best_so_far
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let command_list = parse_input(data);
+    let command_list = parse_input(&input);
 
     let root = build_directory(&mut command_list.into_iter().skip(1));
     // let root = build_directories(&mut command_list.into_iter().skip(1));

@@ -116,10 +116,10 @@ impl Ord for Element {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let elements = parse_data(data);
+    let elements = parse_data(&input);
 
     let result1 = answer1(&elements);
     println!("Answer 1: {}", result1);

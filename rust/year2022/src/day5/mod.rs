@@ -65,10 +65,10 @@ impl Operation {
     }
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let (ship, operations) = parse_input(data);
+    let (ship, operations) = parse_input(&input);
 
     let mut ship1 = ship.clone();
     print_answer1(&mut ship1, &operations);

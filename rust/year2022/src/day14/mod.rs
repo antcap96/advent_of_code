@@ -10,10 +10,10 @@ struct Puzzle {
     max_height: i32,
 }
 
-pub fn answer() {
-    let data = include_str!("input.txt");
+pub fn answer(path: &str) {
+    let input = std::fs::read_to_string(path).unwrap();
 
-    let puzzle = parse_data(data);
+    let puzzle = parse_data(&input);
 
     let answers = simulate_sand_falling(puzzle);
 
