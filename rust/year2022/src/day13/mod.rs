@@ -13,6 +13,7 @@ impl Element {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 enum ElementParseError {
     UnexpectedCharacter(char),
     IntParseError(std::num::ParseIntError),
