@@ -15,6 +15,10 @@ fn main() {
     let path = format!("../inputs/{}/day{}.txt", args.year, args.day);
 
     match args.year {
+        2020 => match args.day {
+            1 => year2020::day1::answer(&path),
+            _ => todo!("day {} not implemented", args.day),
+        },
         2022 => match args.day {
             1 => year2022::day1::answer(&path),
             2 => year2022::day2::answer(&path),
