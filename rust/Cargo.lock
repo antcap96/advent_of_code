@@ -277,6 +277,7 @@ dependencies = [
  "year2022",
  "year2023",
  "year2024",
+ "year2025",
 ]
 
 [[package]]
@@ -407,4 +408,13 @@ dependencies = [
  "itertools 0.10.5",
  "ndarray 0.15.6",
  "nom 7.1.3",
+]
+
+[[package]]
+name = "year2025"
+version = "0.1.0"
+dependencies = [
+ "itertools 0.14.0",
+ "ndarray 0.17.1",
+ "nom 8.0.0",
 ]
