@@ -58,6 +58,7 @@ fn main() {
         2025 => match args.day {
             1 => year2025::day1::answer(&path),
             2 => year2025::day2::answer(&path),
+            3 => year2025::day3::answer(&path),
             _ => todo!("day {} not implemented", args.day),
         },
         _ => todo!("year {} not implemented", args.year),
