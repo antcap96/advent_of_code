@@ -8,6 +8,18 @@ enum ParseError {
     ParseIntError(String),
 }
 
+fn min_with_digits(n: u32) -> usize {
+    10usize.pow(n - 1)
+}
+
+fn max_with_digits(n: u32) -> usize {
+    10usize.pow(n) - 1
+}
+
+fn repeat_num(pattern: usize, repeat: usize) -> usize {
+    pattern.to_string().repeat(repeat).parse::<usize>().unwrap()
+}
+
 fn invalids(range: &RangeInclusive<usize>, two_only: bool) -> Vec<usize> {
     let start_count = range.start().to_string().len();
     let end_count = range.end().to_string().len();
@@ -15,18 +27,18 @@ fn invalids(range: &RangeInclusive<usize>, two_only: bool) -> Vec<usize> {
     if end_count > start_count {
         let mut invalid = invalid_ids(
             *range.start(),
-            "9".repeat(start_count).parse().unwrap(),
+            max_with_digits(start_count as u32),
             two_only,
         );
         for count in (start_count + 1)..end_count {
             invalid.extend(invalid_ids(
-                format!("1{}", "0".repeat(count - 1)).parse().unwrap(),
-                "9".repeat(count).parse().unwrap(),
+                min_with_digits(count as u32),
+                max_with_digits(count as u32),
                 two_only,
             ));
         }
         invalid.extend(invalid_ids(
-            format!("1{}", "0".repeat(end_count - 1)).parse().unwrap(),
+            min_with_digits(end_count as u32),
             *range.end(),
             two_only,
         ));
@@ -46,11 +58,11 @@ fn invalid_ids(start: usize, end: usize, two_only: bool) -> Vec<usize> {
             if repeat != 2 && two_only {
                 continue;
             }
-            let mut prefix_start: usize = start / 10usize.pow((count - i).try_into().unwrap());
+            let mut prefix_start: usize = start / 10usize.pow((count - i) as u32);
             if repeat_num(prefix_start, repeat) < start {
                 prefix_start += 1
             }
-            let mut prefix_end: usize = end / 10usize.pow((count - i).try_into().unwrap());
+            let mut prefix_end: usize = end / 10usize.pow((count - i) as u32);
             if repeat_num(prefix_end, repeat) > end {
                 prefix_end -= 1
             }
@@ -60,10 +72,6 @@ fn invalid_ids(start: usize, end: usize, two_only: bool) -> Vec<usize> {
     result.sort();
     result.dedup();
     result
-}
-
-fn repeat_num(pattern: usize, repeat: usize) -> usize {
-    pattern.to_string().repeat(repeat).parse::<usize>().unwrap()
 }
 
 fn answer1(instructions: &[RangeInclusive<usize>]) -> usize {
