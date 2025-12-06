@@ -1,9 +1,12 @@
+use itertools::Itertools;
+
+#[derive(Debug)]
 struct Data<'a> {
-    //numbers: Box<[Box<[usize]>]>,
-    digits: Box<[Box<[&'a [u8]]>]>,
+    digits: Vec<Vec<&'a [u8]>>,
     operations: Box<[Operation]>,
 }
 
+#[derive(Debug)]
 enum Operation {
     Add,
     Mul,
@@ -14,6 +17,12 @@ impl Operation {
         match self {
             Self::Add => x + y,
             Self::Mul => x * y,
+        }
+    }
+    fn zero(&self) -> usize {
+        match self {
+            Self::Add => 0,
+            Self::Mul => 1,
         }
     }
 }
@@ -33,17 +42,42 @@ impl TryFrom<u8> for Operation {
 fn answer1(data: &Data) -> usize {
     (0..(data.operations.len()))
         .map(|i| {
-            data.numbers
+            data.digits
                 .iter()
                 .map(|list| list[i])
-                .reduce(|acc, x| data.operations[i].apply(acc, x))
-                .unwrap()
+                .fold(data.operations[i].zero(), |acc, x| {
+                    let var_name = std::str::from_utf8(x).unwrap();
+                    dbg!(&var_name);
+                    data.operations[i].apply(acc, var_name.trim().parse().unwrap())
+                })
         })
         .sum()
 }
 
 fn answer2(data: &Data) -> usize {
-    todo!()
+    (0..(data.operations.len()))
+        .map(|i| {
+            data.digits
+                .iter()
+                .map(|list| list[i])
+                .fold(Vec::new(), |mut acc, digits| {
+                    if acc.is_empty() {
+                        acc.resize(digits.len(), 0);
+                    }
+                    acc.iter_mut().zip(digits).for_each(|(x, digit)| {
+                        if *digit != b' ' {
+                            *x = *x * 10;
+                            *x += (digit - b'0') as usize;
+                        }
+                    });
+                    acc
+                })
+                .into_iter()
+                .fold(data.operations[i].zero(), |acc, x| {
+                    data.operations[i].apply(acc, x)
+                })
+        })
+        .sum()
 }
 
 pub fn answer(path: &str) {
@@ -58,20 +92,29 @@ pub fn answer(path: &str) {
     println!("Answer 2: {:?}", ans);
 }
 
-fn parse_input(input: &str) -> Result<Data, String> {
-    let lines: Vec<&str> = input.trim().lines().collect();
+fn parse_input<'a>(input: &'a str) -> Result<Data<'a>, String> {
+    let lines: Vec<&[u8]> = input.trim_end().lines().map(|l| l.as_bytes()).collect();
+    assert!(!lines.is_empty());
 
-    let numbers: Box<[Box<[usize]>]> = lines[0..(lines.len() - 1)]
-        .iter()
-        .map(|line| {
-            line.split_ascii_whitespace()
-                .map(|num| num.parse().map_err(|_| format!("invalid number {}", num)))
-                .collect::<Result<Box<[usize]>, String>>()
-        })
-        .collect::<Result<Box<_>, String>>()?;
+    let longest_line = lines.iter().map(|l| l.len()).max().unwrap();
+    let breaks = (0..longest_line).filter(|i| {
+        lines
+            .iter()
+            .all(|line| line.get(*i).unwrap_or(&b' ') == &b' ')
+    });
 
-    let operations = lines
-        .last()
+    dbg!(breaks.clone().collect::<Vec<_>>());
+
+    let mut prev = 0;
+    let mut digits: Vec<Vec<&[u8]>> = vec![Vec::new(); lines.len() - 1];
+    for b in breaks.chain([lines[0].len()]) {
+        for i in 0..digits.len() {
+            digits[i].push(&lines[i][prev..b]);
+        }
+        prev = b + 1;
+    }
+
+    let operations = std::str::from_utf8(lines.last().unwrap())
         .unwrap()
         .split_ascii_whitespace()
         .map(|op| match op.as_bytes() {
@@ -80,10 +123,7 @@ fn parse_input(input: &str) -> Result<Data, String> {
         })
         .collect::<Result<Box<_>, String>>()?;
 
-    Ok(Data {
-        numbers,
-        operations,
-    })
+    Ok(Data { digits, operations })
 }
 
 #[cfg(test)]
@@ -94,6 +134,8 @@ mod tests {
     fn test1() {
         let input = include_str!("test.txt");
 
+        dbg!(&parse_input(input));
+
         assert_eq!(answer1(&parse_input(input).unwrap()), 4277556);
     }
 
@@ -101,6 +143,6 @@ mod tests {
     fn test2() {
         let input = include_str!("test.txt");
 
-        assert_eq!(answer2(&parse_input(input).unwrap()), 14);
+        assert_eq!(answer2(&parse_input(input).unwrap()), 3263827);
     }
 }
