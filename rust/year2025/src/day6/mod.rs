@@ -1,8 +1,6 @@
-use itertools::Itertools;
-
 #[derive(Debug)]
 struct Data<'a> {
-    digits: Vec<Vec<&'a [u8]>>,
+    digits_list: Vec<Vec<&'a [u8]>>,
     operations: Box<[Operation]>,
 }
 
@@ -25,6 +23,10 @@ impl Operation {
             Self::Mul => 1,
         }
     }
+
+    fn compute(&self, iter: impl Iterator<Item = usize>) -> usize {
+        iter.fold(self.zero(), |acc, x| self.apply(acc, x))
+    }
 }
 
 impl TryFrom<u8> for Operation {
@@ -42,14 +44,11 @@ impl TryFrom<u8> for Operation {
 fn answer1(data: &Data) -> usize {
     (0..(data.operations.len()))
         .map(|i| {
-            data.digits
-                .iter()
-                .map(|list| list[i])
-                .fold(data.operations[i].zero(), |acc, x| {
-                    let var_name = std::str::from_utf8(x).unwrap();
-                    dbg!(&var_name);
-                    data.operations[i].apply(acc, var_name.trim().parse().unwrap())
-                })
+            let column = data.digits_list.iter().map(|list| list[i]);
+
+            data.operations[i].compute(
+                column.map(|digits| std::str::from_utf8(digits).unwrap().trim().parse().unwrap()),
+            )
         })
         .sum()
 }
@@ -57,25 +56,20 @@ fn answer1(data: &Data) -> usize {
 fn answer2(data: &Data) -> usize {
     (0..(data.operations.len()))
         .map(|i| {
-            data.digits
-                .iter()
-                .map(|list| list[i])
-                .fold(Vec::new(), |mut acc, digits| {
-                    if acc.is_empty() {
-                        acc.resize(digits.len(), 0);
+            let column = data.digits_list.iter().map(|list| list[i]);
+            let computed_digits = column.fold(Vec::new(), |mut acc, digits| {
+                if acc.is_empty() {
+                    acc.resize(digits.len(), 0);
+                }
+                acc.iter_mut().zip(digits).for_each(|(x, digit)| {
+                    if *digit != b' ' {
+                        *x = *x * 10;
+                        *x += (digit - b'0') as usize;
                     }
-                    acc.iter_mut().zip(digits).for_each(|(x, digit)| {
-                        if *digit != b' ' {
-                            *x = *x * 10;
-                            *x += (digit - b'0') as usize;
-                        }
-                    });
-                    acc
-                })
-                .into_iter()
-                .fold(data.operations[i].zero(), |acc, x| {
-                    data.operations[i].apply(acc, x)
-                })
+                });
+                acc
+            });
+            data.operations[i].compute(computed_digits.into_iter())
         })
         .sum()
 }
@@ -123,7 +117,10 @@ fn parse_input<'a>(input: &'a str) -> Result<Data<'a>, String> {
         })
         .collect::<Result<Box<_>, String>>()?;
 
-    Ok(Data { digits, operations })
+    Ok(Data {
+        digits_list: digits,
+        operations,
+    })
 }
 
 #[cfg(test)]
