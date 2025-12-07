@@ -97,8 +97,6 @@ fn parse_input<'a>(input: &'a str) -> Result<Data<'a>, String> {
             .all(|line| line.get(*i).unwrap_or(&b' ') == &b' ')
     });
 
-    dbg!(breaks.clone().collect::<Vec<_>>());
-
     let mut prev = 0;
     let mut digits: Vec<Vec<&[u8]>> = vec![Vec::new(); lines.len() - 1];
     for b in breaks.chain([lines[0].len()]) {
@@ -130,8 +128,6 @@ mod tests {
     #[test]
     fn test1() {
         let input = include_str!("test.txt");
-
-        dbg!(&parse_input(input));
 
         assert_eq!(answer1(&parse_input(input).unwrap()), 4277556);
     }
