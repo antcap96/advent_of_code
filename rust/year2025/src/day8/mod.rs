@@ -118,7 +118,7 @@ pub fn answer(path: &str) {
 }
 
 fn parse_point(line: &str) -> Result<Point, String> {
-    let err = || format!("Failled to parse '{line} as  num'");
+    let err = || format!("Failled to parse '{line}' as num");
     let mut iter = line
         .split(',')
         .map(|num| num.parse::<usize>().map_err(|_| err()));
