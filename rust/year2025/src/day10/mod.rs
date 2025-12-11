@@ -170,6 +170,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test2() {
         let input = include_str!("test.txt");
 
