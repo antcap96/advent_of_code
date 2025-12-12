@@ -1,0 +1,878 @@
+Answer 1: 479
+Presolve 5 (0) rows, 7 (0) columns and 22 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 3.1693754e-05 ( 0.0031693754%) - largest zero change 0
+0  Obj 0 Primal inf 133 (5)
+5  Obj 39.500711
+Optimal - objective value 39.5
+Optimal objective 39.5 - 5 iterations time 0.002
+Presolve 0 (-9) rows, 0 (-7) columns and 0 (-33) elements
+Optimal - objective value 57
+After Postsolve, objective 57, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 57 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-6) columns and 0 (-20) elements
+Optimal - objective value 215
+After Postsolve, objective 215, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 215 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-4) columns and 0 (-14) elements
+Optimal - objective value 218
+After Postsolve, objective 218, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 218 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-6) columns and 0 (-24) elements
+Optimal - objective value 45
+After Postsolve, objective 45, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 45 - 0 iterations time 0.002, Presolve 0.00
+Presolve 7 (-3) rows, 6 (-3) columns and 26 (-29) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00011734825 ( 0.011734825%) - largest zero change 0
+0  Obj 96.906105 Primal inf 530.4 (7)
+6  Obj 224.01704
+Optimal - objective value 224
+After Postsolve, objective 224, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 224 - 6 iterations time 0.002, Presolve 0.00
+Presolve 5 (-3) rows, 6 (-3) columns and 17 (-19) elements
+0  Obj 49 Primal inf 175 (5)
+5  Obj 109
+Optimal - objective value 109
+After Postsolve, objective 109, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 109 - 5 iterations time 0.012, Presolve 0.01
+Presolve 7 (-2) rows, 7 (-1) columns and 26 (-11) elements
+0  Obj 7 Primal inf 165.99999 (7)
+7  Obj 51
+Optimal - objective value 51
+After Postsolve, objective 51, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 51 - 7 iterations time 0.002, Presolve 0.00
+Presolve 3 (-3) rows, 6 (-2) columns and 10 (-10) elements
+0  Obj 29 Primal inf 99.999997 (3)
+3  Obj 91
+Optimal - objective value 91
+After Postsolve, objective 91, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 91 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-4) columns and 0 (-15) elements
+Optimal - objective value 57
+After Postsolve, objective 57, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 57 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-7) columns and 0 (-28) elements
+Optimal - objective value 240
+After Postsolve, objective 240, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 240 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 13 (0) columns and 69 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.9775741e-05 ( 0.0089775741%) - largest zero change 0
+0  Obj 0 Primal inf 1701 (10)
+12  Obj 279.00877
+Optimal - objective value 279
+Optimal objective 279 - 12 iterations time 0.002
+Presolve 0 (-4) rows, 0 (-2) columns and 0 (-4) elements
+Optimal - objective value 19
+After Postsolve, objective 19, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 19 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 13 (0) columns and 60 (-11) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 7.5576617e-05 ( 0.0075576617%) - largest zero change 0
+0  Obj 0 Primal inf 790 (10)
+10  Obj 127.80355
+Optimal - objective value 127.8
+Optimal objective 127.8 - 10 iterations time 0.002
+Presolve 0 (-5) rows, 0 (-4) columns and 0 (-12) elements
+Optimal - objective value 45
+After Postsolve, objective 45, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 45 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-7) columns and 0 (-32) elements
+Optimal - objective value 241
+After Postsolve, objective 241, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 241 - 0 iterations time 0.002, Presolve 0.00
+Presolve 9 (0) rows, 10 (0) columns and 38 (-7) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.3991599e-05 ( 0.0083991599%) - largest zero change 0
+0  Obj 0 Primal inf 454 (9)
+9  Obj 98.003145
+Optimal - objective value 98
+Optimal objective 98 - 9 iterations time 0.002
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-11) elements
+Optimal - objective value 18
+After Postsolve, objective 18, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 18 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-8) columns and 0 (-32) elements
+Optimal - objective value 98
+After Postsolve, objective 98, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 98 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-6) columns and 0 (-18) elements
+Optimal - objective value 40
+After Postsolve, objective 40, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 40 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-8) columns and 0 (-35) elements
+Optimal - objective value 102
+After Postsolve, objective 102, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 102 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-3) rows, 4 (-3) columns and 9 (-8) elements
+0  Obj 24 Primal inf 34.999998 (2)
+4  Obj 46
+Optimal - objective value 46
+After Postsolve, objective 46, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 46 - 4 iterations time 0.002, Presolve 0.00
+Presolve 6 (-4) rows, 7 (-3) columns and 19 (-23) elements
+0  Obj 40 Primal inf 155.99999 (6)
+6  Obj 93
+Optimal - objective value 93
+After Postsolve, objective 93, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 93 - 6 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-7) columns and 0 (-24) elements
+Optimal - objective value 56
+After Postsolve, objective 56, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 56 - 0 iterations time 0.002, Presolve 0.00
+Presolve 2 (-2) rows, 3 (-3) columns and 5 (-7) elements
+0  Obj 41 Primal inf 43.999998 (2)
+2  Obj 63
+Optimal - objective value 63
+After Postsolve, objective 63, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 63 - 2 iterations time 0.002, Presolve 0.00
+Presolve 7 (-1) rows, 8 (-1) columns and 25 (-10) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00018820109 ( 0.018820109%) - largest zero change 0.00010305352
+0  Obj 88.902352 Primal inf 255.2 (7)
+7  Obj 196.61353
+Optimal - objective value 196.6
+After Postsolve, objective 196.6, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 196.6 - 7 iterations time 0.002, Presolve 0.00
+Presolve 7 (-2) rows, 7 (-3) columns and 26 (-16) elements
+0  Obj 215 Primal inf 302.99999 (7)
+7  Obj 293
+Optimal - objective value 293
+After Postsolve, objective 293, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 293 - 7 iterations time 0.002, Presolve 0.00
+Presolve 3 (-2) rows, 5 (-2) columns and 10 (-7) elements
+0  Obj 37 Primal inf 85.999997 (3)
+3  Obj 71
+Optimal - objective value 71
+After Postsolve, objective 71, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 71 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-8) columns and 0 (-31) elements
+Optimal - objective value 218
+After Postsolve, objective 218, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 218 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-3) rows, 7 (-3) columns and 20 (-9) elements
+0  Obj 46 Primal inf 166.3 (5)
+6  Obj 106.33333
+Optimal - objective value 106.33333
+After Postsolve, objective 106.33333, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 106.3333333 - 6 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-18) elements
+Optimal - objective value 20
+After Postsolve, objective 20, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 20 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-4) columns and 0 (-14) elements
+Optimal - objective value 142
+After Postsolve, objective 142, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 142 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-1) rows, 7 (-1) columns and 21 (-2) elements
+0  Obj 28 Primal inf 140 (5)
+5  Obj 86
+Optimal - objective value 86
+After Postsolve, objective 86, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 86 - 5 iterations time 0.002, Presolve 0.00
+Presolve 9 (0) rows, 11 (0) columns and 45 (-11) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.5707874e-05 ( 0.0085707874%) - largest zero change 0
+0  Obj 0 Primal inf 672 (9)
+9  Obj 118.00415
+Optimal - objective value 118
+Optimal objective 118 - 9 iterations time 0.002
+Presolve 0 (-9) rows, 0 (-7) columns and 0 (-30) elements
+Optimal - objective value 64
+After Postsolve, objective 64, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 64 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-8) columns and 0 (-30) elements
+Optimal - objective value 68
+After Postsolve, objective 68, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 68 - 0 iterations time 0.002, Presolve 0.00
+Presolve 8 (-1) rows, 10 (-1) columns and 37 (-14) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00039513045 ( 0.039513045%) - largest zero change 8.2442812e-05
+0  Obj 19 Primal inf 379.99999 (8)
+9  Obj 114.01931
+Optimal - objective value 114
+After Postsolve, objective 114, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 114 - 9 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 12 (0) columns and 51 (-9) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 4.7540631e-05 ( 0.0047540631%) - largest zero change 0
+0  Obj 0 Primal inf 1253 (10)
+13  Obj 219.00376
+Optimal - objective value 219
+Optimal objective 219 - 13 iterations time 0.002
+Presolve 0 (-10) rows, 0 (-8) columns and 0 (-45) elements
+Optimal - objective value 251
+After Postsolve, objective 251, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 251 - 0 iterations time 0.002, Presolve 0.00
+Presolve 6 (-3) rows, 7 (-3) columns and 24 (-21) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00041881032 ( 0.041881032%) - largest zero change 0
+0  Obj 34 Primal inf 217.99999 (6)
+8  Obj 100.0102
+Optimal - objective value 100
+After Postsolve, objective 100, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 100 - 8 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-6) columns and 0 (-22) elements
+Optimal - objective value 61
+After Postsolve, objective 61, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 61 - 0 iterations time 0.002, Presolve 0.00
+Presolve 7 (-2) rows, 9 (-2) columns and 33 (-28) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00044133758 ( 0.044133758%) - largest zero change 0.00010677634
+0  Obj 185.91319 Primal inf 330.3 (7)
+8  Obj 286.0284
+Optimal - objective value 286
+After Postsolve, objective 286, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 286 - 8 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-10) columns and 0 (-39) elements
+Optimal - objective value 103
+After Postsolve, objective 103, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 103 - 0 iterations time 0.002, Presolve 0.00
+Presolve 9 (0) rows, 11 (0) columns and 46 (-6) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 7.9234384e-05 ( 0.0079234384%) - largest zero change 0
+0  Obj 0 Primal inf 854 (9)
+11  Obj 263.00378
+Optimal - objective value 263
+Optimal objective 263 - 11 iterations time 0.002
+Presolve 0 (-8) rows, 0 (-8) columns and 0 (-33) elements
+Optimal - objective value 69
+After Postsolve, objective 69, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 69 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-4) columns and 0 (-8) elements
+Optimal - objective value 54
+After Postsolve, objective 54, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 54 - 0 iterations time 0.002, Presolve 0.00
+Presolve 9 (-1) rows, 9 (-1) columns and 47 (-15) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.0007989528 ( 0.07989528%) - largest zero change 0.00017124603
+0  Obj 22 Primal inf 520.99999 (9)
+10  Obj 119.03761
+Optimal - objective value 119
+After Postsolve, objective 119, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 119 - 10 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-8) columns and 0 (-27) elements
+Optimal - objective value 238.5
+After Postsolve, objective 238.5, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 238.5 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-9) columns and 0 (-37) elements
+Optimal - objective value 77
+After Postsolve, objective 77, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 77 - 0 iterations time 0.002, Presolve 0.00
+Presolve 1 (-5) rows, 2 (-4) columns and 2 (-17) elements
+0  Obj 206 Primal inf 43.999999 (1)
+1  Obj 228
+Optimal - objective value 228
+After Postsolve, objective 228, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 228 - 1 iterations time 0.002, Presolve 0.00
+Presolve 6 (-3) rows, 8 (-3) columns and 22 (-29) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00016752413 ( 0.016752413%) - largest zero change 8.5623016e-05
+0  Obj 209 Primal inf 228.99999 (6)
+7  Obj 293.50897
+Optimal - objective value 293.5
+After Postsolve, objective 293.5, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 293.5 - 7 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-10) columns and 0 (-31) elements
+Optimal - objective value 103
+After Postsolve, objective 103, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 103 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-3) rows, 4 (-3) columns and 9 (-14) elements
+0  Obj 36.399999 Primal inf 57.199998 (3)
+3  Obj 62
+Optimal - objective value 62
+After Postsolve, objective 62, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 62 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-3) columns and 0 (-8) elements
+Optimal - objective value 29
+After Postsolve, objective 29, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 29 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-1) rows, 5 (-1) columns and 9 (-2) elements
+0  Obj 123.9 Primal inf 80.099997 (3)
+4  Obj 179
+Optimal - objective value 179
+After Postsolve, objective 179, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 179 - 4 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-6) columns and 0 (-24) elements
+Optimal - objective value 50
+After Postsolve, objective 50, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 50 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-3) columns and 0 (-10) elements
+Optimal - objective value 27
+After Postsolve, objective 27, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 27 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-9) columns and 0 (-44) elements
+Optimal - objective value 92
+After Postsolve, objective 92, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 92 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-14) elements
+Optimal - objective value 47
+After Postsolve, objective 47, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 47 - 0 iterations time 0.002, Presolve 0.00
+Presolve 6 (-1) rows, 8 (-1) columns and 23 (-6) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00047050271 ( 0.047050271%) - largest zero change 0
+0  Obj 12 Primal inf 323.99999 (6)
+6  Obj 100.51706
+Optimal - objective value 100.5
+After Postsolve, objective 100.5, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 100.5 - 6 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-14) elements
+Optimal - objective value 30
+After Postsolve, objective 30, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 30 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 12 (0) columns and 43 (-4) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 9.6816743e-05 ( 0.0096816743%) - largest zero change 0
+0  Obj 0 Primal inf 463 (10)
+11  Obj 112.12829
+Optimal - objective value 112.125
+Optimal objective 112.125 - 11 iterations time 0.002
+Presolve 0 (-10) rows, 0 (-8) columns and 0 (-33) elements
+Optimal - objective value 102
+After Postsolve, objective 102, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 102 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-7) columns and 0 (-19) elements
+Optimal - objective value 85
+After Postsolve, objective 85, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 85 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-8) columns and 0 (-30) elements
+Optimal - objective value 80
+After Postsolve, objective 80, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 80 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-10) elements
+Optimal - objective value 170
+After Postsolve, objective 170, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 170 - 0 iterations time 0.002, Presolve 0.00
+Presolve 2 (-5) rows, 3 (-5) columns and 6 (-22) elements
+0  Obj 252 Primal inf 24.199999 (2)
+2  Obj 264
+Optimal - objective value 264
+After Postsolve, objective 264, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 264 - 2 iterations time 0.002, Presolve 0.00
+Presolve 6 (-2) rows, 8 (-2) columns and 25 (-15) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.3762063e-05 ( 0.0083762063%) - largest zero change 7.2697507e-05
+0  Obj 142.00008 Primal inf 169.99999 (6)
+6  Obj 181.00422
+Optimal - objective value 181
+After Postsolve, objective 181, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 181 - 6 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-6) columns and 0 (-18) elements
+Optimal - objective value 67
+After Postsolve, objective 67, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 67 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-5) columns and 0 (-22) elements
+Optimal - objective value 40
+After Postsolve, objective 40, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 40 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-3) columns and 0 (-11) elements
+Optimal - objective value 23
+After Postsolve, objective 23, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 23 - 0 iterations time 0.002, Presolve 0.00
+Presolve 6 (0) rows, 8 (0) columns and 24 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 5.5502552e-05 ( 0.0055502552%) - largest zero change 0
+0  Obj 0 Primal inf 254 (6)
+8  Obj 80.00162
+Optimal - objective value 80
+Optimal objective 80 - 8 iterations time 0.002
+Presolve 0 (-4) rows, 0 (-6) columns and 0 (-10) elements
+Optimal - objective value 48
+After Postsolve, objective 48, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 48 - 0 iterations time 0.002, Presolve 0.00
+Presolve 4 (-3) rows, 6 (-3) columns and 14 (-11) elements
+0  Obj 40.9 Primal inf 58.199996 (4)
+4  Obj 67
+Optimal - objective value 67
+After Postsolve, objective 67, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 67 - 4 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-18) elements
+Optimal - objective value 42
+After Postsolve, objective 42, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 42 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-13) elements
+Optimal - objective value 38
+After Postsolve, objective 38, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 38 - 0 iterations time 0.002, Presolve 0.00
+Presolve 8 (-1) rows, 9 (-1) columns and 35 (-11) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00083762063 ( 0.083762063%) - largest zero change 0
+0  Obj 1 Primal inf 486.99999 (8)
+9  Obj 120.79315
+Optimal - objective value 120.75
+After Postsolve, objective 120.75, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 120.75 - 9 iterations time 0.002, Presolve 0.00
+Presolve 4 (0) rows, 6 (0) columns and 13 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 1.7802805e-05 ( 0.0017802805%) - largest zero change 0
+0  Obj 0 Primal inf 123 (4)
+5  Obj 50.000545
+Optimal - objective value 50
+Optimal objective 50 - 5 iterations time 0.002
+Presolve 0 (-8) rows, 0 (-9) columns and 0 (-35) elements
+Optimal - objective value 109
+After Postsolve, objective 109, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 109 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-4) columns and 0 (-8) elements
+Optimal - objective value 187
+After Postsolve, objective 187, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 187 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (0) rows, 6 (0) columns and 18 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 3.0230647e-05 ( 0.0030230647%) - largest zero change 0
+0  Obj 0 Primal inf 144 (5)
+5  Obj 43.500905
+Optimal - objective value 43.5
+Optimal objective 43.5 - 5 iterations time 0.002
+Presolve 0 (-4) rows, 0 (-5) columns and 0 (-9) elements
+Optimal - objective value 185
+After Postsolve, objective 185, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 185 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-5) columns and 0 (-8) elements
+Optimal - objective value 16
+After Postsolve, objective 16, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 16 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-2) rows, 6 (-1) columns and 18 (-11) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00018820109 ( 0.018820109%) - largest zero change 0
+0  Obj 8 Primal inf 141 (5)
+5  Obj 51.00532
+Optimal - objective value 51
+After Postsolve, objective 51, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 51 - 5 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-6) columns and 0 (-19) elements
+Optimal - objective value 178
+After Postsolve, objective 178, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 178 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-7) columns and 0 (-34) elements
+Optimal - objective value 38
+After Postsolve, objective 38, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 38 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-7) columns and 0 (-29) elements
+Optimal - objective value 68
+After Postsolve, objective 68, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 68 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-3) columns and 0 (-6) elements
+Optimal - objective value 32
+After Postsolve, objective 32, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 32 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-3) columns and 0 (-6) elements
+Optimal - objective value 28
+After Postsolve, objective 28, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 28 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 13 (0) columns and 56 (-4) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 3.8726697e-05 ( 0.0038726697%) - largest zero change 0
+0  Obj 0 Primal inf 577 (10)
+12  Obj 117.25213
+Optimal - objective value 117.25
+Optimal objective 117.25 - 12 iterations time 0.002
+Presolve 4 (-5) rows, 6 (-5) columns and 15 (-23) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00018820109 ( 0.018820109%) - largest zero change 0
+0  Obj 205 Primal inf 193 (4)
+4  Obj 277.0047
+Optimal - objective value 277
+After Postsolve, objective 277, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 277 - 4 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-15) elements
+Optimal - objective value 28
+After Postsolve, objective 28, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 28 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-6) columns and 0 (-11) elements
+Optimal - objective value 48
+After Postsolve, objective 48, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 48 - 0 iterations time 0.002, Presolve 0.00
+Presolve 4 (-2) rows, 6 (-2) columns and 17 (-11) elements
+0  Obj 211 Primal inf 115 (4)
+4  Obj 250.5
+Optimal - objective value 250.5
+After Postsolve, objective 250.5, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 250.5 - 4 iterations time 0.002, Presolve 0.00
+Presolve 5 (-4) rows, 5 (-4) columns and 16 (-31) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00029337063 ( 0.029337063%) - largest zero change 0
+0  Obj 55.900143 Primal inf 154.4 (5) Dual inf 0.99995949 (1)
+4  Obj 90.008269
+Optimal - objective value 90
+After Postsolve, objective 90, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 90 - 4 iterations time 0.002, Presolve 0.00
+Presolve 5 (-5) rows, 6 (-5) columns and 17 (-27) elements
+0  Obj 77 Primal inf 53.999995 (5)
+5  Obj 120.5
+Optimal - objective value 120.5
+After Postsolve, objective 120.5, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 120.5 - 5 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-7) columns and 0 (-23) elements
+Optimal - objective value 254
+After Postsolve, objective 254, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 254 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-11) elements
+Optimal - objective value 83
+After Postsolve, objective 83, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 83 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-6) columns and 0 (-22) elements
+Optimal - objective value 67
+After Postsolve, objective 67, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 67 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-4) columns and 0 (-8) elements
+Optimal - objective value 30
+After Postsolve, objective 30, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 30 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-8) columns and 0 (-45) elements
+Optimal - objective value 192
+After Postsolve, objective 192, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 192 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-2) rows, 4 (-2) columns and 10 (-5) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 9.0605467e-05 ( 0.0090605467%) - largest zero change 0
+0  Obj 23 Primal inf 87.999997 (3)
+3  Obj 60.002467
+Optimal - objective value 60
+After Postsolve, objective 60, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 60 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-2) columns and 0 (-4) elements
+Optimal - objective value 24
+After Postsolve, objective 24, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 24 - 0 iterations time 0.002, Presolve 0.00
+Presolve 7 (-1) rows, 9 (-1) columns and 35 (-12) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00047050271 ( 0.047050271%) - largest zero change 0.00018625697
+0  Obj 37.907493 Primal inf 989.50001 (7)
+7  Obj 254.08174
+Optimal - objective value 254
+After Postsolve, objective 254, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 254 - 7 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-4) columns and 0 (-14) elements
+Optimal - objective value 51
+After Postsolve, objective 51, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 51 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-2) rows, 4 (0) columns and 9 (-6) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 5.8674126e-05 ( 0.0058674126%) - largest zero change 0
+0  Obj 0 Primal inf 61.999997 (3)
+3  Obj 28.00137
+Optimal - objective value 28
+After Postsolve, objective 28, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 28 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-4) columns and 0 (-10) elements
+Optimal - objective value 48
+After Postsolve, objective 48, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 48 - 0 iterations time 0.002, Presolve 0.00
+Presolve 7 (-2) rows, 8 (-2) columns and 32 (-19) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00041881032 ( 0.041881032%) - largest zero change 7.1906623e-05
+0  Obj 49 Primal inf 245.99999 (7)
+8  Obj 108.01544
+Optimal - objective value 108
+After Postsolve, objective 108, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 108 - 8 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-7) columns and 0 (-28) elements
+Optimal - objective value 186
+After Postsolve, objective 186, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 186 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-2) rows, 6 (-2) columns and 15 (-8) elements
+0  Obj 44 Primal inf 106.99999 (5)
+5  Obj 89.857143
+Optimal - objective value 89.857143
+After Postsolve, objective 89.857143, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 89.85714286 - 5 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-18) elements
+Optimal - objective value 249
+After Postsolve, objective 249, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 249 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-4) columns and 0 (-8) elements
+Optimal - objective value 45
+After Postsolve, objective 45, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 45 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-1) rows, 4 (-2) columns and 8 (-3) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 7.989528e-05 ( 0.007989528%) - largest zero change 0
+0  Obj 10 Primal inf 75.999997 (3)
+2  Obj 49.001793
+Optimal - objective value 49
+After Postsolve, objective 49, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 49 - 2 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-7) columns and 0 (-36) elements
+Optimal - objective value 64
+After Postsolve, objective 64, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 64 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-2) rows, 7 (-2) columns and 17 (-7) elements
+0  Obj 45 Primal inf 155 (5)
+5  Obj 120
+Optimal - objective value 120
+After Postsolve, objective 120, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 120 - 5 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 12 (0) columns and 68 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.3991599e-05 ( 0.0083991599%) - largest zero change 0
+0  Obj 0 Primal inf 629 (10)
+11  Obj 100.50424
+Optimal - objective value 100.5
+Optimal objective 100.5 - 11 iterations time 0.002
+Presolve 0 (-5) rows, 0 (-5) columns and 0 (-16) elements
+Optimal - objective value 59
+After Postsolve, objective 59, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 59 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-6) columns and 0 (-20) elements
+Optimal - objective value 198
+After Postsolve, objective 198, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 198 - 0 iterations time 0.002, Presolve 0.00
+Presolve 4 (-3) rows, 5 (-3) columns and 12 (-15) elements
+0  Obj 55 Primal inf 81.099996 (4)
+4  Obj 84
+Optimal - objective value 84
+After Postsolve, objective 84, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 84 - 4 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-5) columns and 0 (-11) elements
+Optimal - objective value 41
+After Postsolve, objective 41, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 41 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-9) columns and 0 (-49) elements
+Optimal - objective value 302
+After Postsolve, objective 302, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 302 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-8) columns and 0 (-19) elements
+Optimal - objective value 218
+After Postsolve, objective 218, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 218 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-5) columns and 0 (-18) elements
+Optimal - objective value 23
+After Postsolve, objective 23, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 23 - 0 iterations time 0.002, Presolve 0.00
+Presolve 4 (-4) rows, 5 (-4) columns and 14 (-18) elements
+0  Obj 47 Primal inf 85.999996 (4)
+4  Obj 77
+Optimal - objective value 77
+After Postsolve, objective 77, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 77 - 4 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-5) columns and 0 (-8) elements
+Optimal - objective value 228
+After Postsolve, objective 228, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 228 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-5) columns and 0 (-15) elements
+Optimal - objective value 36
+After Postsolve, objective 36, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 36 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-3) columns and 0 (-9) elements
+Optimal - objective value 42
+After Postsolve, objective 42, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 42 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-10) rows, 0 (-10) columns and 0 (-53) elements
+Optimal - objective value 184
+After Postsolve, objective 184, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 184 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-3) columns and 0 (-7) elements
+Optimal - objective value 26
+After Postsolve, objective 26, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 26 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-2) columns and 0 (-5) elements
+Optimal - objective value 31
+After Postsolve, objective 31, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 31 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-3) columns and 0 (-7) elements
+Optimal - objective value 19
+After Postsolve, objective 19, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 19 - 0 iterations time 0.002, Presolve 0.00
+Presolve 1 (-3) rows, 2 (-3) columns and 2 (-8) elements
+0  Obj 28.1 Primal inf 0.09999911 (1) Dual inf 0.999999 (1)
+1  Obj 28
+Optimal - objective value 28
+After Postsolve, objective 28, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 28 - 1 iterations time 0.002, Presolve 0.00
+Presolve 5 (-4) rows, 6 (-4) columns and 17 (-25) elements
+0  Obj 58 Primal inf 173 (5)
+7  Obj 104
+Optimal - objective value 104
+After Postsolve, objective 104, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 104 - 7 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-6) columns and 0 (-27) elements
+Optimal - objective value 46
+After Postsolve, objective 46, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 46 - 0 iterations time 0.002, Presolve 0.00
+Presolve 8 (-2) rows, 9 (-2) columns and 34 (-22) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00018820109 ( 0.018820109%) - largest zero change 7.1906623e-05
+0  Obj 36 Primal inf 236.99999 (7)
+8  Obj 94.006713
+Optimal - objective value 94
+After Postsolve, objective 94, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 94 - 8 iterations time 0.002, Presolve 0.00
+Presolve 4 (-1) rows, 6 (-1) columns and 13 (-2) elements
+0  Obj 31 Primal inf 103 (4)
+4  Obj 79
+Optimal - objective value 79
+After Postsolve, objective 79, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 79 - 4 iterations time 0.002, Presolve 0.00
+Presolve 8 (-1) rows, 9 (0) columns and 34 (-16) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00058674126 ( 0.058674126%) - largest zero change 0
+0  Obj 74.90627 Primal inf 694.3 (8)
+9  Obj 275.03632
+Optimal - objective value 275
+After Postsolve, objective 275, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 275 - 9 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-7) columns and 0 (-37) elements
+Optimal - objective value 255
+After Postsolve, objective 255, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 255 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-3) columns and 0 (-7) elements
+Optimal - objective value 33
+After Postsolve, objective 33, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 33 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-6) columns and 0 (-19) elements
+Optimal - objective value 50
+After Postsolve, objective 50, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 50 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-7) columns and 0 (-25) elements
+Optimal - objective value 34
+After Postsolve, objective 34, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 34 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-3) columns and 0 (-6) elements
+Optimal - objective value 17
+After Postsolve, objective 17, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 17 - 0 iterations time 0.002, Presolve 0.00
+Presolve 4 (-6) rows, 4 (-6) columns and 13 (-36) elements
+0  Obj 204.99512 Primal inf 9.3195282 (4) Dual inf 1.999998 (2)
+4  Obj 205
+Optimal - objective value 205
+After Postsolve, objective 205, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 205 - 4 iterations time 0.002, Presolve 0.00
+Presolve 9 (-1) rows, 12 (-1) columns and 45 (-15) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.0007902609 ( 0.07902609%) - largest zero change 4.2811508e-05
+0  Obj 11 Primal inf 391.99999 (9)
+10  Obj 101.03477
+Optimal - objective value 101
+After Postsolve, objective 101, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 101 - 10 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-4) columns and 0 (-11) elements
+Optimal - objective value 136
+After Postsolve, objective 136, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 136 - 0 iterations time 0.002, Presolve 0.00
+Presolve 1 (-3) rows, 2 (-3) columns and 2 (-9) elements
+0  Obj 203 Primal inf 37.999999 (1)
+1  Obj 222
+Optimal - objective value 222
+After Postsolve, objective 222, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 222 - 1 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-7) columns and 0 (-22) elements
+Optimal - objective value 38
+After Postsolve, objective 38, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 38 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-5) columns and 0 (-14) elements
+Optimal - objective value 54
+After Postsolve, objective 54, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 54 - 0 iterations time 0.002, Presolve 0.00
+Presolve 8 (0) rows, 10 (0) columns and 35 (-4) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.9014027e-05 ( 0.0089014027%) - largest zero change 0
+0  Obj 0 Primal inf 433 (8)
+10  Obj 96.753872
+Optimal - objective value 96.75
+Optimal objective 96.75 - 10 iterations time 0.002
+Presolve 6 (-4) rows, 7 (-4) columns and 22 (-40) elements
+0  Obj 42 Primal inf 214.99999 (6)
+6  Obj 107.66667
+Optimal - objective value 107.66667
+After Postsolve, objective 107.66667, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 107.6666667 - 6 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 12 (0) columns and 45 (-8) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.5707874e-05 ( 0.0085707874%) - largest zero change 0
+0  Obj 0 Primal inf 688 (10)
+14  Obj 190.00476
+Optimal - objective value 190
+Optimal objective 190 - 14 iterations time 0.002
+Presolve 0 (-9) rows, 0 (-7) columns and 0 (-37) elements
+Optimal - objective value 192
+After Postsolve, objective 192, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 192 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-2) rows, 4 (-3) columns and 9 (-7) elements
+0  Obj 58 Primal inf 46.999997 (3)
+2  Obj 77
+Optimal - objective value 77
+After Postsolve, objective 77, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 77 - 2 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-6) columns and 0 (-29) elements
+Optimal - objective value 63
+After Postsolve, objective 63, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 63 - 0 iterations time 0.002, Presolve 0.00
+Presolve 5 (-2) rows, 7 (-2) columns and 18 (-12) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00015805218 ( 0.015805218%) - largest zero change 0
+0  Obj 2 Primal inf 166 (5)
+6  Obj 71.003802
+Optimal - objective value 71
+After Postsolve, objective 71, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 71 - 6 iterations time 0.002, Presolve 0.00
+Presolve 9 (0) rows, 11 (0) columns and 58 (0) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 9.6816743e-05 ( 0.0096816743%) - largest zero change 0
+0  Obj 0 Primal inf 456 (9)
+8  Obj 85.003924
+Optimal - objective value 85
+Optimal objective 85 - 8 iterations time 0.002
+Presolve 0 (-7) rows, 0 (-5) columns and 0 (-21) elements
+Optimal - objective value 46
+After Postsolve, objective 46, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 46 - 0 iterations time 0.002, Presolve 0.00
+Presolve 3 (-2) rows, 4 (-2) columns and 9 (-5) elements
+0  Obj 109.9 Primal inf 43.199997 (3)
+3  Obj 131
+Optimal - objective value 131
+After Postsolve, objective 131, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 131 - 3 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-8) columns and 0 (-27) elements
+Optimal - objective value 68
+After Postsolve, objective 68, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 68 - 0 iterations time 0.002, Presolve 0.00
+Presolve 9 (-1) rows, 10 (-1) columns and 37 (-12) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00094100543 ( 0.094100543%) - largest zero change 0.00016488562
+0  Obj 204 Primal inf 330.99999 (9)
+9  Obj 279.43055
+Optimal - objective value 279.4
+After Postsolve, objective 279.4, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 279.4 - 9 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-4) columns and 0 (-12) elements
+Optimal - objective value 32
+After Postsolve, objective 32, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 32 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 13 (0) columns and 44 (-17) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 8.34963e-05 ( 0.00834963%) - largest zero change 0
+0  Obj 0 Primal inf 759 (10)
+11  Obj 140.33852
+Optimal - objective value 140.33333
+Optimal objective 140.3333333 - 11 iterations time 0.002
+Presolve 7 (-3) rows, 8 (-3) columns and 25 (-28) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00041881032 ( 0.041881032%) - largest zero change 0.00016488562
+0  Obj 195.91256 Primal inf 161.3 (7)
+7  Obj 244.01896
+Optimal - objective value 244
+After Postsolve, objective 244, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 244 - 7 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-8) columns and 0 (-32) elements
+Optimal - objective value 87
+After Postsolve, objective 87, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 87 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-5) rows, 0 (-6) columns and 0 (-18) elements
+Optimal - objective value 74
+After Postsolve, objective 74, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 74 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-4) rows, 0 (-2) columns and 0 (-6) elements
+Optimal - objective value 157
+After Postsolve, objective 157, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 157 - 0 iterations time 0.002, Presolve 0.00
+Presolve 10 (0) rows, 11 (0) columns and 50 (-4) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 7.9234384e-05 ( 0.0079234384%) - largest zero change 0
+0  Obj 0 Primal inf 575 (10)
+10  Obj 113.15389
+Optimal - objective value 113.15
+Optimal objective 113.15 - 10 iterations time 0.002
+Presolve 0 (-10) rows, 0 (-8) columns and 0 (-49) elements
+Optimal - objective value 79
+After Postsolve, objective 79, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 79 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-6) rows, 0 (-8) columns and 0 (-25) elements
+Optimal - objective value 70
+After Postsolve, objective 70, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 70 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-6) columns and 0 (-22) elements
+Optimal - objective value 74
+After Postsolve, objective 74, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 74 - 0 iterations time 0.002, Presolve 0.00
+Presolve 7 (-1) rows, 8 (-1) columns and 24 (-14) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00047050271 ( 0.047050271%) - largest zero change 5.3388169e-05
+0  Obj 149.00661 Primal inf 224.3 (7)
+8  Obj 213.02143
+Optimal - objective value 213
+After Postsolve, objective 213, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 213 - 8 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-9) columns and 0 (-38) elements
+Optimal - objective value 89
+After Postsolve, objective 89, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 89 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-7) rows, 0 (-7) columns and 0 (-27) elements
+Optimal - objective value 148
+After Postsolve, objective 148, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 148 - 0 iterations time 0.002, Presolve 0.00
+Presolve 0 (-8) rows, 0 (-7) columns and 0 (-32) elements
+Optimal - objective value 75
+After Postsolve, objective 75, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 75 - 0 iterations time 0.002, Presolve 0.00
+Presolve 9 (-1) rows, 11 (-1) columns and 48 (-23) elements
+Perturbing problem by 0.001% of 1 - largest nonzero change 0.00094100543 ( 0.094100543%) - largest zero change 0.00026694084
+0  Obj 97.903568 Primal inf 485.2 (9)
+9  Obj 214.04717
+Optimal - objective value 214
+After Postsolve, objective 214, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 214 - 9 iterations time 0.002, Presolve 0.00
+Presolve 0 (-9) rows, 0 (-9) columns and 0 (-28) elements
+Optimal - objective value 189
+After Postsolve, objective 189, infeasibilities - dual 0 (0), primal 0 (0)
+Optimal objective 189 - 0 iterations time 0.002, Presolve 0.00
+Answer 2: 19440

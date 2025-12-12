@@ -1,3 +1,7 @@
+use good_lp::{
+    constraint, default_solver, variable, Expression, ProblemVariables, ResolutionError, Solution,
+    SolverModel,
+};
 use itertools::Itertools;
 
 #[derive(Debug)]
@@ -94,51 +98,52 @@ fn answer1(data: &[Line]) -> usize {
         .sum()
 }
 
-fn match_joltage(
-    test: &mut Vec<usize>,
-    target: &[usize],
-    buttons: &[Box<[usize]>],
-) -> Option<usize> {
-    if test == target {
-        return Some(0);
-    }
-    let mut min: Option<usize> = None;
-    for button in buttons {
-        button.iter().for_each(|&idx| test[idx] += 1);
-        if test.iter().zip(target.iter()).any(|(x, t)| x > t) {
-            button.iter().for_each(|&idx| test[idx] -= 1);
-            continue;
+fn match_joltage(target: &[usize], buttons: &[Box<[usize]>]) -> Result<usize, ResolutionError> {
+    let mut joltage_contributors: Vec<Vec<usize>> = vec![vec![]; target.len()];
+    for i in 0..buttons.len() {
+        for button in &buttons[i] {
+            joltage_contributors[*button].push(i);
         }
-        min = match (min, match_joltage(test, target, buttons)) {
-            (Some(a), Some(b)) => Some(a.min(b + 1)),
-            (None, Some(b)) => Some(b + 1),
-            (Some(a), None) => Some(a),
-            (None, None) => None,
-        };
-        button.iter().for_each(|&idx| test[idx] -= 1);
     }
-    min
+
+    let mut variable_set = ProblemVariables::new();
+    let variables: Vec<_> = (0..buttons.len())
+        .map(|_| variable_set.add(variable().integer().min(0)))
+        .collect();
+
+    let constraints = joltage_contributors
+        .iter()
+        .map(|elems| {
+            elems
+                .iter()
+                .map(|&button| variables[button])
+                .sum::<Expression>()
+        })
+        .zip(target)
+        .map(|(expr, joltage)| constraint::eq(expr, *joltage as u32));
+
+    let button_presses = variables.iter().sum::<Expression>();
+
+    let mut solver = variable_set
+        .minimise(&button_presses)
+        .using(default_solver)
+        .with_all(constraints);
+    solver.set_parameter("log", "0");
+    solver
+        .solve()
+        .map(|solution| solution.eval(button_presses) as usize)
 }
 
 fn answer2(data: &[Line]) -> usize {
     data.iter()
-        .enumerate()
-        .map(|(i, line)| {
-            dbg!(i);
-            let mut test = vec![0; line.joltage.len()];
-            match_joltage(&mut test, &line.joltage, &line.buttons)
+        .map(|line| {
+            match_joltage(&line.joltage, &line.buttons)
                 .expect(&format!("unable to find match for {line:?}"))
         })
         .sum()
 }
 
 pub fn answer(path: &str) {
-    // let mut test = vec![0; 4];
-    // let target = vec![3, 5, 4, 7];
-    // let buttons = [Box::from(vec![3]), Box::from(vec![1, 3]), Box::from(vec![2]), Box::from(vec![2, 3]), Box::from(vec![0, 2]), Box::from(vec![0, 1])];
-    // dbg!(match_joltage(&mut test, &target, &buttons));
-    // return;
-
     let input = std::fs::read_to_string(path).unwrap();
 
     let data = parse_input(&input).unwrap();
@@ -170,7 +175,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test2() {
         let input = include_str!("test.txt");
 
