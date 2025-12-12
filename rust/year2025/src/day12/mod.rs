@@ -105,7 +105,7 @@ fn parse_input(input: &str) -> Result<Data, String> {
         .map(parse_region)
         .collect::<Result<_, _>>()?;
     let shapes = blocks[..blocks.len() - 1]
-        .into_iter()
+        .iter()
         .map(|chunk| parse_shape(chunk))
         .collect::<Result<_, _>>()?;
 

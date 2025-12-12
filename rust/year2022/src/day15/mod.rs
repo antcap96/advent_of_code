@@ -93,8 +93,7 @@ fn count_impossible(sensors: &[Sensor], row: i32) -> (usize, Option<i64>) {
     let impossible_excluding_beacons = impossible_count - beacons_in_row;
 
     let tunning_frequency = if merged_ranges.len() > 1 {
-        merged_ranges
-            .get(0)
+        merged_ranges.first()
             .map(|x| x.end as i64 * 4000000 + row as i64)
     } else {
         None

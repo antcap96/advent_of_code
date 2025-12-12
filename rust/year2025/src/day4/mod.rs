@@ -79,7 +79,7 @@ pub fn answer(path: &str) {
 
 fn parse_input(data: &str) -> Array2<bool> {
     let rows = data.lines().count();
-    let cols = data.lines().next().unwrap().bytes().count();
+    let cols = data.lines().next().unwrap().len();
 
     let arr = ndarray::Array::from_iter(data.bytes().filter(|&b| b != b'\n').map(|b| b == b'@'));
 

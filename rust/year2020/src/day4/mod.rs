@@ -15,30 +15,30 @@ impl<'a> Passport<'a> {
     fn validate_byr(&self) -> bool {
         self.byr
             .parse::<usize>()
-            .map(|num| num >= 1920 && num <= 2002)
+            .map(|num| (1920..=2002).contains(&num))
             .unwrap_or(false)
     }
     fn validate_iyr(&self) -> bool {
         self.iyr
             .parse::<usize>()
-            .map(|num| num >= 2010 && num <= 2020)
+            .map(|num| (2010..=2020).contains(&num))
             .unwrap_or(false)
     }
     fn validate_eyr(&self) -> bool {
         self.eyr
             .parse::<usize>()
-            .map(|num| num >= 2020 && num <= 2030)
+            .map(|num| (2020..=2030).contains(&num))
             .unwrap_or(false)
     }
 
     fn validate_hgt(&self) -> bool {
         if let Some(rest) = self.hgt.strip_suffix("cm") {
             rest.parse::<usize>()
-                .map(|num| num >= 150 && num <= 193)
+                .map(|num| (150..=193).contains(&num))
                 .unwrap_or(false)
         } else if let Some(rest) = self.hgt.strip_suffix("in") {
             rest.parse::<usize>()
-                .map(|num| num >= 59 && num <= 76)
+                .map(|num| (59..=76).contains(&num))
                 .unwrap_or(false)
         } else {
             false
@@ -50,7 +50,7 @@ impl<'a> Passport<'a> {
             .strip_prefix("#")
             .map(|digits| {
                 digits.chars().all(|c| matches!(c, 'a'..='f' | '0'..='9'))
-                    && digits.as_bytes().len() == 6
+                    && digits.len() == 6
             })
             .unwrap_or(false)
     }
@@ -63,7 +63,7 @@ impl<'a> Passport<'a> {
     }
 
     fn validate_pid(&self) -> bool {
-        self.pid.chars().all(|c| matches!(c, '0'..='9')) && self.pid.len() == 9
+        self.pid.chars().all(|c| c.is_ascii_digit()) && self.pid.len() == 9
     }
 
     fn is_valid(&self) -> bool {
@@ -131,8 +131,7 @@ fn validate_passport<'a>(map: HashMap<&'a str, &'a str>) -> Option<Passport<'a>>
 fn valid_passports<'a>(passports: Vec<HashMap<&'a str, &'a str>>) -> Box<[Passport<'a>]> {
     passports
         .into_iter()
-        .map(validate_passport)
-        .flatten()
+        .filter_map(validate_passport)
         .collect()
 }
 

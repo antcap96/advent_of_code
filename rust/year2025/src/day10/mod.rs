@@ -80,10 +80,9 @@ fn match_lights(target: &[bool], buttons: &[Box<[usize]>]) -> usize {
                 test.iter_mut().for_each(|el| *el = false);
                 items
                     .iter()
-                    .map(|el| el.iter())
-                    .flatten()
+                    .flat_map(|el| el.iter())
                     .for_each(|&idx| test[idx] = !test[idx]);
-                target.as_ref() == test
+                target == test
             })
         {
             return depth;
@@ -138,7 +137,7 @@ fn answer2(data: &[Line]) -> usize {
     data.iter()
         .map(|line| {
             match_joltage(&line.joltage, &line.buttons)
-                .expect(&format!("unable to find match for {line:?}"))
+                .unwrap_or_else(|_| panic!("unable to find match for {line:?}"))
         })
         .sum()
 }

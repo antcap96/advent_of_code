@@ -36,7 +36,7 @@ impl Iterator for ForestIter {
         self.col += self.col_step;
         self.col %= self.ncols;
 
-        (self.row < self.nrows).then(|| (self.row, self.col))
+        (self.row < self.nrows).then_some((self.row, self.col))
     }
 }
 
@@ -61,7 +61,7 @@ fn answer2(forest: &ndarray::Array2<bool>) -> usize {
     ];
 
     iter.into_iter()
-        .map(|iter| iter.count_trees(&forest))
+        .map(|iter| iter.count_trees(forest))
         .product()
 }
 

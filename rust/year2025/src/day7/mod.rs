@@ -9,7 +9,7 @@ fn answer1(data: &Data) -> usize {
     let mut beams = HashSet::from_iter([data.start]);
     let mut splits = 0;
     for row in data.splitters.iter() {
-        let matches = beams.intersection(&row).cloned().collect::<HashSet<_>>();
+        let matches = beams.intersection(row).cloned().collect::<HashSet<_>>();
         splits += matches.len();
         beams.retain(|beam| !matches.contains(beam));
         for split in matches {
@@ -65,7 +65,7 @@ fn parse_input(input: &str) -> Result<Data, String> {
         .map(|line| {
             line.bytes()
                 .enumerate()
-                .flat_map(|(idx, b)| (b == b'^').then(|| idx))
+                .flat_map(|(idx, b)| (b == b'^').then_some(idx))
                 .collect::<HashSet<_>>()
         })
         .filter(|line| !line.is_empty())

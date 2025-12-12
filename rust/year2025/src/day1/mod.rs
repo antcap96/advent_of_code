@@ -73,7 +73,7 @@ fn answer2(instructions: &[Step]) -> usize {
     let mut count = 0;
 
     for step in instructions {
-        assert!(dial < 100 && dial >= 0);
+        assert!((0..100).contains(&dial));
         let extra = step.amount / 100;
         count += extra;
         let rem = (step.amount % 100) as i16;
@@ -118,7 +118,7 @@ fn parse_input(data: &str) -> Result<Vec<Step>, ()> {
     Ok(data
         .trim()
         .lines()
-        .map(|line| parse_instruction(line))
+        .map(parse_instruction)
         .collect::<Vec<Step>>())
 }
 

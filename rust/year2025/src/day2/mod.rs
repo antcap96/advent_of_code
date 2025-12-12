@@ -53,7 +53,7 @@ fn invalid_ids(start: usize, end: usize, two_only: bool) -> Vec<usize> {
     assert!(end.to_string().len() == count);
     let mut result = Vec::<usize>::new();
     for i in 1..=count / 2 {
-        if count % i == 0 {
+        if count.is_multiple_of(i) {
             let repeat = count / i;
             if repeat != 2 && two_only {
                 continue;

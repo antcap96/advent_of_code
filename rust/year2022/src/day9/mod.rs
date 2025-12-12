@@ -110,7 +110,7 @@ fn parse_data(data: &str) -> Vec<Direction> {
             let mut iter = line.split_whitespace();
             let dir = iter.next().unwrap().parse::<Direction>().unwrap();
             let amount = iter.next().unwrap().parse::<usize>().unwrap();
-            std::iter::repeat(dir).take(amount)
+            std::iter::repeat_n(dir, amount)
         })
         .collect()
 }

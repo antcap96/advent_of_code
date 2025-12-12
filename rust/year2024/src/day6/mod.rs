@@ -61,7 +61,7 @@ fn parse_input(input: &str) -> Data {
     let test = input
         .lines()
         .enumerate()
-        .map(|(i, line)| {
+        .flat_map(|(i, line)| {
             line.chars()
                 .enumerate()
                 .map(|(j, c)| match c {
@@ -75,7 +75,6 @@ fn parse_input(input: &str) -> Data {
                 })
                 .collect::<Vec<_>>()
         })
-        .flatten()
         .collect::<Vec<_>>();
 
     let map = ndarray::Array2::from_shape_vec((test.len() / cols, cols), test).unwrap();
@@ -111,7 +110,7 @@ fn answer1(data: &Data) -> usize {
         maybe_state = step(&data.map, &state)
     }
 
-    return visited.len();
+    visited.len()
 }
 
 fn is_loop_with_obstacle(
@@ -120,7 +119,7 @@ fn is_loop_with_obstacle(
     starting_visited: &HashSet<State>,
 ) -> bool {
     let next_position = starting_state.next_position();
-    let before = map.get(next_position).unwrap().clone();
+    let before = *map.get(next_position).unwrap();
     map.get_mut(next_position).map(|x| *x = Cell::Obstruction);
 
     let mut visited = starting_visited.clone();

@@ -115,7 +115,7 @@ fn parse_input(data: &str) -> Vec<Command> {
             ));
         } else if line.starts_with("$ ls") {
             let mut ls_output = Vec::new();
-            while iter.peek().map_or(false, |line| !line.starts_with('$')) {
+            while iter.peek().is_some_and(|line| !line.starts_with('$')) {
                 let line = iter.next().unwrap();
                 ls_output.push(line.parse().unwrap());
             }

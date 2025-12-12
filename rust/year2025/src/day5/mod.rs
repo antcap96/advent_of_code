@@ -8,12 +8,12 @@ struct Data {
 fn answer1(data: &Data) -> usize {
     data.available
         .iter()
-        .filter(|id| data.fresh.iter().any(|range| range.contains(&id)))
+        .filter(|id| data.fresh.iter().any(|range| range.contains(id)))
         .count()
 }
 
 fn count_valid_ids(mut ranges: Vec<RangeInclusive<usize>>) -> usize {
-    if ranges.len() == 0 {
+    if ranges.is_empty() {
         return 0;
     }
 

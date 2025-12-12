@@ -63,7 +63,7 @@ fn answer2(data: &Data) -> usize {
                 }
                 acc.iter_mut().zip(digits).for_each(|(x, digit)| {
                     if *digit != b' ' {
-                        *x = *x * 10;
+                        *x *= 10;
                         *x += (digit - b'0') as usize;
                     }
                 });

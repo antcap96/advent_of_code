@@ -4,14 +4,13 @@ fn parse_data(data: &str) -> ndarray::Array2<i64> {
     let cols = data.lines().next().unwrap().len();
     let test = data
         .lines()
-        .map(|line| {
+        .flat_map(|line| {
             line.chars().map(|c| match c {
                 '.' => 0,
                 '#' => 1,
                 _ => panic!("invalid char '{}' in input", c),
             })
         })
-        .flatten()
         .collect::<Vec<_>>();
 
     ndarray::Array2::from_shape_vec((test.len() / cols, cols), test).unwrap()
@@ -33,7 +32,6 @@ fn answer_(input: &ndarray::Array2<i64>, expansion_factor: i64) -> i64 {
     let sum = input.sum();
 
     (0..=1)
-        .into_iter()
         .map(|i| {
             let n_galaxies = input.sum_axis(ndarray::Axis(i));
 

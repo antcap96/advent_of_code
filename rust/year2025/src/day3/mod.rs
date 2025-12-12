@@ -11,7 +11,7 @@ fn joltage(bank: &str, batteries: usize) -> usize {
         let (index, digit) = bytes[start..(bytes.len() - i)]
             .iter()
             .enumerate()
-            .max_by(|(l_idx, l_num), (r_idx, r_num)| l_num.cmp(r_num).then(r_idx.cmp(&l_idx)))
+            .max_by(|(l_idx, l_num), (r_idx, r_num)| l_num.cmp(r_num).then(r_idx.cmp(l_idx)))
             .expect("should not be possible due to assert");
         result += digit_of(digit) * 10usize.pow(i as u32);
         start += index + 1;
@@ -21,11 +21,11 @@ fn joltage(bank: &str, batteries: usize) -> usize {
 }
 
 fn answer1(banks: &[&str]) -> usize {
-    banks.into_iter().map(|bank| joltage(bank, 2)).sum()
+    banks.iter().map(|bank| joltage(bank, 2)).sum()
 }
 
 fn answer2(banks: &[&str]) -> usize {
-    banks.into_iter().map(|bank| joltage(bank, 12)).sum()
+    banks.iter().map(|bank| joltage(bank, 12)).sum()
 }
 
 pub fn answer(path: &str) {
