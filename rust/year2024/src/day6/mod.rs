@@ -120,7 +120,9 @@ fn is_loop_with_obstacle(
 ) -> bool {
     let next_position = starting_state.next_position();
     let before = *map.get(next_position).unwrap();
-    map.get_mut(next_position).map(|x| *x = Cell::Obstruction);
+    if let Some(x) = map.get_mut(next_position) {
+        *x = Cell::Obstruction
+    }
 
     let mut visited = starting_visited.clone();
     let mut maybe_state = Some(starting_state);
@@ -134,7 +136,9 @@ fn is_loop_with_obstacle(
         visited.insert(state);
     }
 
-    map.get_mut(next_position).map(|x| *x = before);
+    if let Some(x) = map.get_mut(next_position) {
+        *x = before
+    }
 
     looped
 }

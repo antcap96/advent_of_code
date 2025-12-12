@@ -102,7 +102,7 @@ fn answer1(mut monkeys: Vec<Monkey1>) -> usize {
     monkey_business
 }
 
-fn inspect_count1(monkeys: &mut Vec<Monkey1>) -> Vec<usize> {
+fn inspect_count1(monkeys: &mut [Monkey1]) -> Vec<usize> {
     let mut count = vec![0; monkeys.len()];
 
     for _round in 0..20 {
@@ -136,7 +136,7 @@ fn answer2(mut monkeys: Vec<Monkey2>) -> usize {
     monkey_business
 }
 
-fn inspect_count2(monkeys: &mut Vec<Monkey2>) -> Vec<usize> {
+fn inspect_count2(monkeys: &mut [Monkey2]) -> Vec<usize> {
     let mut count = vec![0; monkeys.len()];
 
     for _round in 0..10000 {

@@ -99,9 +99,9 @@ fn answer1(data: &[Line]) -> usize {
 
 fn match_joltage(target: &[usize], buttons: &[Box<[usize]>]) -> Result<usize, ResolutionError> {
     let mut joltage_contributors: Vec<Vec<usize>> = vec![vec![]; target.len()];
-    for i in 0..buttons.len() {
-        for button in &buttons[i] {
-            joltage_contributors[*button].push(i);
+    for (i, button) in buttons.iter().enumerate() {
+        for activates in button {
+            joltage_contributors[*activates].push(i);
         }
     }
 
