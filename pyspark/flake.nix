@@ -6,12 +6,18 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs =
+    {
+      self,
+      nixpkgs,
+      flake-utils,
+    }:
+    flake-utils.lib.eachDefaultSystem (
+      system:
       let
         pkgs = import nixpkgs { inherit system; };
 
-        python = pkgs.python311;
+        python = pkgs.python314;
 
         pythonEnv = python.withPackages (ps: [
           ps.pyspark
@@ -43,4 +49,3 @@
       }
     );
 }
-

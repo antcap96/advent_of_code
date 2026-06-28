@@ -1,12 +1,9 @@
 import tempfile
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
-import time
-import gc
 
-spark: SparkSession
-spark = SparkSession.builder.config("spark.sql.shuffle.partitions", 8).getOrCreate()
-
+spark = SparkSession.builder.config("spark.sql.shuffle.partitions", 1).getOrCreate()
+assert isinstance(spark, SparkSession)
 
 paper = (
     spark.read.text("../inputs/2025/day4.txt", wholetext=True)
@@ -15,67 +12,44 @@ paper = (
     .filter(F.col("cell") == "@")
 )
 
-df = (
-    paper.alias("left")
-    .join(
-        paper.alias("right"),
-        on=[
-            F.col("left.x").between(F.col("right.x") - 1, F.col("right.x") + 1),
-            F.col("left.y").between(F.col("right.y") - 1, F.col("right.y") + 1),
-        ],
-        how="inner",
-    )
-    .groupBy("left.x", "left.y")
-    .count()
-    .filter(F.col("count") <= 4)
-)
 
-df.show()
+def neighboors(df: DataFrame) -> DataFrame:
+    left = df
+    right = (
+        df.withColumnRenamed("x", "x2")
+        .withColumnRenamed("y", "y2")
+        .withColumn("x", F.explode(F.sequence(F.col("x2") - 1, F.col("x2") + 1)))
+        .withColumn("y", F.explode(F.sequence(F.col("y2") - 1, F.col("y2") + 1)))
+    )
+
+    return left.join(right, on=["x", "y"], how="inner").groupBy("x", "y").count()
+
+
+df = neighboors(paper).filter(F.col("count") <= 4)
 
 part1 = df.count()
 print(f"Part 1: {part1}")
 
 
 def step(df: DataFrame) -> DataFrame:
-    return (
-        df.alias("left")
-        .join(
-            df.alias("right"),
-            on=[
-                F.col("left.x").between(F.col("right.x") - 1, F.col("right.x") + 1),
-                F.col("left.y").between(F.col("right.y") - 1, F.col("right.y") + 1),
-            ],
-            how="inner",
-        )
-        .groupBy("left.x", "left.y")
-        .count()
-        .filter(F.col("count") > 4)
-        .drop("count")
-    )
+    return neighboors(df).filter(F.col("count") > 4).drop("count")
+
 
 with tempfile.TemporaryDirectory() as d:
     spark.sparkContext.setCheckpointDir(d)
 
-    df = paper
+    df = paper.coalesce(1)
     initial_count = df.count()
 
     prev_count = initial_count
     count = initial_count - 1
-    
-    start = time.perf_counter()
+
     while count < prev_count:
-        dur = time.perf_counter() - start
-        print(f"count: {count} from {prev_count} in {dur}")
-        start = time.perf_counter()
+        print(f"count: {count} from {prev_count}")
         prev_count = count
-        old_df = df
         df = step(df)
-        # df.explain()
-        df = df.checkpoint()
-        print(f"{df.rdd.getNumPartitions()}")
+        df = df.persist().checkpoint(eager=True)
         count = df.count()
-        old_df.unpersist(blocking=True)
-        gc.collect()
 
     part2 = initial_count - count
     print(f"Part 2: {part2}")
