@@ -18,7 +18,7 @@ impl Map {
     }
 
     // A struct could be created to avoid allocating memory.
-    fn neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
+    fn neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> + use<> {
         let (x, y) = point;
         let mut neighbors = Vec::new();
         if x > 0 && self.height[[x, y]] + 1 >= self.height[[x - 1, y]] {
@@ -36,7 +36,7 @@ impl Map {
         neighbors.into_iter()
     }
 
-    fn rev_neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> {
+    fn rev_neighbors(&self, point: (usize, usize)) -> impl Iterator<Item = (usize, usize)> + use<> {
         let (x, y) = point;
         let mut neighbors = Vec::new();
         if x > 0 && self.height[[x - 1, y]] + 1 >= self.height[[x, y]] {

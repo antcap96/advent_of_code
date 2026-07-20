@@ -3,6 +3,7 @@ use nom::{
     bytes::complete::tag,
     character::complete::{char, i32, line_ending},
     multi::separated_list1,
+    Parser,
 };
 
 #[derive(Debug)]
@@ -68,13 +69,13 @@ fn parse_pair(input: &str) -> nom::IResult<&str, (i32, &str)> {
     let (input, count) = i32(input)?;
     let (input, _) = char(' ')(input)?;
     let mut color_parser = alt((tag("red"), tag("green"), tag("blue")));
-    let (input, color) = color_parser(input)?;
+    let (input, color) = color_parser.parse(input)?;
 
     Ok((input, (count, color)))
 }
 
 fn parse_reveal(input: &str) -> nom::IResult<&str, Reveal> {
-    let (input, pairs) = separated_list1(char(','), parse_pair)(input)?;
+    let (input, pairs) = separated_list1(char(','), parse_pair).parse(input)?;
 
     Ok((input, Reveal::from_pairs(&pairs).unwrap()))
 }
@@ -83,13 +84,16 @@ fn parse_game(input: &str) -> nom::IResult<&str, Game> {
     let (input, _) = tag("Game ")(input)?;
     let (input, id) = i32(input)?;
     let (input, _) = char(':')(input)?;
-    let (input, reveals) = separated_list1(char(';'), parse_reveal)(input)?;
+    let (input, reveals) = separated_list1(char(';'), parse_reveal).parse(input)?;
 
     Ok((input, Game { id, reveals }))
 }
 
 fn parse_data(input: &str) -> Vec<Game> {
-    separated_list1(line_ending, parse_game)(input).unwrap().1
+    separated_list1(line_ending, parse_game)
+        .parse(input)
+        .unwrap()
+        .1
 }
 
 fn is_valid(game: &Game) -> bool {

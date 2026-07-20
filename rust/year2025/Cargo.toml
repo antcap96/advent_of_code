@@ -1,12 +1,12 @@
 [package]
 name = "year2025"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-ndarray = "0.17.1"
-itertools = "0.14.0"
+ndarray = "0.17.2"
+itertools = "0.15.0"
 nom = "8.0.0"
 good_lp = "1.14.2"

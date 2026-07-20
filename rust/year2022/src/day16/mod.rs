@@ -1,3 +1,4 @@
+use nom::Parser;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug)]
@@ -182,11 +183,13 @@ fn parse_valve(
     let (input, _) = nom::branch::alt((
         nom::bytes::complete::tag("; tunnels lead to valves "),
         nom::bytes::complete::tag("; tunnel leads to valve "),
-    ))(input)?;
+    ))
+    .parse(input)?;
     let (_, tunnels) = nom::multi::separated_list1(
         nom::bytes::complete::tag(", "),
         nom::bytes::complete::take(2u32),
-    )(input)?;
+    )
+    .parse(input)?;
 
     let tunnels = tunnels.iter().map(|&tunnel| tunnel.to_owned()).collect();
 

@@ -12,7 +12,7 @@ fn answer1(data: &Data) -> usize {
         .count()
 }
 
-fn count_valid_ids(mut ranges: Vec<RangeInclusive<usize>>) -> usize {
+fn count_valid_ids(mut ranges: Box<[RangeInclusive<usize>]>) -> usize {
     if ranges.is_empty() {
         return 0;
     }
@@ -20,9 +20,9 @@ fn count_valid_ids(mut ranges: Vec<RangeInclusive<usize>>) -> usize {
     ranges.sort_by(|a, b| a.start().cmp(b.start()));
     let mut start = *ranges[0].start();
     let mut end = *ranges[0].end();
-    
+
     let mut count = 0;
-    for range in ranges.into_iter() {
+    for range in ranges {
         if (start..=end).contains(range.start()) {
             end = end.max(*range.end());
         } else {
@@ -37,7 +37,7 @@ fn count_valid_ids(mut ranges: Vec<RangeInclusive<usize>>) -> usize {
 }
 
 fn answer2(data: &Data) -> usize {
-    count_valid_ids(data.fresh.clone().into())
+    count_valid_ids(data.fresh.clone())
 }
 
 pub fn answer(path: &str) {

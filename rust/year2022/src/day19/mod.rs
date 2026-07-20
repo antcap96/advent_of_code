@@ -1,4 +1,4 @@
-use nom::Finish;
+use nom::{Finish, Parser};
 // WIP
 
 #[derive(Debug)]
@@ -199,7 +199,8 @@ fn parse_blueprint(data: &str) -> nom::IResult<&str, Blueprint> {
 }
 
 fn parse_blueprint_wrapper(data: &str) -> Vec<Blueprint> {
-    nom::multi::separated_list1(nom::bytes::complete::tag("\n"), parse_blueprint)(data)
+    nom::multi::separated_list1(nom::bytes::complete::tag("\n"), parse_blueprint)
+        .parse(data)
         .finish()
         .unwrap()
         .1

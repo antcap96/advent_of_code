@@ -167,7 +167,7 @@ pub fn answer(path: &str) {
     let cubes = parse_data(&input);
 
     let faces = find_faces_count(&cubes);
-    let unpaired_faces = faces.iter().filter(|(_, &count)| count == 1);
+    let unpaired_faces = faces.iter().filter(|&(_, &count)| count == 1);
     let answer1 = unpaired_faces.clone().count();
 
     println!("Answer1: {}", answer1);
