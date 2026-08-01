@@ -1,11 +1,8 @@
 app [main!] {
 	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
-	parser: "https://github.com/lukewilliamboswell/roc-parser/releases/download/1.0.2/FrnJ4RGDKpQyoDyESNoBwFNviY4ZGbMVLnUjW9tvSRjk.tar.zst",
 }
 
 import pf.Stdout
-import parser.Parser
-import parser.String
 import "../../../inputs/2020/day3.txt" as input : Str
 
 Row : List([Tree, Open])
@@ -41,27 +38,14 @@ row_get = |row, index| {
 }
 
 count_trees = |map, right, down| {
-	map.iter().step_by(down).fold(
-		{ index: 0, count: 0 },
-		|{ index, count }, row| {
-			if row_get(row, index * right) == Tree {
-				{ index: index + 1, count: count + 1 }
-			} else {
-				{ index: index + 1, count: count }
-			}
-		},
-	).count
-	# map.fold_with_index(
-	# 	{ count: 0 },
-	# 	|{ count }, row, index| {
-	# 		if index % down == 0
-	# 			and row_get(row, index * right // down) == Tree {
-	# 			{ count: count + 1 }
-	# 		} else {
-	# 			{ count }
-	# 		}
-	# 	},
-	# ).count
+	var $count = 0
+
+	for (row, index) in map.map_with_index(|row, index| (row, index)) {
+		if index % down == 0 and row_get(row, index * right // down) == Tree {
+			$count = $count + 1
+		}
+	}
+	$count
 }
 
 calc_answer1 : Map -> U64

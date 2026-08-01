@@ -21,7 +21,7 @@ policy_parser = Parser.const(|first| |second| |key| { key, first, second })
 	.keep(String.any_codeunit)
 
 entry_parser : Parser.Parser(_, Entry)
-entry_parser = 
+entry_parser =
 	Parser.const(|policy| |password| { policy, password })
 		.keep(policy_parser)
 		.skip(String.string(": "))
@@ -56,7 +56,7 @@ calc_answer1 = |entries|
 
 calc_answer2 : List(Entry) -> Try(U64, Str)
 calc_answer2 = |entries| {
-	pairs = 
+	pairs =
 		entries.map_try(
 			|{ password, policy }| {
 				password_bytes = password.to_utf8()

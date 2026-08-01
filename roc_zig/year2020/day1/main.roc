@@ -10,8 +10,8 @@ parse_data = |data| {
 	data.trim_end()
 		.split_on("\n")
 		.map_try(|line| I64.from_str(line).map_err(|_| BadNum("bad num {line}")))?
-		->Set.from_list()
-		->Ok
+		|> Set.from_list
+		|> Ok
 }
 
 entries_product : Set(I64), I64, I64 -> [Found(I64), NotFound]
