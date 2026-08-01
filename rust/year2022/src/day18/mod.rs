@@ -13,7 +13,7 @@ struct Cube {
 }
 
 impl Cube {
-    fn faces(&self) -> impl Iterator<Item = Face> + '_ {
+    fn faces(&self) -> impl Iterator<Item = Face> {
         (0..6).map(|idx| match idx {
             0 => Face {
                 location: Point {
